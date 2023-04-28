@@ -3,10 +3,21 @@
     {
       "files": "*.sol",
       "options": {
-        "printWidth": 150,
+        "printWidth": 120,
         "tabWidth": 4,
         "useTabs": false,
-        "singleQuote": false,
+        "singleQuote": true,
+        "bracketSpacing": false,
+        "explicitTypes": "always"
+      }
+    },
+    {
+      "files": "*.js",
+      "options": {
+        "printWidth": 120,
+        "tabWidth": 4,
+        "useTabs": false,
+        "singleQuote": true,
         "bracketSpacing": false,
         "explicitTypes": "always"
       }
