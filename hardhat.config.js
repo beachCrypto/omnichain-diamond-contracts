@@ -18,28 +18,28 @@ task('accounts', 'Prints the list of accounts', async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-    solidity: '0.8.19',
+    solidity: '0.8.17',
     settings: {
         optimizer: {
             enabled: true,
             runs: 200,
         },
     },
-    gasReporter: {
-        enabled: true,
-        currency: 'USD',
-        gasPrice: 21,
-        url: 'http://localhost:8545',
-    },
-    defaultNetwork: 'hardhat',
-    networks: {
-        hardhat: {},
-        goerli: {
-            url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
-            accounts: [process.env.GOERLI_PRIVATE_KEY],
-        },
-    },
-    etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
-    },
+    // gasReporter: {
+    //     enabled: true,
+    //     currency: 'USD',
+    //     gasPrice: 21,
+    //     url: 'http://localhost:8545',
+    // },
+    // defaultNetwork: 'hardhat',
+    // networks: {
+    //     hardhat: {},
+    //     goerli: {
+    //         url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
+    //         accounts: [process.env.GOERLI_PRIVATE_KEY],
+    //     },
+    // },
+    // etherscan: {
+    //     apiKey: process.env.ETHERSCAN_API_KEY,
+    // },
 };
