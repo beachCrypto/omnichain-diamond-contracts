@@ -2,9 +2,7 @@
 
 pragma solidity ^0.8.2;
 
-import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/introspection/IERC165Upgradeable.sol';
-import '../../lzApp/NonblockingLzAppUpgradeable.sol';
+import './lzApp/NonblockingLzAppUpgradeable.sol';
 import './IONFT721CoreUpgradeable.sol';
 
 abstract contract ONFT721CoreUpgradeable is
@@ -13,25 +11,12 @@ abstract contract ONFT721CoreUpgradeable is
     ERC165Upgradeable,
     IONFT721CoreUpgradeable
 {
+    // TO DO put in storage
     uint public constant NO_EXTRA_GAS = 0;
     uint public constant FUNCTION_TYPE_SEND = 1;
     bool public useCustomAdapterParams;
 
     event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
-
-    function __ONFT721CoreUpgradeable_init(address _lzEndpoint) internal onlyInitializing {
-        __ONFT721CoreUpgradeable_init_unchained(_lzEndpoint);
-    }
-
-    function __ONFT721CoreUpgradeable_init_unchained(address _lzEndpoint) internal onlyInitializing {
-        __NonblockingLzAppUpgradeable_init_unchained(_lzEndpoint);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC165Upgradeable, IERC165Upgradeable) returns (bool) {
-        return interfaceId == type(IONFT721CoreUpgradeable).interfaceId || super.supportsInterface(interfaceId);
-    }
 
     function estimateSendFee(
         uint16 _dstChainId,
@@ -106,11 +91,4 @@ abstract contract ONFT721CoreUpgradeable is
     function _debitFrom(address _from, uint16 _dstChainId, bytes memory _toAddress, uint _tokenId) internal virtual;
 
     function _creditTo(uint16 _srcChainId, address _toAddress, uint _tokenId) internal virtual;
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint[50] private __gap;
 }
