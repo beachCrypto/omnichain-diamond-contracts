@@ -2,12 +2,10 @@
 
 pragma solidity ^0.8.2;
 
-import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol';
-
 /**
  * @dev Interface of the ONFT Core standard
  */
-interface IONFT721CoreUpgradeable is IERC165Upgradeable {
+interface IONFT721CoreUpgradeable {
     /**
      * @dev estimate send token `_tokenId` to (`_dstChainId`, `_toAddress`)
      * _dstChainId - L0 defined chain id to send tokens too
