@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 library ONFT721CoreStorage {
     struct ONFT721CoreInfo {
         // TO DO set state variables
-        address ___;
+        bool useCustomAdapterParams;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256('beach-crypto.contracts.storage.ONFT721Core');

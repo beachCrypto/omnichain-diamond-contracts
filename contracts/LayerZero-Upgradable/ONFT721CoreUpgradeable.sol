@@ -3,18 +3,11 @@
 pragma solidity ^0.8.2;
 
 import './ONFT721CoreUpgradeableInternal.sol';
-import './ONFT721CoreStorage.sol';
 import {LibDiamond} from '../libraries/LibDiamond.sol';
+import {ONFT721CoreStorage} from './ONFT721CoreStorage.sol';
 
-abstract contract ONFT721CoreUpgradeable is ONFT721CoreUpgradeableInternal, ONFT721CoreStorage {
-    // =============================================================
-    //                           PUBLIC CONSTANTS
-    // =============================================================
-    uint public constant NO_EXTRA_GAS = 0;
-
-    uint public constant FUNCTION_TYPE_SEND = 1;
-
-    bool public useCustomAdapterParams;
+abstract contract ONFT721CoreUpgradeable is ONFT721CoreUpgradeableInternal {
+    // bool public useCustomAdapterParams;
 
     event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
 
@@ -45,7 +38,10 @@ abstract contract ONFT721CoreUpgradeable is ONFT721CoreUpgradeableInternal, ONFT
     function setUseCustomAdapterParams(bool _useCustomAdapterParams) external {
         LibDiamond.enforceIsContractOwner();
 
-        useCustomAdapterParams = _useCustomAdapterParams;
+        ONFT721CoreStorage.ONFT721CoreInfo storage onftc = ONFT721CoreStorage.oNFT721CoreInfo();
+
+        onftc.useCustomAdapterParams = _useCustomAdapterParams;
+
         emit SetUseCustomAdapterParams(_useCustomAdapterParams);
     }
 }

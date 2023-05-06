@@ -3,9 +3,19 @@
 pragma solidity ^0.8.4;
 
 import {IONFT721CoreUpgradeable} from './IONFT721CoreUpgradeable.sol';
+import {NonblockingLzAppUpgradeable} from './lzApp/NonblockingLzAppUpgradeable.sol';
+import {ONFT721CoreStorage} from './ONFT721CoreStorage.sol';
 
-contract ONFT721CoreUpgradeableInternal is IONFT721CoreUpgradeable {
+contract ONFT721CoreUpgradeableInternal is NonblockingLzAppUpgradeable, IONFT721CoreUpgradeable {
     using ONFT721CoreStorage for ONFT721CoreStorage.ONFT721CoreInfo;
+
+    // =============================================================
+    //                           CONSTANTS
+    // =============================================================
+
+    uint internal constant NO_EXTRA_GAS = 0;
+
+    uint internal constant FUNCTION_TYPE_SEND = 1;
 
     function _send(
         address _from,
@@ -19,7 +29,10 @@ contract ONFT721CoreUpgradeableInternal is IONFT721CoreUpgradeable {
         _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
 
         bytes memory payload = abi.encode(_toAddress, _tokenId);
-        if (useCustomAdapterParams) {
+
+        ONFT721CoreStorage.ONFT721CoreInfo storage onftc = ONFT721CoreStorage.oNFT721CoreInfo();
+
+        if (onftc.useCustomAdapterParams) {
             _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
         } else {
             require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
