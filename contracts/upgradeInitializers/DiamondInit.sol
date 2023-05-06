@@ -47,7 +47,7 @@ contract DiamondInit {
         l._symbol = 'Brap';
 
         // Initialize LayerZero state variables
-        ONFT721Storage.ONFT721Info storage lzl = ONFT721Storage.oNFT721Info();
-        lzl._lzEndpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
+        ONFT721Storage.ONFT721Info storage onfts = ONFT721Storage.oNFT721Info();
+        onfts._lzEndpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
     }
 }

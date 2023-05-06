@@ -9,10 +9,10 @@ library ONFT721Storage {
 
     bytes32 internal constant STORAGE_SLOT = keccak256('beach-crypto.contracts.storage.ONFT721');
 
-    function oNFT721Info() internal pure returns (ONFT721Info storage lzl) {
+    function oNFT721Info() internal pure returns (ONFT721Info storage onfts) {
         bytes32 slot = STORAGE_SLOT;
         assembly {
-            lzl.slot := slot
+            onfts.slot := slot
         }
     }
 }
