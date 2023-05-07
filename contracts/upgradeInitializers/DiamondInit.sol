@@ -15,8 +15,9 @@ import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
 import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
-import {NonblockingLzAppStorage} from '../../contracts/LayerZero-Upgradable/lzApp/NonblockingLzAppUpgradeable.sol';
+import {LzAppStorage} from '../../contracts/LayerZero-Upgradable/lzApp/LzAppStorage.sol';
 import {ONFT721Storage} from '../../contracts/LayerZero-Upgradable/ONFT721Storage.sol';
+import {ILayerZeroEndpointUpgradeable} from '../LayerZero-Upgradable/interfaces/ILayerZeroEndpointUpgradeable.sol';
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -25,6 +26,7 @@ import {ONFT721Storage} from '../../contracts/LayerZero-Upgradable/ONFT721Storag
 contract DiamondInit {
     // You can add parameters to this function in order to pass in
     // data to set your own state variables
+
     function init() external {
         // adding ERC165 data
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -51,9 +53,12 @@ contract DiamondInit {
         ONFT721Storage.ONFT721Info storage onfts = ONFT721Storage.oNFT721Info();
         onfts._lzEndpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
 
-        // Initialize LayerZero state variables
-        NonblockingLzAppStorage.NonblockingLzAppInfo storage nblzapp = NonblockingLzAppStorage
-            .oNFTnonblockingLzAppInfo721Info();
-        nblzapp._endpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
+        // Initialize LzApp state variables
+
+        // NonblockingLzAppStorage.NonblockingLzAppInfo storage nblklzapp = NonblockingLzAppStorage.nonblockingLzAppInfo();
+        // nblklzapp._endpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+        lzapp._endpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
+        lzapp.lzEndpoint = ILayerZeroEndpointUpgradeable(0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23);
     }
 }

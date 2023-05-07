@@ -2,34 +2,23 @@
 
 pragma solidity ^0.8.2;
 
-import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '../interfaces/ILayerZeroReceiverUpgradeable.sol';
 import '../interfaces/ILayerZeroUserApplicationConfigUpgradeable.sol';
 import '../interfaces/ILayerZeroEndpointUpgradeable.sol';
+import {LzAppStorage} from './LzAppStorage.sol';
+import {LibDiamond} from '../../libraries/LibDiamond.sol';
+import {ERC721AUpgradeableInternal} from '../../ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
 
 /*
  * a generic LzReceiver implementation
  */
 abstract contract LzAppUpgradeable is
-    Initializable,
-    OwnableUpgradeable,
+    ERC721AUpgradeableInternal,
     ILayerZeroReceiverUpgradeable,
     ILayerZeroUserApplicationConfigUpgradeable
 {
-    ILayerZeroEndpointUpgradeable public lzEndpoint;
-    mapping(uint16 => bytes) public trustedRemoteLookup;
-    mapping(uint16 => mapping(uint => uint)) public minDstGasLookup;
-
     event SetTrustedRemote(uint16 _srcChainId, bytes _srcAddress);
     event SetMinDstGasLookup(uint16 _dstChainId, uint _type, uint _dstGasAmount);
-
-    function __LzAppUpgradeable_init(address _endpoint) internal onlyInitializing {
-        __LzAppUpgradeable_init_unchained(_endpoint);
-    }
-
-    function __LzAppUpgradeable_init_unchained(address _endpoint) internal onlyInitializing {
-        lzEndpoint = ILayerZeroEndpointUpgradeable(_endpoint);
-    }
 
     function lzReceive(
         uint16 _srcChainId,
@@ -38,12 +27,16 @@ abstract contract LzAppUpgradeable is
         bytes memory _payload
     ) public virtual override {
         // lzReceive must be called by the endpoint for security
-        require(_msgSender() == address(lzEndpoint), 'LzApp: invalid endpoint caller');
 
-        bytes memory trustedRemote = trustedRemoteLookup[_srcChainId];
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        require(_msgSenderERC721A() == address(lzapp.lzEndpoint), 'LzApp: invalid endpoint caller');
+
+        lzapp.trustedRemote = lzapp.trustedRemoteLookup[_srcChainId];
         // if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
         require(
-            _srcAddress.length == trustedRemote.length && keccak256(_srcAddress) == keccak256(trustedRemote),
+            _srcAddress.length == lzapp.trustedRemote.length &&
+                keccak256(_srcAddress) == keccak256(lzapp.trustedRemote),
             'LzApp: invalid source sending contract'
         );
 
@@ -65,11 +58,13 @@ abstract contract LzAppUpgradeable is
         address _zroPaymentAddress,
         bytes memory _adapterParams
     ) internal virtual {
-        bytes memory trustedRemote = trustedRemoteLookup[_dstChainId];
-        require(trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
-        lzEndpoint.send{value: msg.value}(
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.trustedRemote = lzapp.trustedRemoteLookup[_dstChainId];
+        require(lzapp.trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
+        lzapp.lzEndpoint.send{value: msg.value}(
             _dstChainId,
-            trustedRemote,
+            lzapp.trustedRemote,
             _payload,
             _refundAddress,
             _zroPaymentAddress,
@@ -78,8 +73,9 @@ abstract contract LzAppUpgradeable is
     }
 
     function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
         uint providedGasLimit = getGasLimit(_adapterParams);
-        uint minGasLimit = minDstGasLookup[_dstChainId][_type] + _extraGas;
+        uint minGasLimit = lzapp.minDstGasLookup[_dstChainId][_type] + _extraGas;
         require(minGasLimit > 0, 'LzApp: minGasLimit not set');
         require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
     }
@@ -97,53 +93,68 @@ abstract contract LzAppUpgradeable is
         address,
         uint _configType
     ) external view returns (bytes memory) {
-        return lzEndpoint.getConfig(_version, _chainId, address(this), _configType);
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        return lzapp.lzEndpoint.getConfig(_version, _chainId, address(this), _configType);
     }
 
     // generic config for LayerZero user Application
-    function setConfig(
-        uint16 _version,
-        uint16 _chainId,
-        uint _configType,
-        bytes calldata _config
-    ) external override onlyOwner {
-        lzEndpoint.setConfig(_version, _chainId, _configType, _config);
+    function setConfig(uint16 _version, uint16 _chainId, uint _configType, bytes calldata _config) external {
+        LibDiamond.enforceIsContractOwner();
+
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.lzEndpoint.setConfig(_version, _chainId, _configType, _config);
     }
 
-    function setSendVersion(uint16 _version) external override onlyOwner {
-        lzEndpoint.setSendVersion(_version);
+    function setSendVersion(uint16 _version) external {
+        LibDiamond.enforceIsContractOwner();
+
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.lzEndpoint.setSendVersion(_version);
     }
 
-    function setReceiveVersion(uint16 _version) external override onlyOwner {
-        lzEndpoint.setReceiveVersion(_version);
+    function setReceiveVersion(uint16 _version) external {
+        LibDiamond.enforceIsContractOwner();
+
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.lzEndpoint.setReceiveVersion(_version);
     }
 
-    function forceResumeReceive(uint16 _srcChainId, bytes calldata _srcAddress) external override onlyOwner {
-        lzEndpoint.forceResumeReceive(_srcChainId, _srcAddress);
+    function forceResumeReceive(uint16 _srcChainId, bytes calldata _srcAddress) external {
+        LibDiamond.enforceIsContractOwner();
+
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.lzEndpoint.forceResumeReceive(_srcChainId, _srcAddress);
     }
 
     // allow owner to set it multiple times.
-    function setTrustedRemote(uint16 _srcChainId, bytes calldata _srcAddress) external onlyOwner {
-        trustedRemoteLookup[_srcChainId] = _srcAddress;
+    function setTrustedRemote(uint16 _srcChainId, bytes calldata _srcAddress) external {
+        LibDiamond.enforceIsContractOwner();
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        lzapp.trustedRemoteLookup[_srcChainId] = _srcAddress;
         emit SetTrustedRemote(_srcChainId, _srcAddress);
     }
 
-    function setMinDstGasLookup(uint16 _dstChainId, uint _type, uint _dstGasAmount) external onlyOwner {
+    function setMinDstGasLookup(uint16 _dstChainId, uint _type, uint _dstGasAmount) external {
+        LibDiamond.enforceIsContractOwner();
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
         require(_dstGasAmount > 0, 'LzApp: invalid _dstGasAmount');
-        minDstGasLookup[_dstChainId][_type] = _dstGasAmount;
+
+        lzapp.minDstGasLookup[_dstChainId][_type] = _dstGasAmount;
         emit SetMinDstGasLookup(_dstChainId, _type, _dstGasAmount);
     }
 
     //--------------------------- VIEW FUNCTION ----------------------------------------
     function isTrustedRemote(uint16 _srcChainId, bytes calldata _srcAddress) external view returns (bool) {
-        bytes memory trustedSource = trustedRemoteLookup[_srcChainId];
+        LzAppStorage.LzAppStorageInfo storage lzapp = LzAppStorage.lzAppStorageInfo();
+
+        bytes memory trustedSource = lzapp.trustedRemoteLookup[_srcChainId];
         return keccak256(trustedSource) == keccak256(_srcAddress);
     }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint[50] private __gap;
 }
