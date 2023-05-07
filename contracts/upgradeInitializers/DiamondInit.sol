@@ -15,6 +15,7 @@ import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
 import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
+import {NonblockingLzAppStorage} from '../../contracts/LayerZero-Upgradable/lzApp/NonblockingLzAppUpgradeable.sol';
 import {ONFT721Storage} from '../../contracts/LayerZero-Upgradable/ONFT721Storage.sol';
 
 // It is expected that this contract is customized if you want to deploy your diamond
@@ -49,5 +50,10 @@ contract DiamondInit {
         // Initialize LayerZero state variables
         ONFT721Storage.ONFT721Info storage onfts = ONFT721Storage.oNFT721Info();
         onfts._lzEndpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
+
+        // Initialize LayerZero state variables
+        NonblockingLzAppStorage.NonblockingLzAppInfo storage nblzapp = NonblockingLzAppStorage
+            .oNFTnonblockingLzAppInfo721Info();
+        nblzapp._endpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
     }
 }

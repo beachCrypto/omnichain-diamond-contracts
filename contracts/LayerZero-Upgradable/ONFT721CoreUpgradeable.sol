@@ -7,8 +7,6 @@ import {LibDiamond} from '../libraries/LibDiamond.sol';
 import {ONFT721CoreStorage} from './ONFT721CoreStorage.sol';
 
 abstract contract ONFT721CoreUpgradeable is ONFT721CoreUpgradeableInternal {
-    // bool public useCustomAdapterParams;
-
     event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
 
     function estimateSendFee(

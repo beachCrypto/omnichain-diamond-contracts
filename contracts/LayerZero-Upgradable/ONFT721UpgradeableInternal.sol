@@ -7,6 +7,8 @@ import './ONFT721CoreUpgradeable.sol';
 
 // NOTE: this ONFT contract has no public minting logic.
 // must implement your own minting logic in child classes
+
+// TO Do Initialize ONFT721UpgradeableInternal in Diamond
 contract ONFT721UpgradeableInternal is ONFT721CoreUpgradeable, ERC721AUpgradeableInternal {
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual override {
         require(_isSenderApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
