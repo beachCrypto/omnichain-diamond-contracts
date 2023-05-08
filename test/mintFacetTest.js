@@ -28,17 +28,17 @@ describe('Mint', async () => {
 
     before(async function () {
         LZEndpointMock = await ethers.getContractFactory('LZEndpointMock');
+    });
+
+    beforeEach(async () => {
+        lzEndpointMockA = await LZEndpointMock.deploy(chainId_A);
+        lzEndpointMockB = await LZEndpointMock.deploy(chainId_B);
 
         diamondAddress = await deployDiamond();
 
         mintFacet = await ethers.getContractAt('MintFacet', diamondAddress);
 
         eRC721AUpgradeable = await ethers.getContractAt('ERC721AUpgradeable', diamondAddress);
-    });
-
-    beforeEach(async () => {
-        lzEndpointMockA = await LZEndpointMock.deploy(chainId_A);
-        lzEndpointMockB = await LZEndpointMock.deploy(chainId_B);
 
         startTokenId = 0;
 
