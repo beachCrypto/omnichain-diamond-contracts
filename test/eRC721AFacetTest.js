@@ -72,5 +72,43 @@ describe('Transfer', async () => {
         expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
         expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+
+        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+
+        await eRC721AUpgradeable.connect(warlock).approve(eRC721AUpgradeable.address, 0);
+    });
+
+    it('Sender can transfer an NFT', async () => {
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+
+        await mintFacet.connect(ownerAddress).mint(1);
+
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+
+        await eRC721AUpgradeable.transferFrom(ownerAddress.address, warlock.address, 0);
+
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+
+        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+
+        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+    });
+
+    it('Sender can approve an NFT', async () => {
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+
+        await mintFacet.connect(ownerAddress).mint(1);
+
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+
+        await eRC721AUpgradeable.transferFrom(ownerAddress.address, warlock.address, 0);
+
+        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+
+        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+
+        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+
+        await eRC721AUpgradeable.connect(warlock).approve(eRC721AUpgradeable.address, 0);
     });
 });
