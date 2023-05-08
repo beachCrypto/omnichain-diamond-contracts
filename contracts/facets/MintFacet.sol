@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-import '../ERC721A-Upgradeable/ERC721AUpgradeable.sol';
+import '../ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
 
 contract MintFacet is ERC721AUpgradeableInternal {
     function mint(uint256 quantity) external payable {
