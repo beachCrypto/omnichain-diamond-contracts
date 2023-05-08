@@ -1,7 +1,7 @@
 /* global ethers describe before it */
 /* eslint-disable prefer-const */
 
-const {deployDiamondGoerli} = require('../scripts/deployGoerli.js');
+const {deployDiamond_A} = require('../scripts/deploy_A.js');
 
 const {offsettedIndex} = require('./helpers/helpers.js');
 
@@ -14,7 +14,7 @@ const {ethers} = require('hardhat');
 let offsetted;
 
 describe('sendFrom()', async () => {
-    let diamondAddressGoerli;
+    let diamondAddress_A;
     let mintFacetGoerli;
     let eRC721AUpgradeable;
     let owner;
@@ -38,12 +38,14 @@ describe('sendFrom()', async () => {
         // console.log('lzEndpointMockB', lzEndpointMockB.address);
         // lzEndpointMockA 0x5FbDB2315678afecb367f032d93F642f64180aa3
         // lzEndpointMockB 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+        // A will be Goerli
+        // B will be Polygon
 
-        diamondAddressGoerli = await deployDiamondGoerli();
+        diamondAddress_A = await deployDiamond_A();
 
-        mintFacetGoerli = await ethers.getContractAt('MintFacet', diamondAddressGoerli);
+        mintFacetGoerli = await ethers.getContractAt('MintFacet', diamondAddress_A);
 
-        eRC721AUpgradeableGoerli = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressGoerli);
+        eRC721AUpgradeableGoerli = await ethers.getContractAt('ERC721AUpgradeable', diamondAddress_A);
 
         startTokenId = 0;
 
