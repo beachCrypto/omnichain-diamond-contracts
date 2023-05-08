@@ -50,7 +50,7 @@ describe('sendFrom()', async () => {
         mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
         eRC721AUpgradeableA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
-        eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+        eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
         startTokenId = 0;
 
@@ -72,27 +72,25 @@ describe('sendFrom()', async () => {
         };
     });
 
-    it('sendFrom() - your own tokens', async () => {
+    it('mint on chain A', async () => {
+        expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+
         await mintFacetA.connect(ownerAddress).mint(1);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(ownerAddress.address);
+    });
 
-        // can transfer token on srcChain as regular erC721
-        await eRC721AUpgradeableA.transferFrom(ownerAddress.address, warlock.address, 0);
+    it('mint on chain B', async () => {
+        expect(await eRC721AUpgradeableB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        // Token left wallet of previous owner
-        expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        await mintFacetB.connect(ownerAddress).mint(1);
 
-        // Token arrived in wallet of new owner
-        expect(await eRC721AUpgradeableA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        // verify the owner of the token is on the source chain
+        expect(await eRC721AUpgradeableB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        // Owner of token equals new owner
-        expect(await eRC721AUpgradeableA.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
-
-        // approve the proxy to swap your token
-        await eRC721AUpgradeableA.connect(warlock).approve(eRC721AUpgradeableA.address, 0);
+        expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(ownerAddress.address);
     });
 });
