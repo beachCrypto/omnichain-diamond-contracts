@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 library LayerZeroEndpointStorage {
     struct LayerZeroSlot {
-        address royaltyReceiver;
+        address lzEndpoint;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.omnichainDiamonds.storage.lZEndpoint');
