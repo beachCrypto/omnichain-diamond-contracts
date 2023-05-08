@@ -17,9 +17,6 @@ describe('Mint', async () => {
     let diamondAddress;
     let mintFacet;
     let eRC721AUpgradeable;
-    let address1;
-    let address2;
-    let address3;
     let owner;
 
     // Layer Zero
