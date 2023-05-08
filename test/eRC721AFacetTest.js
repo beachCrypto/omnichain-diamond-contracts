@@ -13,7 +13,7 @@ const {ethers} = require('hardhat');
 
 let offsetted;
 
-describe('Transfer', async () => {
+describe('ERC721A', async () => {
     let diamondAddress;
     let mintFacet;
     let eRC721AUpgradeable;

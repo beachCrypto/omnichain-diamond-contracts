@@ -3,7 +3,7 @@
 
 const {getSelectors, FacetCutAction} = require('./libraries/diamond.js');
 
-async function deployDiamond() {
+async function deployDiamondGoerli() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
@@ -73,4 +73,4 @@ if (require.main === module) {
         });
 }
 
-exports.deployDiamond = deployDiamond;
+exports.deployDiamondGoerli = deployDiamondGoerli;

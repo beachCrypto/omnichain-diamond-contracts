@@ -15,7 +15,6 @@ import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
 import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
-import {LayerZeroEndpointStorage} from '../libraries/LayerZeroEndpointStorage.sol';
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -45,10 +44,5 @@ contract DiamondInit {
         ERC721AStorage.Layout storage l = ERC721AStorage.layout();
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
-
-        // Initialize LayerZero state variables
-
-        LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
-        lzep.lzEndpoint = 0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23;
     }
 }
