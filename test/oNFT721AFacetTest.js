@@ -51,10 +51,10 @@ describe('sendFrom()', async () => {
 
         offsetted = (...arr) => offsettedIndex(startTokenId, arr);
 
-        const [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
+        const [owner, addr1] = await ethers.getSigners();
 
-        warlock = addr1;
         ownerAddress = owner;
+        warlock = addr1;
 
         ownerAddress.expected = {
             mintCount: 1,
