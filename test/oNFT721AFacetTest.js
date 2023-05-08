@@ -43,8 +43,13 @@ describe('sendFrom()', async () => {
         // A will be Goerli
         // B will be Polygon
 
+        // generate a proxy to allow it to go ONFT
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
+
+        // wire the lz endpoints to guide msgs back and forth
+        lzEndpointMockA.setDestLzEndpoint(diamondAddressB.address, lzEndpointMockB.address);
+        lzEndpointMockB.setDestLzEndpoint(diamondAddressA.address, lzEndpointMockA.address);
 
         mintFacetA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
