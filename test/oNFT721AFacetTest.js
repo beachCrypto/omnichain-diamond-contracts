@@ -34,6 +34,11 @@ describe('sendFrom()', async () => {
         lzEndpointMockA = await LZEndpointMock.deploy(chainId_A);
         lzEndpointMockB = await LZEndpointMock.deploy(chainId_B);
 
+        // console.log('lzEndpointMockA', lzEndpointMockA.address);
+        // console.log('lzEndpointMockB', lzEndpointMockB.address);
+        // lzEndpointMockA 0x5FbDB2315678afecb367f032d93F642f64180aa3
+        // lzEndpointMockB 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+
         diamondAddressGoerli = await deployDiamondGoerli();
 
         mintFacetGoerli = await ethers.getContractAt('MintFacet', diamondAddressGoerli);
