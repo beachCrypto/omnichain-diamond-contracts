@@ -7,6 +7,10 @@ const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
 
+// Layer Zero
+
+const {ethers} = require('hardhat');
+
 let offsetted;
 
 describe('Mint', async () => {
@@ -17,6 +21,16 @@ describe('Mint', async () => {
     let address2;
     let address3;
     let owner;
+
+    // Layer Zero
+
+    const chainId_A = 1;
+    const chainId_B = 2;
+    const name = 'OmnichainNonFungibleToken';
+    const symbol = 'ONFT';
+    const minGasToStore = 150000;
+    const batchSizeLimit = 300;
+    const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
     before(async function () {});
 
@@ -33,37 +47,25 @@ describe('Mint', async () => {
 
         const [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
 
-        address1 = addr1;
-        address2 = addr2;
-        address3 = addr3;
+        warlock = addr1;
         ownerAddress = owner;
 
-        address1.expected = {
-            mintCount: 1,
-            tokens: [offsetted(0)],
-        };
-
-        address2.expected = {
+        warlock.expected = {
             mintCount: 2,
-            tokens: offsetted(1, 2),
-        };
-
-        address3.expected = {
-            mintCount: 4,
-            tokens: offsetted(3, 4, 5, 6),
+            tokens: [offsetted(0, 1)],
         };
 
         ownerAddress.expected = {
             mintCount: 2,
-            tokens: offsetted(7, 8),
+            tokens: offsetted(2, 3),
         };
     });
 
     it('Sender can mint an NFT', async () => {
-        expect(await eRC721AUpgradeable.connect(address1.address).balanceOf(address1.address)).to.equal(0);
+        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(0);
 
-        await mintFacet.connect(address1).mint(1);
+        await mintFacet.connect(warlock).mint(1);
 
-        expect(await eRC721AUpgradeable.connect(address1.address).balanceOf(address1.address)).to.equal(1);
+        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
     });
 });
