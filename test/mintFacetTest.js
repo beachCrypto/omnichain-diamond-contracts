@@ -32,9 +32,14 @@ describe('Mint', async () => {
     const batchSizeLimit = 300;
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
-    before(async function () {});
+    before(async function () {
+        LZEndpointMock = await ethers.getContractFactory('LZEndpointMock');
+    });
 
     beforeEach(async () => {
+        lzEndpointMockA = await LZEndpointMock.deploy(chainId_A);
+        lzEndpointMockB = await LZEndpointMock.deploy(chainId_B);
+
         diamondAddress = await deployDiamond();
 
         mintFacet = await ethers.getContractAt('MintFacet', diamondAddress);
