@@ -22,16 +22,10 @@ contract NonblockingLzAppUpgradeable is
 {
     event SetTrustedRemote(uint16 _srcChainId, bytes _srcAddress);
 
-    // TODO State variables must be stored -- >
-    // NonblockingLzApp
-    mapping(uint16 => mapping(bytes => mapping(uint64 => bytes32))) public failedMessages;
-
     event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _payload);
 
     // LZAPP
     ILayerZeroEndpoint public lzEndpoint;
-
-    // TODO End <--
 
     // allow owner to set it multiple times.
     function setTrustedRemote(uint16 _srcChainId, bytes calldata _srcAddress) external {
@@ -54,7 +48,9 @@ contract NonblockingLzAppUpgradeable is
             // do nothing
         } catch {
             // error / exception
-            failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(_payload);
+            NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
+                _payload
+            );
             emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload);
         }
     }
@@ -84,11 +80,13 @@ contract NonblockingLzAppUpgradeable is
         bytes memory _payload
     ) public payable virtual {
         // assert there is message to retry
-        bytes32 payloadHash = failedMessages[_srcChainId][_srcAddress][_nonce];
+        bytes32 payloadHash = NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][
+            _nonce
+        ];
         require(payloadHash != bytes32(0), 'NonblockingLzApp: no stored message');
         require(keccak256(_payload) == payloadHash, 'NonblockingLzApp: invalid payload');
         // clear the stored message
-        failedMessages[_srcChainId][_srcAddress][_nonce] = bytes32(0);
+        NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = bytes32(0);
         // execute the message. revert if it fails again
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }

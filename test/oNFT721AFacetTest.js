@@ -103,5 +103,9 @@ describe('sendFrom()', async () => {
 
         // approve the proxy to swap your token
         await eRC721AUpgradeableA.connect(warlock).approve(eRC721AUpgradeableA.address, 0);
+
+        // estimate nativeFees
+        let nativeFee = (await eRC721AUpgradeableA.estimateSendFee(chainId_B, warlock.address, 0, false, '0x'))
+            .nativeFee;
     });
 });
