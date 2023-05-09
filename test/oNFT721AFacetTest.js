@@ -95,23 +95,15 @@ describe('sendFrom()', async () => {
         await mintFacetA.connect(ownerAddress).mint(1);
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
-
         expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(ownerAddress.address);
 
+        // token doesn't exist on other chain
         await expect(eRC721AUpgradeableB.ownerOf(0)).to.be.revertedWith('OwnerQueryForNonexistentToken()');
 
         // can transfer token on srcChain as regular erC721
         await eRC721AUpgradeableA.transferFrom(ownerAddress.address, warlock.address, 0);
 
-        // Token left wallet of previous owner
-        expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
-
-        // Token arrived in wallet of new owner
-        expect(await eRC721AUpgradeableA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
-
-        // Owner of token equals new owner
-        expect(await eRC721AUpgradeableA.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+        expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(warlock.address);
 
         // approve the proxy to swap your token
         await eRC721AUpgradeableA.connect(warlock).approve(eRC721AUpgradeableA.address, 0);

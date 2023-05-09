@@ -8,13 +8,26 @@ pragma solidity ^0.8.0;
 * Implementation of a diamond.
 /******************************************************************************/
 
+// Diamond interfaces
 import {LibDiamond} from '../libraries/LibDiamond.sol';
 import {IDiamondLoupe} from '../interfaces/IDiamondLoupe.sol';
 import {IDiamondCut} from '../interfaces/IDiamondCut.sol';
+
+// ERC721 interfaces
 import {IERC173} from '../interfaces/IERC173.sol';
-import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
+import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
+
+// ERC721 Storage
 import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
+
+// LayerZero interfaces
+import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
+import {ILayerZeroReceiver} from '../layerZeroInterfaces/ILayerZeroReceiver.sol';
+import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
+import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
+
+// LayerZero Storage
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 
 // It is expected that this contract is customized if you want to deploy your diamond
@@ -33,6 +46,10 @@ contract DiamondInitA {
         ds.supportedInterfaces[type(IERC173).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
+        ds.supportedInterfaces[type(IONFT721CoreUpgradeable).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroReceiver).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroEndpoint).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroUserApplicationConfig).interfaceId] = true;
 
         // add your own state variables
         // EIP-2535 specifies that the `diamondCut` function takes two optional
