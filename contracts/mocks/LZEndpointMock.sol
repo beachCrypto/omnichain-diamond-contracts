@@ -132,7 +132,8 @@ contract LZEndpointMock is ILayerZeroEndpoint {
             dstAddr := mload(add(_path, 20))
         }
 
-        address lzEndpoint = lzEndpointLookup[dstAddr];
+        //Endpoint is hardcoded
+        address lzEndpoint = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
         require(lzEndpoint != address(0), 'LayerZeroMock: destination LayerZero Endpoint not found');
 
         // not handle zro token

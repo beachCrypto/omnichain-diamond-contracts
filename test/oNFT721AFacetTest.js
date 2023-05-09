@@ -126,5 +126,8 @@ describe('sendFrom()', async () => {
                 '0x',
                 {value: nativeFee}
             );
+
+        // token is burnt
+        expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(eRC721AUpgradeableA.address);
     });
 });
