@@ -55,7 +55,7 @@ describe('sendFrom()', async () => {
         mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
         eRC721AUpgradeableA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
-        eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+        eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
@@ -98,6 +98,8 @@ describe('sendFrom()', async () => {
         expect(await eRC721AUpgradeableA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(ownerAddress.address);
+
+        await expect(eRC721AUpgradeableB.ownerOf(0)).to.be.revertedWith('OwnerQueryForNonexistentToken()');
 
         // can transfer token on srcChain as regular erC721
         await eRC721AUpgradeableA.transferFrom(ownerAddress.address, warlock.address, 0);
