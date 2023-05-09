@@ -15,9 +15,16 @@ contract ONFT721Upgradeable is IONFT721CoreUpgradeable {
         bytes calldata _adapterParams
     ) external view returns (uint nativeFee, uint zroFee) {
         // mock the payload for send()
-        // bytes memory payload = abi.encode(_toAddress, _tokenId);
-        // // LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint;
-        // return lzEndpoint.estimateFees(_dstChainId, address(this), payload, _useZro, _adapterParams);
+        bytes memory payload = abi.encode(_toAddress, _tokenId);
+
+        return
+            LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
+                _dstChainId,
+                address(this),
+                payload,
+                _useZro,
+                _adapterParams
+            );
     }
 
     function sendFrom(
