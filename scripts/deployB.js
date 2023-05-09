@@ -35,7 +35,6 @@ async function deployDiamondB() {
         'ERC721AUpgradeable',
         'MintFacet',
         'NonblockingLzAppUpgradeable',
-        'ONFT721Upgradeable',
         'OwnershipFacet',
     ];
     const cut = [];

@@ -49,9 +49,6 @@ describe('sendFrom()', async () => {
         eRC721AUpgradeableA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
         eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
-        oNFT721UpgradeableA = await ethers.getContractAt('ONFT721Upgradeable', diamondAddressA);
-        oNFT721UpgradeableB = await ethers.getContractAt('ONFT721Upgradeable', diamondAddressB);
-
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
 
@@ -108,13 +105,13 @@ describe('sendFrom()', async () => {
         await eRC721AUpgradeableA.connect(warlock).approve(eRC721AUpgradeableA.address, 0);
 
         // estimate nativeFees
-        let nativeFee = (await oNFT721UpgradeableA.estimateSendFee(chainId_B, warlock.address, 0, false, '0x'))
+        let nativeFee = (await eRC721AUpgradeableA.estimateSendFee(chainId_B, warlock.address, 0, false, '0x'))
             .nativeFee;
 
         console.log('nativeFee', nativeFee.toString());
 
         // swaps token to other chain
-        await oNFT721UpgradeableA
+        await eRC721AUpgradeableA
             .connect(warlock)
             .sendFrom(
                 warlock.address,
