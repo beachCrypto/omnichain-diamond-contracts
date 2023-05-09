@@ -112,5 +112,19 @@ describe('sendFrom()', async () => {
             .nativeFee;
 
         console.log('nativeFee', nativeFee.toString());
+
+        // swaps token to other chain
+        await oNFT721UpgradeableA
+            .connect(warlock)
+            .sendFrom(
+                warlock.address,
+                chainId_B,
+                warlock.address,
+                0,
+                warlock.address,
+                ethers.constants.AddressZero,
+                '0x',
+                {value: nativeFee}
+            );
     });
 });
