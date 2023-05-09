@@ -323,11 +323,13 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
         _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
 
         bytes memory payload = abi.encode(_toAddress, _tokenId);
+
         if (useCustomAdapterParams) {
             _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
         } else {
             require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
         }
+
         _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams);
 
         uint64 nonce = LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.getOutboundNonce(
@@ -338,12 +340,22 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
     }
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
-        // (uint256 approvedAddressSlot, address approvedAddress) = _getApprovedSlotAndAddress(_from);
-        // // The nested ifs save around 20+ gas over a compound boolean condition.
-        // if (!_isSenderApprovedOrOwner(approvedAddress, _tokenId, _msgSenderERC721A()))
-        //     if (!_isApprovedForAll(_from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
-        // require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
-        // _transfer(_from, address(this), _tokenId);
+        (uint256 approvedAddressSlot, address approvedAddress) = _getApprovedSlotAndAddress(_tokenId);
+        // The nested ifs save around 20+ gas over a compound boolean condition.
+        if (!_isSenderApprovedOrOwner(approvedAddress, _from, _msgSenderERC721A()))
+            if (!_isApprovedForAll(_from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
+        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+
+        transferFrom(_from, address(this), _tokenId);
+    }
+
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
+        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+        if (!_exists(_tokenId)) {
+            _safeMint(_toAddress, _tokenId);
+        } else {
+            transferFrom(address(this), _toAddress, _tokenId);
+        }
     }
 
     function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
@@ -372,14 +384,5 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
             _zroPaymentAddress,
             _adapterParams
         );
-    }
-
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
-        // require(!_exists(_tokenId) || (_exists(_tokenId) && ERC721Upgradeable.ownerOf(_tokenId) == address(this)));
-        // if (!_exists(_tokenId)) {
-        //     _safeMint(_toAddress, _tokenId);
-        // } else {
-        //     _transfer(address(this), _toAddress, _tokenId);
-        // }
     }
 }

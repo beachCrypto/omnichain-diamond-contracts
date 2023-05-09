@@ -25,12 +25,12 @@ describe('sendFrom()', async () => {
     const symbol = 'ONFT';
 
     before(async function () {
-        LZEndpointMock = await ethers.getContractFactory('LZEndpointMock');
+        LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
     });
 
     beforeEach(async () => {
-        lzEndpointMockA = await LZEndpointMock.deploy(chainId_A);
-        lzEndpointMockB = await LZEndpointMock.deploy(chainId_B);
+        lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
+        lzEndpointMockB = await LZEndpointMockA.deploy(chainId_B);
 
         // console.log('lzEndpointMockA', lzEndpointMockA.address);
         // console.log('lzEndpointMockB', lzEndpointMockB.address);
@@ -126,5 +126,15 @@ describe('sendFrom()', async () => {
 
         // token is burnt
         expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(eRC721AUpgradeableA.address);
+
+        console.log('eRC721AUpgradeableA.address', eRC721AUpgradeableA.address);
+        console.log('ownerAddress.address', ownerAddress.address);
+        console.log('warlock.address', warlock.address);
+
+        // token received on the dst chain
+        console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
+
+        console.log('eRC721AUpgradeableB.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
+        // expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(ownerAddress.address);
     });
 });

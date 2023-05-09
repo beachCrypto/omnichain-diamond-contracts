@@ -17,7 +17,7 @@ unlike a real LayerZero endpoint, it is
 - send() will short circuit to lzReceive()
 - no user application configuration
 */
-contract LZEndpointMock is ILayerZeroEndpoint {
+contract LZEndpointMockB is ILayerZeroEndpoint {
     uint8 internal constant _NOT_ENTERED = 1;
     uint8 internal constant _ENTERED = 2;
 
@@ -168,7 +168,7 @@ contract LZEndpointMock is ILayerZeroEndpoint {
 
         bytes memory srcUaAddress = abi.encodePacked(msg.sender, dstAddr); // cast this address to bytes
         bytes memory payload = _payload;
-        LZEndpointMock(lzEndpoint).receivePayload(mockChainId, srcUaAddress, dstAddr, nonce, extraGas, payload);
+        LZEndpointMockB(lzEndpoint).receivePayload(mockChainId, srcUaAddress, dstAddr, nonce, extraGas, payload);
     }
 
     function receivePayload(
