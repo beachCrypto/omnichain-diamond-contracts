@@ -3,18 +3,15 @@
 
 const {deployDiamondA} = require('../scripts/deployA.js');
 const {deployDiamondB} = require('../scripts/deployB.js');
-
 const {offsettedIndex} = require('./helpers/helpers.js');
-
 const {assert, expect} = require('chai');
-
-// Layer Zero
 
 const {ethers} = require('hardhat');
 
 let offsetted;
 
 describe('sendFrom()', async () => {
+    // Diamond contracts
     let diamondAddressA;
     let diamondAddressB;
     let mintFacetA;
@@ -22,7 +19,6 @@ describe('sendFrom()', async () => {
     let owner;
 
     // Layer Zero
-
     const chainId_A = 1;
     const chainId_B = 2;
     const name = 'OmnichainNonFungibleToken';
@@ -47,10 +43,6 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
-        // wire the lz endpoints to guide msgs back and forth
-        lzEndpointMockA.setDestLzEndpoint(diamondAddressB.address, lzEndpointMockB.address);
-        lzEndpointMockB.setDestLzEndpoint(diamondAddressA.address, lzEndpointMockA.address);
-
         mintFacetA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
@@ -59,6 +51,10 @@ describe('sendFrom()', async () => {
 
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
+
+        // wire the lz endpoints to guide msgs back and forth
+        lzEndpointMockA.setDestLzEndpoint(diamondAddressB.address, lzEndpointMockB.address);
+        lzEndpointMockB.setDestLzEndpoint(diamondAddressA.address, lzEndpointMockA.address);
 
         // set each contracts source address so it can send to each other
         await NonblockingLzAppUpgradeableA.setTrustedRemote(
