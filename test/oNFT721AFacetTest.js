@@ -57,6 +57,20 @@ describe('sendFrom()', async () => {
         eRC721AUpgradeableA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
         eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
 
+        NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
+        NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
+
+        // set each contracts source address so it can send to each other
+        await NonblockingLzAppUpgradeableA.setTrustedRemote(
+            chainId_B,
+            ethers.utils.solidityPack(['address', 'address'], [diamondAddressB, diamondAddressA])
+        );
+
+        await NonblockingLzAppUpgradeableB.setTrustedRemote(
+            chainId_A,
+            ethers.utils.solidityPack(['address', 'address'], [diamondAddressA, diamondAddressB])
+        );
+
         startTokenId = 0;
 
         offsetted = (...arr) => offsettedIndex(startTokenId, arr);

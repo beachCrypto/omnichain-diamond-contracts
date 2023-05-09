@@ -30,7 +30,13 @@ async function deployDiamondA() {
     // deploy facets
     console.log('');
     console.log('Deploying facets');
-    const FacetNames = ['DiamondLoupeFacet', 'ERC721AUpgradeable', 'MintFacet', 'OwnershipFacet'];
+    const FacetNames = [
+        'DiamondLoupeFacet',
+        'ERC721AUpgradeable',
+        'MintFacet',
+        'NonblockingLzAppUpgradeable',
+        'OwnershipFacet',
+    ];
     const cut = [];
     for (const FacetName of FacetNames) {
         const Facet = await ethers.getContractFactory(FacetName);
