@@ -3,6 +3,8 @@
 pragma solidity ^0.8.2;
 
 import {IONFT721CoreUpgradeable} from './IONFT721CoreUpgradeable.sol';
+import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
+import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 
 contract ONFT721Upgradeable is IONFT721CoreUpgradeable {
     function estimateSendFee(
@@ -11,7 +13,12 @@ contract ONFT721Upgradeable is IONFT721CoreUpgradeable {
         uint _tokenId,
         bool _useZro,
         bytes calldata _adapterParams
-    ) external view returns (uint nativeFee, uint zroFee) {}
+    ) external view returns (uint nativeFee, uint zroFee) {
+        // mock the payload for send()
+        // bytes memory payload = abi.encode(_toAddress, _tokenId);
+        // // LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint;
+        // return lzEndpoint.estimateFees(_dstChainId, address(this), payload, _useZro, _adapterParams);
+    }
 
     function sendFrom(
         address _from,
