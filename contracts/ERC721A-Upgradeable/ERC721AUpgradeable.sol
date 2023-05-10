@@ -299,6 +299,32 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
             );
     }
 
+    function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
+        (uint256 approvedAddressSlot, address approvedAddress) = _getApprovedSlotAndAddress(_tokenId);
+        // The nested ifs save around 20+ gas over a compound boolean condition.
+        if (!_isSenderApprovedOrOwner(approvedAddress, _from, _msgSenderERC721A()))
+            if (!_isApprovedForAll(_from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
+        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+
+        transferFrom(_from, address(this), _tokenId);
+    }
+
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
+        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+        if (!_exists(_tokenId)) {
+            _safeMint(_toAddress, _tokenId);
+        } else {
+            transferFrom(address(this), _toAddress, _tokenId);
+        }
+    }
+
+    function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
+        // uint providedGasLimit = getGasLimit(_adapterParams);
+        // uint minGasLimit = minDstGasLookup[_dstChainId][_type] + _extraGas;
+        // require(minGasLimit > 0, 'LzApp: minGasLimit not set');
+        // require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
+    }
+
     function sendFrom(
         address _from,
         uint16 _dstChainId,
@@ -337,32 +363,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
             address(this)
         );
         emit SendToChain(_from, _dstChainId, _toAddress, _tokenId, nonce);
-    }
-
-    function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
-        (uint256 approvedAddressSlot, address approvedAddress) = _getApprovedSlotAndAddress(_tokenId);
-        // The nested ifs save around 20+ gas over a compound boolean condition.
-        if (!_isSenderApprovedOrOwner(approvedAddress, _from, _msgSenderERC721A()))
-            if (!_isApprovedForAll(_from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
-        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
-
-        transferFrom(_from, address(this), _tokenId);
-    }
-
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
-        if (!_exists(_tokenId)) {
-            _safeMint(_toAddress, _tokenId);
-        } else {
-            transferFrom(address(this), _toAddress, _tokenId);
-        }
-    }
-
-    function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
-        // uint providedGasLimit = getGasLimit(_adapterParams);
-        // uint minGasLimit = minDstGasLookup[_dstChainId][_type] + _extraGas;
-        // require(minGasLimit > 0, 'LzApp: minGasLimit not set');
-        // require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
     }
 
     function _lzSend(

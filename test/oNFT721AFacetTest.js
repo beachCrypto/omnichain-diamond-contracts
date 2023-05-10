@@ -43,6 +43,9 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
+        console.log('diamondAddressA contract address:', diamondAddressA);
+        console.log('diamondAddressB contract address:', diamondAddressB);
+
         mintFacetA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
@@ -127,14 +130,12 @@ describe('sendFrom()', async () => {
         // token is burnt
         expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(eRC721AUpgradeableA.address);
 
-        console.log('eRC721AUpgradeableA.address', eRC721AUpgradeableA.address);
-        console.log('ownerAddress.address', ownerAddress.address);
-        console.log('warlock.address', warlock.address);
+        // console.log('eRC721AUpgradeableA.address', eRC721AUpgradeableA.address);
+        // console.log('ownerAddress.address', ownerAddress.address);
+        // console.log('warlock.address', warlock.address);
 
         // token received on the dst chain
-        console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
-
-        console.log('diamondAddressA', diamondAddressA);
+        //console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
 
         // console.log('eRC721AUpgradeableB.ownerOf(0)', await eRC721AUpgradeableB.ownerOf(0));
 

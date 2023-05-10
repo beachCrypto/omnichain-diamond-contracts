@@ -6,8 +6,8 @@ import '../libraries/LibDiamond.sol';
 import '../layerZeroInterfaces/ILayerZeroReceiver.sol';
 import '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
-import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {NonblockingLzAppStorage} from './NonblockingLzAppStorage.sol';
+import 'hardhat/console.sol';
 
 /*
  * the default LayerZero messaging behaviour is blocking, i.e. any failed message will block the channel
@@ -39,9 +39,11 @@ contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroUserApplic
         bytes memory _payload
     ) internal virtual {
         // try-catch all errors/exceptions
+        console.log('_blockingLzReceive called nonblockingLzReceive?..');
         try this.nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload) {
             // do nothing
         } catch {
+            console.log('_blockingLzReceive called catch?..');
             // error / exception
             NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
                 _payload
@@ -57,8 +59,9 @@ contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroUserApplic
         bytes memory _payload
     ) public virtual {
         // only internal transaction
-        // require(_msgSenderERC721A() == address(this), 'NonblockingLzApp: caller must be LzApp');
-        // _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+        console.log('nonblockingLzReceive is called?..');
+        require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
+        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
 
     function _nonblockingLzReceive(
@@ -91,7 +94,9 @@ contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroUserApplic
         bytes calldata _srcAddress,
         uint64 _nonce,
         bytes calldata _payload
-    ) external override {}
+    ) external override {
+        console.log('lzReceive gets called in NonblockingLzAppUpgradeable here...');
+    }
 
     function setConfig(uint16 _version, uint16 _chainId, uint _configType, bytes calldata _config) external override {}
 
