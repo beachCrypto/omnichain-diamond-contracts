@@ -3,7 +3,6 @@
 pragma solidity ^0.8.2;
 
 import '../libraries/LibDiamond.sol';
-import '../ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
 import '../layerZeroInterfaces/ILayerZeroReceiver.sol';
 import '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
@@ -15,11 +14,7 @@ import {NonblockingLzAppStorage} from './NonblockingLzAppStorage.sol';
  * this abstract class try-catch all fail messages and store locally for future retry. hence, non-blocking
  * NOTE: if the srcAddress is not configured properly, it will still block the message pathway from (srcChainId, srcAddress)
  */
-contract NonblockingLzAppUpgradeable is
-    ERC721AUpgradeableInternal,
-    ILayerZeroReceiver,
-    ILayerZeroUserApplicationConfig
-{
+contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
     event SetTrustedRemote(uint16 _srcChainId, bytes _srcAddress);
 
     event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _payload);
@@ -62,8 +57,8 @@ contract NonblockingLzAppUpgradeable is
         bytes memory _payload
     ) public virtual {
         // only internal transaction
-        require(_msgSenderERC721A() == address(this), 'NonblockingLzApp: caller must be LzApp');
-        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+        // require(_msgSenderERC721A() == address(this), 'NonblockingLzApp: caller must be LzApp');
+        // _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
 
     function _nonblockingLzReceive(

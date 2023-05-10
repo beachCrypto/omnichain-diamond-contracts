@@ -27,7 +27,7 @@ describe('Mint', async () => {
     const symbol = 'ONFT';
 
     before(async function () {
-        LZEndpointMock = await ethers.getContractFactory('LZEndpointMock');
+        LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
     });
 
     beforeEach(async () => {
