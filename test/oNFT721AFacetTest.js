@@ -134,7 +134,10 @@ describe('sendFrom()', async () => {
         // token received on the dst chain
         console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
 
-        console.log('eRC721AUpgradeableB.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
+        console.log('diamondAddressA', diamondAddressA);
+
+        // console.log('eRC721AUpgradeableB.ownerOf(0)', await eRC721AUpgradeableB.ownerOf(0));
+
         // expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(ownerAddress.address);
     });
 });
