@@ -8,6 +8,7 @@ import {ERC721AUpgradeableInternal, ERC721AStorage} from './ERC721AUpgradeableIn
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {ONFT721UpgradeableInternal} from '../layerZeroUpgradeable/ONFT721UpgradeableInternal.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @dev Interface of ERC721 token receiver.
@@ -309,15 +310,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
         transferFrom(_from, address(this), _tokenId);
     }
 
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
-        if (!_exists(_tokenId)) {
-            _safeMint(_toAddress, _tokenId);
-        } else {
-            transferFrom(address(this), _toAddress, _tokenId);
-        }
-    }
-
     function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
         // uint providedGasLimit = getGasLimit(_adapterParams);
         // uint minGasLimit = minDstGasLookup[_dstChainId][_type] + _extraGas;
@@ -385,4 +377,105 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, ONFT721UpgradeableInt
             _adapterParams
         );
     }
+
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) public virtual override {
+        // TODO Add back security check
+        console.log('*********** lzReceive ***********');
+        console.log('msg.sender...', msg.sender);
+        console.log('address(lzEndpoint)...', address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint));
+        // lzReceive must be called by the endpoint for security
+        require(
+            msg.sender == address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint),
+            'LzApp: invalid endpoint caller'
+        );
+
+        bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_srcChainId];
+
+        // if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
+        require(
+            _srcAddress.length == trustedRemote.length && keccak256(_srcAddress) == keccak256(trustedRemote),
+            'LzApp: invalid source sending contract'
+        );
+
+        _blockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+    }
+
+    function _blockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) internal virtual {
+        console.log('try nonblockingLzReceive in _blockingLzReceive');
+        // try-catch all errors/exceptions
+        try this.nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload) {
+            // do nothing
+        } catch {
+            console.log('catch nonblockingLzReceive in _blockingLzReceive');
+            // error / exception
+            NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
+                _payload
+            );
+            emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload);
+        }
+    }
+
+    function nonblockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) public virtual {
+        console.log('in nonblockingLzReceive');
+        // only internal transaction
+        require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
+        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+    }
+
+    function _nonblockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload
+    ) internal virtual {
+        console.log('in _nonblockingLzReceive');
+        // decode and load the toAddress
+        (bytes memory toAddressBytes, uint tokenId) = abi.decode(_payload, (bytes, uint));
+        address toAddress;
+        assembly {
+            toAddress := mload(add(toAddressBytes, 20))
+        }
+
+        _creditTo(_srcChainId, toAddress, tokenId);
+
+        emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenId, _nonce);
+    }
+
+    // I think this transfer is failing
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
+        console.log('in _creditTo');
+        console.log('  ');
+        console.log('in _creditTo _toAddress', _toAddress);
+        console.log('in _creditTo _tokenId', _tokenId);
+
+        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+        if (!_exists(_tokenId)) {
+            console.log('coin does not exist, mint');
+            // Safe mint, mints token consecutively so you can't pass a token ID
+            // Original _safeMint(_toAddress, _tokenId);
+            _safeMint(_toAddress, 1);
+        } else {
+            console.log('coin does exist, transfer');
+            transferFrom(address(this), _toAddress, _tokenId);
+        }
+    }
+
+    // =============================================================
+    //                     LZ Receive
+    // =============================================================
 }

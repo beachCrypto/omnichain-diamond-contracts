@@ -79,6 +79,10 @@ describe('sendFrom()', async () => {
         ownerAddress = owner;
         warlock = addr1;
 
+        console.log('*******************');
+        console.log('ownerAddress.address', ownerAddress.address);
+        console.log('warlock.address', warlock.address);
+
         ownerAddress.expected = {
             mintCount: 1,
             tokens: offsetted(0),
@@ -135,10 +139,13 @@ describe('sendFrom()', async () => {
         // console.log('warlock.address', warlock.address);
 
         // token received on the dst chain
-        //console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
+        // console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
 
-        // console.log('eRC721AUpgradeableB.ownerOf(0)', await eRC721AUpgradeableB.ownerOf(0));
+        console.log(
+            '***************eRC721AUpgradeableB.ownerOf(0)***************',
+            await eRC721AUpgradeableB.ownerOf(0)
+        );
 
-        // expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(ownerAddress.address);
+        expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(warlock.address);
     });
 });
