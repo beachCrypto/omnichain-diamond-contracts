@@ -14,7 +14,7 @@ import {IDiamondCut} from '../interfaces/IDiamondCut.sol';
 import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
-import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
+import {ERC721Storage} from '../../contracts/ERC721-Upgradeable/ERC721.sol';
 
 // It is expected that this contract is customized if you want to deploy your diamond
 // with data from a deployment script. Use the init function to initialize state variables
@@ -41,7 +41,7 @@ contract DiamondInit {
         // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
         // Initialize ERC721A state variables
-        ERC721AStorage.Layout storage l = ERC721AStorage.layout();
+        ERC721Storage.Layout storage l = ERC721Storage.layout();
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
     }

@@ -13,10 +13,10 @@ const {ethers} = require('hardhat');
 
 let offsetted;
 
-describe('ERC721A', async () => {
+describe('ERC721', async () => {
     let diamondAddress;
     let mintFacet;
-    let eRC721AUpgradeable;
+    let eRC721;
     let owner;
 
     // Layer Zero
@@ -38,7 +38,7 @@ describe('ERC721A', async () => {
 
         mintFacet = await ethers.getContractAt('MintFacet', diamondAddress);
 
-        eRC721AUpgradeable = await ethers.getContractAt('ERC721AUpgradeable', diamondAddress);
+        eRC721 = await ethers.getContractAt('ERC721', diamondAddress);
 
         startTokenId = 0;
 
@@ -61,54 +61,54 @@ describe('ERC721A', async () => {
     });
 
     it('Sender can mint an NFT', async () => {
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
         await mintFacet.connect(ownerAddress).mint(1);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721AUpgradeable.transferFrom(ownerAddress.address, warlock.address, 0);
+        await eRC721.transferFrom(ownerAddress.address, warlock.address, 0);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+        expect(await eRC721.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
 
-        await eRC721AUpgradeable.connect(warlock).approve(eRC721AUpgradeable.address, 0);
+        await eRC721.connect(warlock).approve(eRC721.address, 0);
     });
 
     it('Sender can transfer an NFT', async () => {
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
         await mintFacet.connect(ownerAddress).mint(1);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721AUpgradeable.transferFrom(ownerAddress.address, warlock.address, 0);
+        await eRC721.transferFrom(ownerAddress.address, warlock.address, 0);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+        expect(await eRC721.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
     });
 
     it('Sender can approve an NFT', async () => {
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
         await mintFacet.connect(ownerAddress).mint(1);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721AUpgradeable.transferFrom(ownerAddress.address, warlock.address, 0);
+        await eRC721.transferFrom(ownerAddress.address, warlock.address, 0);
 
-        expect(await eRC721AUpgradeable.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721AUpgradeable.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
+        expect(await eRC721.connect(warlock.address).ownerOf(0)).to.equal(warlock.address);
 
-        await eRC721AUpgradeable.connect(warlock).approve(eRC721AUpgradeable.address, 0);
+        await eRC721.connect(warlock).approve(eRC721.address, 0);
     });
 });

@@ -19,7 +19,7 @@ import {IERC165} from '../interfaces/IERC165.sol';
 import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 
 // ERC721 Storage
-import {ERC721AStorage} from '../../contracts/ERC721A-Upgradeable/ERC721AUpgradeableInternal.sol';
+import {ERC721Storage} from '../../contracts/ERC721-Upgradeable/ERC721.sol';
 
 // LayerZero interfaces
 import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
@@ -55,7 +55,7 @@ contract DiamondInitB {
         // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
 
         // Initialize ERC721A state variables
-        ERC721AStorage.Layout storage l = ERC721AStorage.layout();
+        ERC721Storage.Layout storage l = ERC721Storage.layout();
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
 

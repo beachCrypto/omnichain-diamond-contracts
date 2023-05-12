@@ -14,8 +14,8 @@ describe('sendFrom()', async () => {
     // Diamond contracts
     let diamondAddressA;
     let diamondAddressB;
-    let mintFacetA;
-    let eRC721AUpgradeableA;
+    // let mintFacetA;
+    let eRC721A;
     let owner;
 
     // Layer Zero
@@ -46,11 +46,11 @@ describe('sendFrom()', async () => {
         console.log('diamondAddressA contract address:', diamondAddressA);
         console.log('diamondAddressB contract address:', diamondAddressB);
 
-        mintFacetA = await ethers.getContractAt('MintFacet', diamondAddressA);
-        mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
+        // mintFacetA = await ethers.getContractAt('MintFacet', diamondAddressA);
+        // mintFacetB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
-        eRC721AUpgradeableA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
-        eRC721AUpgradeableB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
+        eRC721A = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721B = await ethers.getContractAt('ERC721', diamondAddressB);
 
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
@@ -95,30 +95,31 @@ describe('sendFrom()', async () => {
     });
 
     it('sendFrom() - your own tokens', async () => {
-        await mintFacetA.connect(ownerAddress).mint(1);
+        await eRC721A.connect(ownerAddress).mint(ownerAddress.address, 0);
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(ownerAddress.address);
+        expect(await eRC721A.ownerOf(0)).to.be.equal(ownerAddress.address);
 
         // token doesn't exist on other chain
-        await expect(eRC721AUpgradeableB.ownerOf(0)).to.be.revertedWith('OwnerQueryForNonexistentToken()');
+        // TODO: Update requires to revertedWith
+        // await expect(eRC721B.ownerOf(0)).to.be.revertedWith('OwnerQueryForNonexistentToken()');
+        await expect(eRC721B.ownerOf(0)).to.be.revertedWith('ERC721: invalid token ID');
 
         // can transfer token on srcChain as regular erC721
-        await eRC721AUpgradeableA.transferFrom(ownerAddress.address, warlock.address, 0);
+        await eRC721A.transferFrom(ownerAddress.address, warlock.address, 0);
 
-        expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(warlock.address);
+        expect(await eRC721A.ownerOf(0)).to.be.equal(warlock.address);
 
         // approve the proxy to swap your token
-        await eRC721AUpgradeableA.connect(warlock).approve(eRC721AUpgradeableA.address, 0);
+        await eRC721A.connect(warlock).approve(eRC721A.address, 0);
 
         // estimate nativeFees
-        let nativeFee = (await eRC721AUpgradeableA.estimateSendFee(chainId_B, warlock.address, 0, false, '0x'))
-            .nativeFee;
+        let nativeFee = (await eRC721A.estimateSendFee(chainId_B, warlock.address, 0, false, '0x')).nativeFee;
 
         console.log('nativeFee', nativeFee.toString());
 
         // swaps token to other chain
-        await eRC721AUpgradeableA
+        await eRC721A
             .connect(warlock)
             .sendFrom(
                 warlock.address,
@@ -132,20 +133,20 @@ describe('sendFrom()', async () => {
             );
 
         // token is burnt
-        expect(await eRC721AUpgradeableA.ownerOf(0)).to.be.equal(eRC721AUpgradeableA.address);
+        expect(await eRC721A.ownerOf(0)).to.be.equal(eRC721A.address);
 
-        // console.log('eRC721AUpgradeableA.address', eRC721AUpgradeableA.address);
+        // console.log('eRC721A.address', eRC721A.address);
         // console.log('ownerAddress.address', ownerAddress.address);
         // console.log('warlock.address', warlock.address);
 
         // token received on the dst chain
-        // console.log('eRC721AUpgradeableA.ownerOf(0)', await eRC721AUpgradeableA.ownerOf(0));
+        // console.log('eRC721A.ownerOf(0)', await eRC721A.ownerOf(0));
 
-        console.log(
-            '***************eRC721AUpgradeableB.ownerOf(0)***************',
-            await eRC721AUpgradeableB.ownerOf(0)
-        );
+        // console.log(
+        //     '***************eRC721AUpgradeableB.ownerOf(0)***************',
+        //     await eRC721AUpgradeableB.ownerOf(0)
+        // );
 
-        expect(await eRC721AUpgradeableB.ownerOf(0)).to.be.equal(warlock.address);
+        expect(await eRC721B.ownerOf(0)).to.be.equal(warlock.address);
     });
 });
