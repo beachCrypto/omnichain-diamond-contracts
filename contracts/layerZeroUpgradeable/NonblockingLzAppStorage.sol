@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 library NonblockingLzAppStorage {
     struct NonblockingLzAppSlot {
+        bool useCustomAdapterParams;
         mapping(uint16 => bytes) trustedRemoteLookup;
         mapping(uint16 => mapping(uint => uint)) minDstGasLookup;
         mapping(uint16 => mapping(bytes => mapping(uint64 => bytes32))) failedMessages;

@@ -133,8 +133,6 @@ contract LZEndpointMockA is ILayerZeroEndpoint {
             dstAddr := mload(add(_path, 20))
         }
 
-        console.log('The destination address from the send function is ->', dstAddr);
-
         //Destination Endpoint is hardcoded
         address lzEndpoint = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
         require(lzEndpoint != address(0), 'LayerZeroMock: destination LayerZero Endpoint not found');
@@ -186,8 +184,6 @@ contract LZEndpointMockA is ILayerZeroEndpoint {
         // assert and increment the nonce. no message shuffling
         require(_nonce == ++inboundNonce[_srcChainId][_path], 'LayerZeroMock: wrong nonce');
 
-        console.log('receivePayload is called with __srcChainId, and _dstAddress', _srcChainId, _dstAddress);
-
         // queue the following msgs inside of a stack to simulate a successful send on src, but not fully delivered on dst
         if (sp.payloadHash != bytes32(0)) {
             QueuedPayload[] storage msgs = msgsToDeliver[_srcChainId][_path];
@@ -219,9 +215,9 @@ contract LZEndpointMockA is ILayerZeroEndpoint {
             // ensure the next msgs that go through are no longer blocked
             nextMsgBlocked = false;
         } else {
-            try ILayerZeroReceiver(_dstAddress).lzReceive{gas: _gasLimit}(_srcChainId, _path, _nonce, _payload) {
-                console.log('lzReceive gets called in LZEndpointMockA here');
-            } catch (bytes memory reason) {
+            try
+                ILayerZeroReceiver(_dstAddress).lzReceive{gas: _gasLimit}(_srcChainId, _path, _nonce, _payload)
+            {} catch (bytes memory reason) {
                 storedPayload[_srcChainId][_path] = StoredPayload(
                     uint64(_payload.length),
                     _dstAddress,

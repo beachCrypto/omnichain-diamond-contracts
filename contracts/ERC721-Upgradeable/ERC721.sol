@@ -8,13 +8,15 @@ pragma solidity ^0.8.4;
 import {ERC721Storage} from './ERC721Storage.sol';
 import {IERC721} from './IERC721.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
-import {ONFT721UpgradeableInternal} from '../layerZeroUpgradeable/ONFT721UpgradeableInternal.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
-import 'hardhat/console.sol';
 import './IERC721Receiver.sol';
 import '../utils/Address.sol';
 import '../utils/Context.sol';
 import '../utils/Strings.sol';
+import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
+import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
+
+import 'hardhat/console.sol';
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
@@ -22,10 +24,16 @@ import '../utils/Strings.sol';
  * {ERC721Enumerable}.
  */
 
-contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
+contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUpgradeable {
     using ERC721Storage for ERC721Storage.Layout;
     using Strings for uint256;
     using Address for address;
+
+    uint public constant NO_EXTRA_GAS = 0;
+    uint public constant FUNCTION_TYPE_SEND = 1;
+    bool public useCustomAdapterParams;
+
+    event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
 
     /**
      * @dev See {IERC721Metadata-name}.
@@ -40,27 +48,6 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
     function _symbol() internal view virtual returns (string memory) {
         return ERC721Storage.layout()._symbol;
     }
-
-    // // Gas lover storage
-    // mapping(uint256 => address) _tokenApprovals;
-
-    // // Cygaar ONFT
-    // mapping(uint256 => address) private _tokenApprovals;
-
-    // // Example from gas lover
-    // function _getApproved(uint256 tokenId) internal view virtual returns (address) {
-    //     _requireMinted(tokenId);
-
-    //     return ERC721DStorage.layout()._tokenApprovals[tokenId];
-    // }
-
-    // More examples from gas lovers
-    //
-    // mapping(address => mapping(address => bool)) _operatorApprovals;
-
-    // function _isApprovedForAll(address owner, address operator) internal view virtual returns (bool) {
-    //     return ERC721DStorage.layout()._operatorApprovals[owner][operator];
-    // }
 
     function mint(address _tokenOwner, uint _newId) external payable {
         _safeMint(_tokenOwner, _newId);
@@ -484,6 +471,12 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
             );
     }
 
+    function setUseCustomAdapterParams(bool _useCustomAdapterParams) external {
+        // TODO add only owner
+        useCustomAdapterParams = _useCustomAdapterParams;
+        emit SetUseCustomAdapterParams(_useCustomAdapterParams);
+    }
+
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
         require(ERC721.ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
@@ -507,12 +500,12 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
     function sendFrom(
         address _from,
         uint16 _dstChainId,
-        bytes calldata _toAddress,
+        bytes memory _toAddress,
         uint _tokenId,
         address payable _refundAddress,
         address _zroPaymentAddress,
-        bytes calldata _adapterParams
-    ) external payable {
+        bytes memory _adapterParams
+    ) public payable virtual override {
         _send(_from, _dstChainId, _toAddress, _tokenId, _refundAddress, _zroPaymentAddress, _adapterParams);
     }
 
@@ -529,7 +522,7 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
 
         bytes memory payload = abi.encode(_toAddress, _tokenId);
 
-        if (useCustomAdapterParams) {
+        if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
             _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
         } else {
             require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
@@ -598,12 +591,10 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
         uint64 _nonce,
         bytes memory _payload
     ) internal virtual {
-        console.log('try nonblockingLzReceive in _blockingLzReceive');
         // try-catch all errors/exceptions
         try this.nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload) {
             // do nothing
         } catch {
-            console.log('catch nonblockingLzReceive in _blockingLzReceive');
             // error / exception
             NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
                 _payload
@@ -618,7 +609,6 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
         uint64 _nonce,
         bytes memory _payload
     ) public virtual {
-        console.log('in nonblockingLzReceive');
         // only internal transaction
         require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
@@ -630,7 +620,6 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
         uint64 _nonce,
         bytes memory _payload
     ) internal virtual {
-        console.log('in _nonblockingLzReceive');
         // decode and load the toAddress
         (bytes memory toAddressBytes, uint tokenId) = abi.decode(_payload, (bytes, uint));
         address toAddress;
@@ -648,7 +637,6 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
-            console.log('coin does exist, transfer');
             transferFrom(address(this), _toAddress, _tokenId);
         }
     }
