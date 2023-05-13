@@ -17,20 +17,11 @@ import '../utils/Context.sol';
 import '../utils/Strings.sol';
 
 /**
- * @title ERC721A
- *
- * @dev Implementation of the [ERC721](https://eips.ethereum.org/EIPS/eip-721)
- * Non-Fungible Token Standard, including the Metadata extension.
- * Optimized for lower gas during batch mints.
- *
- * Token IDs are minted in sequential order (e.g. 0, 1, 2, 3, ...)
- * starting from `_startTokenId()`.
- *
- * Assumptions:
- *
- * - An owner cannot have more than 2**64 - 1 (max value of uint64) of supply.
- * - The maximum token ID cannot exceed 2**256 - 1 (max value of uint256).
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * the Metadata extension, but not including the Enumerable extension, which is available separately as
+ * {ERC721Enumerable}.
  */
+
 contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
     using ERC721Storage for ERC721Storage.Layout;
     using Strings for uint256;
@@ -499,19 +490,19 @@ contract ERC721 is Context, IERC721, ONFT721UpgradeableInternal {
         _transfer(_from, address(this), _tokenId);
     }
 
-    // TODO Add LayerZero storage for minDstGasLookup
     function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
-        // uint providedGasLimit = getGasLimit(_adapterParams);
-        // uint minGasLimit = minDstGasLookup[_dstChainId][_type] + _extraGas;
-        // require(minGasLimit > 0, 'LzApp: minGasLimit not set');
-        // require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
+        uint providedGasLimit = getGasLimit(_adapterParams);
+        uint minGasLimit = NonblockingLzAppStorage.nonblockingLzAppSlot().minDstGasLookup[_dstChainId][_type] +
+            _extraGas;
+        require(minGasLimit > 0, 'LzApp: minGasLimit not set');
+        require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
     }
 
-    // function getGasLimit(bytes memory _adapterParams) public pure returns (uint gasLimit) {
-    //     assembly {
-    //         gasLimit := mload(add(_adapterParams, 34))
-    //     }
-    // }
+    function getGasLimit(bytes memory _adapterParams) public pure returns (uint gasLimit) {
+        assembly {
+            gasLimit := mload(add(_adapterParams, 34))
+        }
+    }
 
     function sendFrom(
         address _from,
