@@ -153,4 +153,48 @@ describe('sendFrom()', async () => {
         // token is burned on the sending chain
         expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(eRC721_chainB.address);
     });
+
+    it('sendFrom() - reverts if not owner on non proxy chain', async function () {
+        const tokenId = 123;
+        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+
+        // approve the proxy to swap your token
+        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+
+        // estimate nativeFees
+        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+            .nativeFee;
+
+        // swaps token to other chain
+        await eRC721_chainA.sendFrom(
+            ownerAddress.address,
+            chainId_B,
+            ownerAddress.address,
+            tokenId,
+            ownerAddress.address,
+            ethers.constants.AddressZero,
+            '0x',
+            {
+                value: nativeFee,
+            }
+        );
+
+        // token received on the dst chain
+        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+
+        // reverts because other address does not own it
+        await expect(
+            eRC721_chainB
+                .connect(warlock)
+                .sendFrom(
+                    warlock.address,
+                    chainId_A,
+                    warlock.address,
+                    tokenId,
+                    warlock.address,
+                    ethers.constants.AddressZero,
+                    '0x'
+                )
+        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    });
 });

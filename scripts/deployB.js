@@ -17,7 +17,7 @@ async function deployDiamondB() {
     const Diamond = await ethers.getContractFactory('Diamond');
     const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address);
     await diamond.deployed();
-    console.log('Diamond deployed:', diamond.address);
+    console.log('Diamond B deployed:', diamond.address);
 
     // deploy DiamondInit
     // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
