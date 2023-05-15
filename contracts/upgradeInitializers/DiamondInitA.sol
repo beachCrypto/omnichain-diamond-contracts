@@ -16,10 +16,11 @@ import {IDiamondCut} from '../interfaces/IDiamondCut.sol';
 // ERC721 interfaces
 import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
-import {IERC721, IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
+import {IERC721} from '../ERC721-Contracts/IERC721.sol';
+import {IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 
 // ERC721 Storage
-import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721.sol';
+import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Internal.sol';
 
 // LayerZero interfaces
 import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
