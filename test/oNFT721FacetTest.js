@@ -26,11 +26,12 @@ describe('sendFrom()', async () => {
 
     before(async function () {
         LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
+        LZEndpointMockB = await ethers.getContractFactory('LZEndpointMockB');
     });
 
     beforeEach(async () => {
         lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
-        lzEndpointMockB = await LZEndpointMockA.deploy(chainId_B);
+        lzEndpointMockB = await LZEndpointMockB.deploy(chainId_B);
 
         // Hardhat local network information
         // console.log('lzEndpointMockA', lzEndpointMockA.address);
@@ -196,5 +197,59 @@ describe('sendFrom()', async () => {
                     '0x'
                 )
         ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    });
+
+    it('sendFrom() - on behalf of other user', async function () {
+        const tokenId = 123;
+        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+
+        // approve the proxy to swap your token
+        console.log('eRC721_chainA.address', eRC721_chainA.address);
+        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+
+        // estimate nativeFees
+        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+            .nativeFee;
+
+        // swaps token to other chain
+        await eRC721_chainA.sendFrom(
+            ownerAddress.address,
+            chainId_B,
+            ownerAddress.address,
+            tokenId,
+            ownerAddress.address,
+            ethers.constants.AddressZero,
+            '0x',
+            {
+                value: nativeFee,
+            }
+        );
+
+        // token received on the dst chain
+        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+
+        // approve the other user to send the token
+        await eRC721_chainB.approve(warlock.address, tokenId);
+
+        // estimate nativeFees
+        nativeFee = (await eRC721_chainB.estimateSendFee(chainId_A, ownerAddress.address, tokenId, false, '0x'))
+            .nativeFee;
+
+        // sends across
+        await eRC721_chainB
+            .connect(warlock)
+            .sendFrom(
+                ownerAddress.address,
+                chainId_A,
+                warlock.address,
+                tokenId,
+                warlock.address,
+                ethers.constants.AddressZero,
+                '0x',
+                {value: nativeFee}
+            );
+
+        // token received on the dst chain
+        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
     });
 });
