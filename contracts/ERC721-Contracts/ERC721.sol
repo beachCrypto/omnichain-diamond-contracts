@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 
 import '../libraries/LibDiamond.sol';
 import {ERC721Storage} from './ERC721Storage.sol';
-import {IERC721} from './IERC721.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import './IERC721Receiver.sol';
@@ -16,10 +15,30 @@ import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 
 import 'hardhat/console.sol';
 
-contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUpgradeable {
+contract ERC721 is Context, NonblockingLzAppUpgradeable {
     using ERC721Storage for ERC721Storage.Layout;
     using Strings for uint256;
     using Address for address;
+
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    event ReceiveFromChain(
+        uint16 indexed _srcChainId,
+        bytes indexed _srcAddress,
+        address indexed _toAddress,
+        uint _tokenId,
+        uint64 _nonce
+    );
+
+    event SendToChain(
+        address indexed _sender,
+        uint16 indexed _dstChainId,
+        bytes indexed _toAddress,
+        uint _tokenId,
+        uint64 _nonce
+    );
 
     uint public constant NO_EXTRA_GAS = 0;
     uint public constant FUNCTION_TYPE_SEND = 1;
@@ -48,7 +67,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-balanceOf}.
      */
-    function balanceOf(address owner) public view virtual override returns (uint256) {
+    function balanceOf(address owner) public view virtual returns (uint256) {
         require(owner != address(0), 'ERC721: address zero is not a valid owner');
         return ERC721Storage.layout()._balances[owner];
     }
@@ -56,7 +75,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+    function ownerOf(uint256 tokenId) public view virtual returns (address) {
         address owner = _ownerOf(tokenId);
         require(owner != address(0), 'ERC721: invalid token ID');
         return owner;
@@ -84,8 +103,8 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-approve}.
      */
-    function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
+    function approve(address to, uint256 tokenId) public virtual {
+        address owner = _ownerOf(tokenId);
         require(to != owner, 'ERC721: approval to current owner');
 
         require(
@@ -99,7 +118,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(uint256 tokenId) public view virtual override returns (address) {
+    function getApproved(uint256 tokenId) public view virtual returns (address) {
         _requireMinted(tokenId);
 
         return ERC721Storage.layout()._tokenApprovals[tokenId];
@@ -108,21 +127,21 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
         return ERC721Storage.layout()._operatorApprovals[owner][operator];
     }
 
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+    function transferFrom(address from, address to, uint256 tokenId) public virtual {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'ERC721: caller is not token owner or approved');
 
@@ -132,14 +151,14 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId) public virtual {
         safeTransferFrom(from, to, tokenId, '');
     }
 
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'ERC721: caller is not token owner or approved');
         _safeTransfer(from, to, tokenId, data);
     }
@@ -194,7 +213,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = _ownerOf(tokenId);
         return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
 
@@ -272,12 +291,12 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = _ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId, 1);
 
         // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
-        owner = ERC721.ownerOf(tokenId);
+        owner = _ownerOf(tokenId);
 
         // Clear approvals
         delete ERC721Storage.layout()._tokenApprovals[tokenId];
@@ -306,13 +325,13 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
      * Emits a {Transfer} event.
      */
     function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        require(ERC721.ownerOf(tokenId) == from, 'ERC721: transfer from incorrect owner');
+        require(_ownerOf(tokenId) == from, 'ERC721: transfer from incorrect owner');
         require(to != address(0), 'ERC721: transfer to the zero address');
 
         _beforeTokenTransfer(from, to, tokenId, 1);
 
         // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
-        require(ERC721.ownerOf(tokenId) == from, 'ERC721: transfer from incorrect owner');
+        require(_ownerOf(tokenId) == from, 'ERC721: transfer from incorrect owner');
 
         // Clear approvals from the previous owner
         delete ERC721Storage.layout()._tokenApprovals[tokenId];
@@ -340,7 +359,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         ERC721Storage.layout()._tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
+        emit Approval(_ownerOf(tokenId), to, tokenId);
     }
 
     /**
@@ -472,7 +491,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
-        require(ERC721.ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
         _transfer(_from, address(this), _tokenId);
     }
 
@@ -498,7 +517,7 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
-    ) public payable virtual override {
+    ) public payable virtual {
         _send(_from, _dstChainId, _toAddress, _tokenId, _refundAddress, _zroPaymentAddress, _adapterParams);
     }
 
