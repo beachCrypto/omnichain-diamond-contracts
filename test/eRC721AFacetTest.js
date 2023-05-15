@@ -38,7 +38,7 @@ describe('ERC721', async () => {
 
         mintFacet = await ethers.getContractAt('MintFacet', diamondAddress);
 
-        eRC721 = await ethers.getContractAt('ERC721', diamondAddress);
+        eRC721 = await ethers.getContractAt('ERC721Internal', diamondAddress);
 
         startTokenId = 0;
 
