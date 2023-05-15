@@ -4,7 +4,7 @@
 
 pragma solidity ^0.8.4;
 
-// import {ERC721AUpgradeable, ERC721AStorage} from './ERC721AInternal.sol';
+import '../libraries/LibDiamond.sol';
 import {ERC721Storage} from './ERC721Storage.sol';
 import {IERC721} from './IERC721.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
@@ -472,7 +472,8 @@ contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUp
     }
 
     function setUseCustomAdapterParams(bool _useCustomAdapterParams) external {
-        // TODO add only owner
+        LibDiamond.enforceIsContractOwner();
+
         useCustomAdapterParams = _useCustomAdapterParams;
         emit SetUseCustomAdapterParams(_useCustomAdapterParams);
     }
