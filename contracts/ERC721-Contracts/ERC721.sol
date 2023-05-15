@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-// ERC721A Contracts v4.2.3
-// Creator: Chiru Labs
 
 pragma solidity ^0.8.4;
 
@@ -17,12 +15,6 @@ import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 
 import 'hardhat/console.sol';
-
-/**
- * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
- * the Metadata extension, but not including the Enumerable extension, which is available separately as
- * {ERC721Enumerable}.
- */
 
 contract ERC721 is Context, IERC721, IONFT721CoreUpgradeable, NonblockingLzAppUpgradeable {
     using ERC721Storage for ERC721Storage.Layout;
