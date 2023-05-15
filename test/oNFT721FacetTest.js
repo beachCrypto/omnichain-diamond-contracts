@@ -45,8 +45,8 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
-        eRC721_chainA = await ethers.getContractAt('ERC721Internal', diamondAddressA);
-        eRC721_chainB = await ethers.getContractAt('ERC721Internal', diamondAddressB);
+        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
 
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);

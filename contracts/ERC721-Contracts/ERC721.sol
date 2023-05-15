@@ -15,7 +15,7 @@ import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 
 import 'hardhat/console.sol';
 
-contract ERC721Internal is Context, NonblockingLzAppUpgradeable {
+contract ERC721 is Context, NonblockingLzAppUpgradeable {
     using ERC721Storage for ERC721Storage.Layout;
     using Strings for uint256;
     using Address for address;
@@ -23,6 +23,7 @@ contract ERC721Internal is Context, NonblockingLzAppUpgradeable {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
     event ReceiveFromChain(
         uint16 indexed _srcChainId,
         bytes indexed _srcAddress,
