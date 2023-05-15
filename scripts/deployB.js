@@ -3,7 +3,7 @@
 
 const {getSelectors, FacetCutAction} = require('./libraries/diamond.js');
 
-async function deployDiamond() {
+async function deployDiamondB() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
@@ -17,12 +17,12 @@ async function deployDiamond() {
     const Diamond = await ethers.getContractFactory('Diamond');
     const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address);
     await diamond.deployed();
-    console.log('Diamond deployed:', diamond.address);
+    console.log('Diamond B deployed:', diamond.address);
 
     // deploy DiamondInit
     // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
     // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
-    const DiamondInit = await ethers.getContractFactory('DiamondInit');
+    const DiamondInit = await ethers.getContractFactory('DiamondInitB');
     const diamondInit = await DiamondInit.deploy();
     await diamondInit.deployed();
     console.log('DiamondInit deployed:', diamondInit.address);
@@ -73,4 +73,4 @@ if (require.main === module) {
         });
 }
 
-exports.deployDiamond = deployDiamond;
+exports.deployDiamondB = deployDiamondB;
