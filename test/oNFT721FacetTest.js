@@ -15,6 +15,11 @@ describe('sendFrom()', async () => {
     let diamondAddressA;
     let diamondAddressB;
     let eRC721_chainA;
+    let eRC721_chainB;
+    let mintFacet_chainA;
+    let mintFacet_chainB;
+    let NonblockingLzAppUpgradeableA;
+    let NonblockingLzAppUpgradeableB;
     let owner;
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
