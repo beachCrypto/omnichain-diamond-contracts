@@ -46,10 +46,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         return _symbol();
     }
 
-    function mint(address _tokenOwner, uint _newId) external payable {
-        _safeMint(_tokenOwner, _newId);
-    }
-
     /**
      * @dev See {IERC721-balanceOf}.
      */

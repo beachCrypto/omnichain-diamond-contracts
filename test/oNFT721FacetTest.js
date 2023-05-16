@@ -48,6 +48,9 @@ describe('sendFrom()', async () => {
         eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
         eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
 
+        mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
+        mintFacet_chainB = await ethers.getContractAt('MintFacet', diamondAddressB);
+
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
 
@@ -88,7 +91,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - your own tokens', async () => {
         const tokenId = 123;
-        await eRC721_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
@@ -153,7 +156,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - reverts if not owner on non proxy chain', async function () {
         const tokenId = 123;
-        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.mint(ownerAddress.address, tokenId);
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -197,7 +200,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - on behalf of other user', async function () {
         const tokenId = 123;
-        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.mint(ownerAddress.address, tokenId);
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -249,7 +252,7 @@ describe('sendFrom()', async () => {
     });
     it('sendFrom() - reverts if contract is approved, but not the sending user', async function () {
         const tokenId = 123;
-        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.mint(ownerAddress.address, tokenId);
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -296,7 +299,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - reverts if not approved on non proxy chain', async function () {
         const tokenId = 123;
-        await eRC721_chainA.mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.mint(ownerAddress.address, tokenId);
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -342,8 +345,8 @@ describe('sendFrom()', async () => {
         const tokenIdA = 123;
         const tokenIdB = 456;
         // mint to both owners
-        await eRC721_chainA.mint(ownerAddress.address, tokenIdA);
-        await eRC721_chainA.mint(warlock.address, tokenIdB);
+        await mintFacet_chainA.mint(ownerAddress.address, tokenIdA);
+        await mintFacet_chainB.mint(warlock.address, tokenIdB);
 
         // approve ownerAddress.address to transfer, but not the other
         await eRC721_chainA.setApprovalForAll(eRC721_chainA.address, true);
