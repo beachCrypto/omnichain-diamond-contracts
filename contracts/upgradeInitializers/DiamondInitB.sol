@@ -20,7 +20,7 @@ import {IERC721} from '../ERC721-Contracts/IERC721.sol';
 import {IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 
 // ERC721 Storage
-import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721.sol';
+import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Storage.sol';
 
 // LayerZero interfaces
 import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
