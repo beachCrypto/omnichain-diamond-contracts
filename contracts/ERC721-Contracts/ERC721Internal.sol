@@ -33,13 +33,13 @@ contract ERC721Internal is Context {
         return ERC721Storage.layout()._balances[owner];
     }
 
-    function _getApproved(uint256 tokenId) public view virtual returns (address) {
+    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
         _requireMinted(tokenId);
 
         return ERC721Storage.layout()._tokenApprovals[tokenId];
     }
 
-    function _isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+    function _isApprovedForAll(address owner, address operator) internal view virtual returns (bool) {
         return ERC721Storage.layout()._operatorApprovals[owner][operator];
     }
 
