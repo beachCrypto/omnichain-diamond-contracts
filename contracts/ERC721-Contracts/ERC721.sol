@@ -63,26 +63,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         return owner;
     }
 
-    // TODO Storage for Token URI
-    /**
-     * @dev See {IERC721Metadata-tokenURI}.
-     */
-    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
-
-        string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : '';
-    }
-
-    /**
-     * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
-     * token will be the concatenation of the `baseURI` and the `tokenId`. Empty
-     * by default, can be overridden in child contracts.
-     */
-    function _baseURI() internal view virtual returns (string memory) {
-        return '';
-    }
-
     /**
      * @dev See {IERC721-approve}.
      */
