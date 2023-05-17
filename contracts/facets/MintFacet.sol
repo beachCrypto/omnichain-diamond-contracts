@@ -11,10 +11,6 @@ contract MintFacet is ERC721Internal {
     event DirtBikeCreated(uint indexed tokenId);
 
     struct DirtBike {
-        uint x; // x coordinates of the top left corner
-        uint y; // y coordinates of the top left corner
-        uint width;
-        uint height;
         string fillDirtBikePartsColors;
         string fillForkColors;
         string fillSwingArmColors;
@@ -49,19 +45,9 @@ contract MintFacet is ERC721Internal {
         return wColors[index];
     }
 
-    function createDirtbikeStruct(
-        uint x,
-        uint y,
-        uint width,
-        uint height,
-        uint randomSeed
-    ) internal pure returns (DirtBike memory) {
+    function createDirtbikeStruct(uint randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                x: 100,
-                y: y,
-                width: width,
-                height: height,
                 fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 7), // Choose random color from array
                 fillForkColors: forkColors(randomSeed % 2),
                 fillSwingArmColors: swingArmColors(randomSeed % 2),
@@ -75,9 +61,7 @@ contract MintFacet is ERC721Internal {
             string(
                 abi.encodePacked(
                     // <!-- rear wheel -->
-                    '<rect x="',
-                    uint2str(dirtbike.x),
-                    '" y="1000" width="100" height="200" fill="',
+                    '<rect x="100" y="1000" width="100" height="200" fill="',
                     dirtbike.fillWheelColors,
                     '" />',
                     '<rect x="200" y="1200" width="200" height="100" fill="',
@@ -98,7 +82,7 @@ contract MintFacet is ERC721Internal {
         // Dirt Bike SVG
         string memory dirtBikeSvg = '';
 
-        DirtBike memory dirtBike = createDirtbikeStruct(500, 500, 1600, 1600, randomSeed);
+        DirtBike memory dirtBike = createDirtbikeStruct(randomSeed);
 
         return dirtBikeSvg = string.concat(dirtBikeSvg, dirtbikeSvg(dirtBike));
     }
