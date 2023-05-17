@@ -58,7 +58,7 @@ contract MintFacet is ERC721Internal {
     ) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                x: x,
+                x: 100,
                 y: y,
                 width: width,
                 height: height,
@@ -75,10 +75,20 @@ contract MintFacet is ERC721Internal {
             string(
                 abi.encodePacked(
                     // <!-- rear wheel -->
-                    '<rect x="100" y="1000" width="100" height="200" fill="black" />',
-                    '<rect x="200" y="1200" width="200" height="100" fill="black" />',
-                    '<rect x="200" y="900" width="200" height="100" fill="black" />',
-                    '<rect x="400" y="1000" width="100" height="200" fill="black" />'
+                    '<rect x="',
+                    uint2str(dirtbike.x),
+                    '" y="1000" width="100" height="200" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+                    '<rect x="200" y="1200" width="200" height="100" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+                    '<rect x="200" y="900" width="200" height="100" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+                    '<rect x="400" y="1000" width="100" height="200" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />'
                 )
             );
     }
@@ -120,5 +130,27 @@ contract MintFacet is ERC721Internal {
         DirtBikesStorage.dirtBikeslayout().tokenIdToSvg[_tokenId] = generateFinalDirtBikeSvg(randomSeed);
 
         _safeMint(_tokenOwner, _tokenId);
+    }
+
+    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
+        if (_i == 0) {
+            return '0';
+        }
+        uint j = _i;
+        uint len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint k = len;
+        while (_i != 0) {
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
     }
 }
