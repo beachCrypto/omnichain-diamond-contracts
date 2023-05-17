@@ -74,8 +74,6 @@ contract MintFacet is ERC721Internal {
         return
             string(
                 abi.encodePacked(
-                    // <!-- rear wheel -->
-
                     '<rect x="100" y="1000" width="100" height="200" fill="black" />',
                     '<rect x="200" y="1200" width="200" height="100" fill="black" />',
                     '<rect x="200" y="900" width="200" height="100" fill="black" />',
@@ -91,14 +89,13 @@ contract MintFacet is ERC721Internal {
 
         DirtBike memory dirtBike = createDirtbikeStruct(500, 500, 1600, 1600, randomSeed);
 
-        dirtBikeSvg = string.concat(dirtBikeSvg, dirtbikeSvg(dirtBike));
+        return dirtBikeSvg = string.concat(dirtBikeSvg, dirtbikeSvg(dirtBike));
     }
 
     function generateFinalDirtBikeSvg(uint randomSeed) public view returns (string memory) {
         bytes memory backgroundCode = abi.encodePacked(
             '<rect width="1600" height="1600" fill="',
             backgroundColors(randomSeed % 7),
-            generateDirtBikeSvg(randomSeed),
             '" />'
         );
 
