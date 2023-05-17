@@ -6,7 +6,6 @@ import '../libraries/LibDiamond.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import './IERC721Receiver.sol';
-import '../utils/Strings.sol';
 import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 import {ERC721Internal} from './ERC721Internal.sol';
@@ -14,8 +13,6 @@ import {ERC721Internal} from './ERC721Internal.sol';
 import 'hardhat/console.sol';
 
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
-    using Strings for uint256;
-
     event ReceiveFromChain(
         uint16 indexed _srcChainId,
         bytes indexed _srcAddress,

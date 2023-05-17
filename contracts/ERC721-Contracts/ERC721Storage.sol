@@ -3,9 +3,6 @@
 pragma solidity 0.8.17;
 
 library ERC721Storage {
-    // using Address for address;
-    // using Strings for uint256;
-
     struct Layout {
         // Token name
         string _name;
