@@ -56,7 +56,7 @@ contract MintFacet is ERC721Internal {
             });
     }
 
-    function dirtbikeSvg(DirtBike memory dirtbike) public pure returns (string memory) {
+    function wheelsSvg(DirtBike memory dirtbike) public pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
@@ -73,6 +73,115 @@ contract MintFacet is ERC721Internal {
                     '<rect x="400" y="1000" width="100" height="200" fill="',
                     dirtbike.fillWheelColors,
                     '" />'
+
+                    // <!-- front wheel -->
+                    '<rect x="1000" y="1000" width="100" height="200" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+
+                    '<rect x="1100" y="1200" width="200" height="100" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+
+                    '<rect x="1100" y="900" width="200" height="100" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />',
+
+                    '<rect x="1300" y="1000" width="100" height="200" fill="',
+                    dirtbike.fillWheelColors,
+                    '" />'
+
+
+
+
+                )
+            );
+    }
+
+    function driveTrainSvg(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+
+                    // <!-- swing arm -->
+                    '<rect x="300" y="1000" width="400" height="100" fill="',
+                    dirtbike.fillSwingArmColors,
+                    '" />'
+
+                    '<rect x="500" y="900" width="100" height="200" fill="',
+                    dirtbike.fillSwingArmColors,
+                    '" />'
+
+                    // <!-- engine -->
+                    '<rect x="500" y="800" width="400" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="600" y="900" width="300" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="600" y="800" width="100" height="200" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="700" y="800" width="100" height="200" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="800" y="800" width="100" height="200" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                )
+            );
+    }
+
+    function body(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+
+                    //  <!-- rear fender -->
+                    '<rect x="200" y="600" width="300" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="400" y="700" width="200" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="400" y="600" width="100" height="200" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+
+                    // <!-- front fender -->
+                    '<rect x="900" y="700" width="300" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+
+                    // <!-- gas tank -->
+                    '<rect x="700" y="700" width="200" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                )
+            );
+    }
+
+     function frontEnd(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    // <!-- fork -->
+                    '<rect x="900" y="800" width="100" height="100" fill="',
+                    dirtbike.fillForkColors,
+                    '" />'
+                    '<rect x="1000" y="900" width="100" height="100" fill="',
+                    dirtbike.fillForkColors,
+                    '" />'
+
+
+                    // <!-- handlebar -->
+                    '<rect x="900" y="500" width="100" height="200" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+                    '<rect x="800" y="500" width="200" height="100" fill="',
+                    dirtbike.fillDirtBikePartsColors,
+                    '" />'
+
                 )
             );
     }
@@ -84,7 +193,7 @@ contract MintFacet is ERC721Internal {
 
         DirtBike memory dirtBike = createDirtbikeStruct(randomSeed);
 
-        return dirtBikeSvg = string.concat(dirtBikeSvg, dirtbikeSvg(dirtBike));
+        return dirtBikeSvg = string.concat(dirtBikeSvg, wheelsSvg(dirtBike), driveTrainSvg(dirtBike), body(dirtBike), frontEnd(dirtBike));
     }
 
     function generateFinalDirtBikeSvg(uint randomSeed) public view returns (string memory) {
