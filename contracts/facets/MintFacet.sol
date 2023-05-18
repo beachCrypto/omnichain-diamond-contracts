@@ -14,8 +14,12 @@ contract MintFacet is ERC721Internal {
         string fillDirtBikePartsColors;
         string engine;
         string fillForkColors;
+        string frontFenderColor;
+        string gasTankColor;
+        string handlebar;
         string swingArmColors;
         string rearWheelColor;
+        string rearFenderColor;
         string frontWheelColor;
         uint randomSeed;
     }
@@ -60,8 +64,12 @@ contract MintFacet is ERC721Internal {
                 engine: engine(randomSeed % 7), // Choose random color from array
                 fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 7 >> 1),
                 fillForkColors: forkColors(randomSeed % 2),
+                frontFenderColor: dirtBikePartsColors(randomSeed % 7 >> 2),
+                gasTankColor: dirtBikePartsColors(randomSeed % 7 >> 3),
+                handlebar: dirtBikePartsColors(randomSeed % 7 >> 4),
                 swingArmColors: swingArmColors(randomSeed % 2),
                 rearWheelColor: wheelColors(randomSeed % 2),
+                rearFenderColor: dirtBikePartsColors(randomSeed % 7 >> 5),
                 frontWheelColor: wheelColors(randomSeed % 2 >> 1),
                 randomSeed: randomSeed
             });
@@ -153,23 +161,21 @@ contract MintFacet is ERC721Internal {
 
                     //  <!-- rear fender -->
                     '<rect x="200" y="600" width="300" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.rearFenderColor,
                     '" />'
                     '<rect x="400" y="700" width="200" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.rearFenderColor,
                     '" />'
                     '<rect x="400" y="600" width="100" height="200" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.rearFenderColor,
                     '" />'
-
                     // <!-- front fender -->
                     '<rect x="900" y="700" width="300" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.frontFenderColor,
                     '" />'
-
                     // <!-- gas tank -->
                     '<rect x="700" y="700" width="200" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.gasTankColor,
                     '" />'
                 )
             );
@@ -192,10 +198,10 @@ contract MintFacet is ERC721Internal {
 
                     // <!-- handlebar -->
                     '<rect x="900" y="500" width="100" height="200" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.handlebar,
                     '" />'
                     '<rect x="800" y="500" width="200" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.handlebar,
                     '" />'
 
                 )
