@@ -30,15 +30,15 @@ contract MintFacet is ERC721Internal {
         return bgColors[index];
     }
 
-    // Return a random part color
+     // Return a random part color
     function engine(uint index) internal pure returns (string memory) {
-        string[7] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00'];
+        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
         return bColors[index];
     }
 
     // Return a random part color
     function dirtBikePartsColors(uint index) internal pure returns (string memory) {
-        string[7] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00'];
+        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
         return bColors[index];
     }
 
@@ -61,15 +61,15 @@ contract MintFacet is ERC721Internal {
     function createDirtbikeStruct(uint randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                engine: engine(randomSeed % 7), // Choose random color from array
-                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 7 >> 1),
+                engine: engine(randomSeed % 9), // Choose random color from array
+                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 10 >> 1),
                 fillForkColors: forkColors(randomSeed % 2),
-                frontFenderColor: dirtBikePartsColors(randomSeed % 7 >> 2),
-                gasTankColor: dirtBikePartsColors(randomSeed % 7 >> 3),
-                handlebar: dirtBikePartsColors(randomSeed % 7 >> 4),
+                frontFenderColor: dirtBikePartsColors(randomSeed % 10 >> 2),
+                gasTankColor: dirtBikePartsColors(randomSeed % 10 >> 3),
+                handlebar: dirtBikePartsColors(randomSeed % 10 >> 4),
                 swingArmColors: swingArmColors(randomSeed % 2),
                 rearWheelColor: wheelColors(randomSeed % 2),
-                rearFenderColor: dirtBikePartsColors(randomSeed % 7 >> 5),
+                rearFenderColor: dirtBikePartsColors(randomSeed % 10 >> 5),
                 frontWheelColor: wheelColors(randomSeed % 2 >> 1),
                 randomSeed: randomSeed
             });
@@ -221,7 +221,7 @@ contract MintFacet is ERC721Internal {
     function generateFinalDirtBikeSvg(uint randomSeed) public view returns (string memory) {
         bytes memory backgroundCode = abi.encodePacked(
             '<rect width="1600" height="1600" fill="',
-            backgroundColors(randomSeed % 7),
+            backgroundColors(randomSeed % 9),
             '" />'
         );
 
