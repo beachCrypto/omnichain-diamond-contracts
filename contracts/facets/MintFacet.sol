@@ -12,9 +12,11 @@ contract MintFacet is ERC721Internal {
 
     struct DirtBike {
         string fillDirtBikePartsColors;
+        string engine;
         string fillForkColors;
-        string fillSwingArmColors;
-        string fillWheelColors;
+        string swingArmColors;
+        string rearWheelColor;
+        string frontWheelColor;
         uint randomSeed;
     }
 
@@ -22,6 +24,12 @@ contract MintFacet is ERC721Internal {
     function backgroundColors(uint index) internal pure returns (string memory) {
         string[7] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad'];
         return bgColors[index];
+    }
+
+    // Return a random part color
+    function engine(uint index) internal pure returns (string memory) {
+        string[7] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00'];
+        return bColors[index];
     }
 
     // Return a random part color
@@ -45,55 +53,61 @@ contract MintFacet is ERC721Internal {
         return wColors[index];
     }
 
+    // Each part needs it's own variable
     function createDirtbikeStruct(uint randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 7), // Choose random color from array
+                engine: engine(randomSeed % 7), // Choose random color from array
+                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 7 >> 1),
                 fillForkColors: forkColors(randomSeed % 2),
-                fillSwingArmColors: swingArmColors(randomSeed % 2),
-                fillWheelColors: wheelColors(randomSeed % 2),
+                swingArmColors: swingArmColors(randomSeed % 2),
+                rearWheelColor: wheelColors(randomSeed % 2),
+                frontWheelColor: wheelColors(randomSeed % 2 >> 1),
                 randomSeed: randomSeed
             });
     }
 
-    function wheelsSvg(DirtBike memory dirtbike) public pure returns (string memory) {
+    function rearWheelSvg(DirtBike memory dirtbike) public pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
                     // <!-- rear wheel -->
                     '<rect x="100" y="1000" width="100" height="200" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.rearWheelColor,
                     '" />',
                     '<rect x="200" y="1200" width="200" height="100" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.rearWheelColor,
                     '" />',
                     '<rect x="200" y="900" width="200" height="100" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.rearWheelColor,
                     '" />',
                     '<rect x="400" y="1000" width="100" height="200" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.rearWheelColor,
                     '" />'
+                )
+            );
+    }
 
+      function frontWheelSvg(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
                     // <!-- front wheel -->
                     '<rect x="1000" y="1000" width="100" height="200" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.frontWheelColor,
                     '" />',
 
                     '<rect x="1100" y="1200" width="200" height="100" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.frontWheelColor,
                     '" />',
 
                     '<rect x="1100" y="900" width="200" height="100" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.frontWheelColor,
                     '" />',
 
                     '<rect x="1300" y="1000" width="100" height="200" fill="',
-                    dirtbike.fillWheelColors,
+                    dirtbike.frontWheelColor,
                     '" />'
-
-
-
-
                 )
             );
     }
@@ -105,28 +119,28 @@ contract MintFacet is ERC721Internal {
 
                     // <!-- swing arm -->
                     '<rect x="300" y="1000" width="400" height="100" fill="',
-                    dirtbike.fillSwingArmColors,
+                    dirtbike.swingArmColors,
                     '" />'
 
                     '<rect x="500" y="900" width="100" height="200" fill="',
-                    dirtbike.fillSwingArmColors,
+                    dirtbike.swingArmColors,
                     '" />'
 
                     // <!-- engine -->
                     '<rect x="500" y="800" width="400" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.engine,
                     '" />'
                     '<rect x="600" y="900" width="300" height="100" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.engine,
                     '" />'
                     '<rect x="600" y="800" width="100" height="200" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.engine,
                     '" />'
                     '<rect x="700" y="800" width="100" height="200" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.engine,
                     '" />'
                     '<rect x="800" y="800" width="100" height="200" fill="',
-                    dirtbike.fillDirtBikePartsColors,
+                    dirtbike.engine,
                     '" />'
                 )
             );
@@ -172,7 +186,9 @@ contract MintFacet is ERC721Internal {
                     '<rect x="1000" y="900" width="100" height="100" fill="',
                     dirtbike.fillForkColors,
                     '" />'
-
+                    '<rect x="1100" y="1000" width="100" height="100" fill="',
+                    dirtbike.fillForkColors,
+                    '" />'
 
                     // <!-- handlebar -->
                     '<rect x="900" y="500" width="100" height="200" fill="',
@@ -193,7 +209,7 @@ contract MintFacet is ERC721Internal {
 
         DirtBike memory dirtBike = createDirtbikeStruct(randomSeed);
 
-        return dirtBikeSvg = string.concat(dirtBikeSvg, wheelsSvg(dirtBike), driveTrainSvg(dirtBike), body(dirtBike), frontEnd(dirtBike));
+        return dirtBikeSvg = string.concat(dirtBikeSvg, rearWheelSvg(dirtBike), frontWheelSvg(dirtBike), driveTrainSvg(dirtBike), body(dirtBike), frontEnd(dirtBike));
     }
 
     function generateFinalDirtBikeSvg(uint randomSeed) public view returns (string memory) {
@@ -218,7 +234,12 @@ contract MintFacet is ERC721Internal {
     }
 
     function mint(address _tokenOwner, uint _tokenId) external payable {
+        // TODO this randomSeed is not sufficient
         uint randomSeed = uint(keccak256(abi.encodePacked(block.basefee, block.timestamp)));
+
+        uint randomSeed1 = uint(keccak256(abi.encodePacked(block.basefee, block.timestamp)));
+
+        console.log("randomSeed", randomSeed, "randomSeed1", randomSeed1);
 
         DirtBikesStorage.dirtBikeslayout().tokenIdToSvg[_tokenId] = generateFinalDirtBikeSvg(randomSeed);
 
