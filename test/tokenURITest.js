@@ -73,6 +73,6 @@ describe('sendFrom()', async () => {
 
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        // console.log('Token URI ------>', await renderFacet_chainA.tokenURI(tokenId));
+        console.log('Token URI ------>', await renderFacet_chainA.tokenURI(tokenId));
     });
 });

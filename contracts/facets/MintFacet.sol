@@ -201,7 +201,7 @@ contract MintFacet is ERC721Internal {
     }
 
     // SVG code for a single line
-    function generateDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
+    function generateDirtBikeSvg(uint256[] memory randomSeed) public pure returns (string memory) {
         // Dirt Bike SVG
         string memory dirtBikeSvg = '';
 
@@ -247,7 +247,6 @@ contract MintFacet is ERC721Internal {
         // bit shift randomHash to the right 8 bits - can be fewer
         randomHash >>= 8;
       }
-
 
 
       return stats;

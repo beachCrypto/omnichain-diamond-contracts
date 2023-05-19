@@ -25,9 +25,9 @@ contract RenderFacet is ERC721Internal {
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
-                                '{"name": "Balls of Art #',
+                                '{"name": "Dirt Bikes #',
                                 uint2str(tokenId),
-                                '", "description": "Balls of Art are an assortment of 111 fully on-chain, randomly generated, happy art balls", "attributes": "", "image":"data:image/svg+xml;base64,',
+                                '", "description": "Dirt Bikes Omnichain Diamond NFTs", "attributes": "", "image":"data:image/svg+xml;base64,',
                                 Base64.encode(bytes(DirtBikesStorage.dirtBikeslayout().tokenIdToSvg[tokenId])),
                                 '"}'
                             )
