@@ -25,29 +25,23 @@ contract MintFacet is ERC721Internal {
 
     // Return a random background color
     function backgroundColors(uint index) internal pure returns (string memory) {
-        string[10] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad', '#ffffff', '#d33a00', '#78B7BB'];
+        string[10] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad', '#247881', '#00FFC6', '#9D5353'];
         return bgColors[index];
-    }
-
-     // Return a random part color
-    function engine(uint index) internal pure returns (string memory) {
-        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
-        return bColors[index];
     }
 
     // Return a random part color
     function dirtBikePartsColors(uint index) internal pure returns (string memory) {
-        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#ffa500', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
+        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#EA5C2B', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
         return bColors[index];
     }
 
     function forkColors(uint index) internal pure returns (string memory) {
-        string[2] memory fColors = ['#000000', '#8c8c8c'];
+        string[4] memory fColors = ['#000000','#E57C23', '#8c8c8c','#BE5A83'];
         return fColors[index];
     }
 
     function swingArmColors(uint index) internal pure returns (string memory) {
-        string[2] memory saColors = ['#000000', '#8c8c8c'];
+        string[4] memory saColors = ['#000000', '#8c8c8c', '#E57C23','#BE5A83'];
         return saColors[index];
     }
 
@@ -60,13 +54,13 @@ contract MintFacet is ERC721Internal {
     function createDirtbikeStruct(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                engine: engine(randomSeed[0]), // Choose random color from array
+                engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
                 fillDirtBikePartsColors: dirtBikePartsColors(randomSeed[1]),
-                fillForkColors: forkColors(randomSeed[2] % 2),
+                fillForkColors: forkColors(randomSeed[2] % 4),
                 frontFenderColor: dirtBikePartsColors(randomSeed[3]),
                 gasTankColor: dirtBikePartsColors(randomSeed[4]),
                 handlebar: dirtBikePartsColors(randomSeed[5]),
-                swingArmColors: swingArmColors(randomSeed[6] % 2),
+                swingArmColors: swingArmColors(randomSeed[6] % 4),
                 rearWheelColor: wheelColors(randomSeed[7] % 2),
                 rearFenderColor: dirtBikePartsColors(randomSeed[8]),
                 frontWheelColor: wheelColors(randomSeed[9] % 2)
