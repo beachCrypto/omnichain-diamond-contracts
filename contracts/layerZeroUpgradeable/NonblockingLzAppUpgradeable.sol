@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.17;
 
 import '../libraries/LibDiamond.sol';
 import '../layerZeroInterfaces/ILayerZeroReceiver.sol';

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import '../ERC721-Contracts/IERC721Receiver.sol';
 import '../utils/Context.sol';

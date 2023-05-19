@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import './IERC721Receiver.sol';
 import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
