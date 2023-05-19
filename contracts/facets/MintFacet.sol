@@ -31,22 +31,22 @@ contract MintFacet is ERC721Internal {
 
     // Return a random part color
     function dirtBikePartsColors(uint index) internal pure returns (string memory) {
-        string[10] memory bColors = ['#000000', '#00abec', '#3c643c', '#EA5C2B', '#7b457b', '#ffffff', '#d33a00', '#78B7BB', '#808B97', '#025464'];
+        string[10] memory bColors = ['#2C3333', '#00abec', '#3c643c', '#EA5C2B', '#7b457b', '#F6F1F1', '#d33a00', '#78B7BB', '#808B97', '#025464'];
         return bColors[index];
     }
 
     function forkColors(uint index) internal pure returns (string memory) {
-        string[4] memory fColors = ['#000000','#E57C23', '#8c8c8c','#BE5A83'];
+        string[4] memory fColors = ['#2C3333','#E57C23', '#8c8c8c','#BE5A83'];
         return fColors[index];
     }
 
     function swingArmColors(uint index) internal pure returns (string memory) {
-        string[4] memory saColors = ['#000000', '#8c8c8c', '#E57C23','#BE5A83'];
+        string[4] memory saColors = ['#2C3333', '#8c8c8c', '#E57C23','#BE5A83'];
         return saColors[index];
     }
 
     function wheelColors(uint index) internal pure returns (string memory) {
-        string[2] memory wColors = ['#000000', '#6f4e37'];
+        string[2] memory wColors = ['#4D4D4D', '#6f4e37'];
         return wColors[index];
     }
 
