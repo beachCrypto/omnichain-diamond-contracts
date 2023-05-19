@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.9;
 
-import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import {DirtBikesStorage} from './DirtBikesStorage.sol';
+import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 
 import 'hardhat/console.sol';
 
@@ -227,7 +227,6 @@ contract MintFacet is ERC721Internal {
             )
         );
 
-        console.log('Final Svg: ', string(finalSvg));
         return finalSvg;
     }
 
@@ -248,25 +247,11 @@ contract MintFacet is ERC721Internal {
         randomHash >>= 8;
       }
 
-
       return stats;
     }
 
     function mint(address _tokenOwner, uint _tokenId) external payable {
         uint256[] memory randomSeed = generateStats();
-
-        console.log("randomSeed[0]", randomSeed[0]);
-        console.log("randomSeed[0]", randomSeed[1]);
-        console.log("randomSeed[0]", randomSeed[2] % 2);
-        console.log("randomSeed[0]", randomSeed[3]);
-        console.log("randomSeed[0]", randomSeed[4]);
-        console.log("randomSeed[0]", randomSeed[5]);
-        console.log("randomSeed[0]", randomSeed[6] % 2);
-        console.log("randomSeed[0]", randomSeed[7] % 2);
-        console.log("randomSeed[0]", randomSeed[8]);
-        console.log("randomSeed[0]", randomSeed[9] % 2);
-
-        console.log("-----", randomSeed[0] % 9);
 
         DirtBikesStorage.dirtBikeslayout().tokenIdToSvg[_tokenId] = generateFinalDirtBikeSvg(randomSeed);
 

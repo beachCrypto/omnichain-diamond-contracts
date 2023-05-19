@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.4;
 
-import '../utils/Strings.sol';
-import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import '@openzeppelin/contracts/utils/Base64.sol';
+import '../utils/Strings.sol';
+
 import {DirtBikesStorage} from './DirtBikesStorage.sol';
+import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 
 import 'hardhat/console.sol';
 
