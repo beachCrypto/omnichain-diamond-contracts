@@ -221,7 +221,7 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
+    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public pure returns (string memory) {
         bytes memory backgroundCode = abi.encodePacked(
             '<rect width="1600" height="1600" fill="',
             backgroundColors(randomSeed[0] % 9),
@@ -245,7 +245,7 @@ contract RenderFacet is ERC721Internal {
         // generate psuedo-randomHash
         // uint256 randomHash = uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee)));
 
-        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtbikeVIN[tokenId];
+        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
 
         // build an array of predefined length
         uint256[] memory stats = new uint256[](10);
