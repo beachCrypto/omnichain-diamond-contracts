@@ -2,20 +2,18 @@
 
 pragma solidity ^0.8.4;
 
-import '../libraries/LibDiamond.sol';
-import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
-import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import './IERC721Receiver.sol';
-import '../utils/Strings.sol';
 import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
+import '../libraries/LibDiamond.sol';
+
 import {ERC721Internal} from './ERC721Internal.sol';
+import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
+import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 
 import 'hardhat/console.sol';
 
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
-    using Strings for uint256;
-
     event ReceiveFromChain(
         uint16 indexed _srcChainId,
         bytes indexed _srcAddress,
@@ -61,26 +59,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         address owner = _ownerOf(tokenId);
         require(owner != address(0), 'ERC721: invalid token ID');
         return owner;
-    }
-
-    // TODO Storage for Token URI
-    /**
-     * @dev See {IERC721Metadata-tokenURI}.
-     */
-    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
-
-        string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : '';
-    }
-
-    /**
-     * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
-     * token will be the concatenation of the `baseURI` and the `tokenId`. Empty
-     * by default, can be overridden in child contracts.
-     */
-    function _baseURI() internal view virtual returns (string memory) {
-        return '';
     }
 
     /**
