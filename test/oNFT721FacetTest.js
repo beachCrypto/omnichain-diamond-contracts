@@ -75,24 +75,10 @@ describe('sendFrom()', async () => {
             ethers.utils.solidityPack(['address', 'address'], [diamondAddressA, diamondAddressB])
         );
 
-        startTokenId = 0;
-
-        offsetted = (...arr) => offsettedIndex(startTokenId, arr);
-
         const [owner, addr1] = await ethers.getSigners();
 
         ownerAddress = owner;
         warlock = addr1;
-
-        ownerAddress.expected = {
-            mintCount: 1,
-            tokens: offsetted(0),
-        };
-
-        warlock.expected = {
-            mintCount: 2,
-            tokens: [offsetted(1, 2)],
-        };
     });
 
     it('sendFrom() - your own tokens', async () => {

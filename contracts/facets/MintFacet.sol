@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.17;
 
 import {DirtBikesStorage} from './DirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
@@ -20,7 +19,8 @@ contract MintFacet is ERC721Internal {
     function mint(address _tokenOwner, uint _tokenId) external payable {
         uint256 dirtBikeDNA = getHash();
 
-        DirtBikesStorage.dirtBikeslayout().dirtbikeVIN[_tokenId] = dirtBikeDNA;
+        // Store psuedo-randomHash as DirtBike VIN
+        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId] = dirtBikeDNA;
 
         _safeMint(_tokenOwner, _tokenId);
     }

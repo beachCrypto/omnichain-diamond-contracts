@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.17;
 
 /**
  * @dev Interface of the ONFT Core standard

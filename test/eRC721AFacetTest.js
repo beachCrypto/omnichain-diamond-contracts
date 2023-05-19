@@ -38,24 +38,10 @@ describe('ERC721', async () => {
 
         eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
 
-        startTokenId = 0;
-
-        offsetted = (...arr) => offsettedIndex(startTokenId, arr);
-
         const [owner, addr1] = await ethers.getSigners();
 
         ownerAddress = owner;
         warlock = addr1;
-
-        ownerAddress.expected = {
-            mintCount: 1,
-            tokens: offsetted(0),
-        };
-
-        warlock.expected = {
-            mintCount: 2,
-            tokens: [offsetted(1, 2)],
-        };
     });
 
     it('Sender can mint an NFT', async () => {

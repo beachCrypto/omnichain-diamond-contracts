@@ -40,24 +40,12 @@ describe('sendFrom()', async () => {
 
         renderFacet_chainA = await ethers.getContractAt('RenderFacet', diamondAddressA);
 
-        startTokenId = 0;
-
         offsetted = (...arr) => offsettedIndex(startTokenId, arr);
 
         const [owner, addr1] = await ethers.getSigners();
 
         ownerAddress = owner;
         warlock = addr1;
-
-        ownerAddress.expected = {
-            mintCount: 1,
-            tokens: offsetted(0),
-        };
-
-        warlock.expected = {
-            mintCount: 2,
-            tokens: [offsetted(1, 2)],
-        };
     });
 
     it('mint on chain A and read tokenUI', async () => {

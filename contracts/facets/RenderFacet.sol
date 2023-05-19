@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
@@ -14,7 +13,6 @@ contract RenderFacet is ERC721Internal {
     using Strings for uint256;
 
     struct DirtBike {
-        string fillDirtBikePartsColors;
         string engine;
         string fillForkColors;
         string frontFenderColor;
@@ -58,15 +56,14 @@ contract RenderFacet is ERC721Internal {
         return
             DirtBike({
                 engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
-                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed[1]),
-                fillForkColors: forkColors(randomSeed[2] % 4),
-                frontFenderColor: dirtBikePartsColors(randomSeed[3]),
-                gasTankColor: dirtBikePartsColors(randomSeed[4]),
-                handlebar: dirtBikePartsColors(randomSeed[5]),
-                swingArmColors: swingArmColors(randomSeed[6] % 4),
-                rearWheelColor: wheelColors(randomSeed[7] % 2),
-                rearFenderColor: dirtBikePartsColors(randomSeed[8]),
-                frontWheelColor: wheelColors(randomSeed[9] % 2)
+                fillForkColors: forkColors(randomSeed[1] % 4),
+                frontFenderColor: dirtBikePartsColors(randomSeed[2]),
+                gasTankColor: dirtBikePartsColors(randomSeed[3]),
+                handlebar: dirtBikePartsColors(randomSeed[4]),
+                swingArmColors: swingArmColors(randomSeed[5] % 4),
+                rearWheelColor: wheelColors(randomSeed[6] % 2),
+                rearFenderColor: dirtBikePartsColors(randomSeed[7]),
+                frontWheelColor: wheelColors(randomSeed[8] % 2)
             });
     }
 
@@ -221,7 +218,7 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public pure returns (string memory) {
+    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
         bytes memory backgroundCode = abi.encodePacked(
             '<rect width="1600" height="1600" fill="',
             backgroundColors(randomSeed[0] % 9),
@@ -238,27 +235,28 @@ contract RenderFacet is ERC721Internal {
             )
         );
 
+        console.log("finalSvg: ", finalSvg);
+
         return finalSvg;
     }
 
+    // Cool Cats Solidity — Random Numbers - https://medium.com/coinmonks/solidity-random-numbers-f54e1272c7dd
     function generateStats(uint256 tokenId) public view returns (uint256[] memory) {
-        // generate psuedo-randomHash
-        // uint256 randomHash = uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee)));
-
+        // Pull Dirt Bike Vin from storage
         uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
 
         // build an array of predefined length
-        uint256[] memory stats = new uint256[](10);
+        uint256[] memory vin = new uint256[](10);
 
         // iterate over the number of stats we want a random number for
         for (uint256 i; i < 10; i++) {
             // use random number to get number between 0 and maxStatValue
-            stats[i] = randomHash % 10;
+            vin[i] = randomHash % 10;
             // bit shift randomHash to the right 8 bits - can be fewer
             randomHash >>= 8;
         }
 
-        return stats;
+        return vin;
     }
 
     /**

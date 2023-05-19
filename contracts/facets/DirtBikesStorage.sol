@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.8.17;
 
 library DirtBikesStorage {
     struct DirtBikesLayout {
-        // mapping(uint => string) tokenIdToSvg;
         mapping(uint => uint256) dirtBikeVIN;
     }
 
