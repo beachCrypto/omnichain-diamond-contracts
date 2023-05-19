@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import {DirtBikesStorage} from './DirtBikesStorage.sol';
@@ -21,12 +21,11 @@ contract MintFacet is ERC721Internal {
         string rearWheelColor;
         string rearFenderColor;
         string frontWheelColor;
-        uint randomSeed;
     }
 
     // Return a random background color
     function backgroundColors(uint index) internal pure returns (string memory) {
-        string[7] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad'];
+        string[10] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad', '#ffffff', '#d33a00', '#78B7BB'];
         return bgColors[index];
     }
 
@@ -58,20 +57,19 @@ contract MintFacet is ERC721Internal {
     }
 
     // Each part needs it's own variable
-    function createDirtbikeStruct(uint randomSeed) internal pure returns (DirtBike memory) {
+    function createDirtbikeStruct(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                engine: engine(randomSeed % 9), // Choose random color from array
-                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed % 10 >> 1),
-                fillForkColors: forkColors(randomSeed % 2),
-                frontFenderColor: dirtBikePartsColors(randomSeed % 10 >> 2),
-                gasTankColor: dirtBikePartsColors(randomSeed % 10 >> 3),
-                handlebar: dirtBikePartsColors(randomSeed % 10 >> 4),
-                swingArmColors: swingArmColors(randomSeed % 2),
-                rearWheelColor: wheelColors(randomSeed % 2),
-                rearFenderColor: dirtBikePartsColors(randomSeed % 10 >> 5),
-                frontWheelColor: wheelColors(randomSeed % 2 >> 1),
-                randomSeed: randomSeed
+                engine: engine(randomSeed[0]), // Choose random color from array
+                fillDirtBikePartsColors: dirtBikePartsColors(randomSeed[1]),
+                fillForkColors: forkColors(randomSeed[2] % 2),
+                frontFenderColor: dirtBikePartsColors(randomSeed[3]),
+                gasTankColor: dirtBikePartsColors(randomSeed[4]),
+                handlebar: dirtBikePartsColors(randomSeed[5]),
+                swingArmColors: swingArmColors(randomSeed[6] % 2),
+                rearWheelColor: wheelColors(randomSeed[7] % 2),
+                rearFenderColor: dirtBikePartsColors(randomSeed[8]),
+                frontWheelColor: wheelColors(randomSeed[9] % 2)
             });
     }
 
@@ -209,7 +207,7 @@ contract MintFacet is ERC721Internal {
     }
 
     // SVG code for a single line
-    function generateDirtBikeSvg(uint randomSeed) public view returns (string memory) {
+    function generateDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
         // Dirt Bike SVG
         string memory dirtBikeSvg = '';
 
@@ -218,10 +216,10 @@ contract MintFacet is ERC721Internal {
         return dirtBikeSvg = string.concat(dirtBikeSvg, rearWheelSvg(dirtBike), frontWheelSvg(dirtBike), driveTrainSvg(dirtBike), body(dirtBike), frontEnd(dirtBike));
     }
 
-    function generateFinalDirtBikeSvg(uint randomSeed) public view returns (string memory) {
+    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
         bytes memory backgroundCode = abi.encodePacked(
             '<rect width="1600" height="1600" fill="',
-            backgroundColors(randomSeed % 9),
+            backgroundColors(randomSeed[0] % 9),
             '" />'
         );
 
@@ -239,13 +237,43 @@ contract MintFacet is ERC721Internal {
         return finalSvg;
     }
 
+    uint256 maxStatValue = 100;
+
+    function generateStats() public view returns(uint256[] memory){
+      // generate psuedo-randomHash
+      uint256 randomHash = uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee)));
+
+      // build an array of predefined length
+      uint256[] memory stats = new uint256[](10);
+
+      // iterate over the number of stats we want a random number for
+      for(uint256 i; i < 10; i++){
+        // use random number to get number between 0 and maxStatValue
+        stats[i] = randomHash % 10;
+        // bit shift randomHash to the right 8 bits - can be fewer
+        randomHash >>= 8;
+      }
+
+
+
+      return stats;
+    }
+
     function mint(address _tokenOwner, uint _tokenId) external payable {
-        // TODO this randomSeed is not sufficient
-        uint randomSeed = uint(keccak256(abi.encodePacked(block.basefee, block.timestamp)));
+        uint256[] memory randomSeed = generateStats();
 
-        uint randomSeed1 = uint(keccak256(abi.encodePacked(block.basefee, block.timestamp)));
+        console.log("randomSeed[0]", randomSeed[0]);
+        console.log("randomSeed[0]", randomSeed[1]);
+        console.log("randomSeed[0]", randomSeed[2] % 2);
+        console.log("randomSeed[0]", randomSeed[3]);
+        console.log("randomSeed[0]", randomSeed[4]);
+        console.log("randomSeed[0]", randomSeed[5]);
+        console.log("randomSeed[0]", randomSeed[6] % 2);
+        console.log("randomSeed[0]", randomSeed[7] % 2);
+        console.log("randomSeed[0]", randomSeed[8]);
+        console.log("randomSeed[0]", randomSeed[9] % 2);
 
-        console.log("randomSeed", randomSeed, "randomSeed1", randomSeed1);
+        console.log("-----", randomSeed[0] % 9);
 
         DirtBikesStorage.dirtBikeslayout().tokenIdToSvg[_tokenId] = generateFinalDirtBikeSvg(randomSeed);
 
