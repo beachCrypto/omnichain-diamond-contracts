@@ -130,8 +130,7 @@ describe('sendFrom()', async () => {
         // token received on the dst chain
         expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
 
-        console.log('Token URI after transfer on chainB ------>', await
-        .tokenURI(tokenId));
+        console.log('Token URI after transfer on chainB ------>', await renderFacet_chainB.tokenURI(tokenId));
 
         // estimate nativeFees
 
