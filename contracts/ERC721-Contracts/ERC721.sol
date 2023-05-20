@@ -307,7 +307,14 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
             toAddress := mload(add(toAddressBytes, 20))
         }
 
-        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
+        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
+        console.log('randomHash: ---------->>>>>>>>', randomHash);
+
+        if (randomHash == 0) {
+            // Store psuedo-randomHash as DirtBike VIN
+            DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
+        }
+
         _creditTo(_srcChainId, toAddress, tokenId);
 
         emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenId, _nonce);
