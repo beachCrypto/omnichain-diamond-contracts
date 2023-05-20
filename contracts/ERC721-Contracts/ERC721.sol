@@ -133,8 +133,9 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bool _useZro,
         bytes calldata _adapterParams
     ) external view returns (uint nativeFee, uint zroFee) {
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
         // mock the payload for send()
-        bytes memory payload = abi.encode(_toAddress, _tokenId);
+        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
@@ -196,7 +197,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
     ) internal virtual {
         _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
 
-        bytes memory payload = abi.encode(_toAddress, _tokenId);
+        // randomHash seed added to payload from storage
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+
+        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
             _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
@@ -297,12 +301,13 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bytes memory _payload
     ) internal virtual {
         // decode and load the toAddress
-        (bytes memory toAddressBytes, uint tokenId) = abi.decode(_payload, (bytes, uint));
+        (bytes memory toAddressBytes, uint tokenId, uint _randomHash) = abi.decode(_payload, (bytes, uint, uint));
         address toAddress;
         assembly {
             toAddress := mload(add(toAddressBytes, 20))
         }
 
+        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
         _creditTo(_srcChainId, toAddress, tokenId);
 
         emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenId, _nonce);
