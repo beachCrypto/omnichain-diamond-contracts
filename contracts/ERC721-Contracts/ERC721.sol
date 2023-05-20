@@ -9,6 +9,7 @@ import '../libraries/LibDiamond.sol';
 import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
+import {DirtBikesStorage} from '../facets/DirtBikesStorage.sol';
 
 import 'hardhat/console.sol';
 
@@ -309,6 +310,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
         require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+
+        // Dirt Bike hash must be stored on the next chain
+        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
