@@ -9,6 +9,7 @@ import '../libraries/LibDiamond.sol';
 import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
+import {DirtBikesStorage} from '../facets/DirtBikesStorage.sol';
 
 import 'hardhat/console.sol';
 
@@ -132,8 +133,9 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bool _useZro,
         bytes calldata _adapterParams
     ) external view returns (uint nativeFee, uint zroFee) {
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
         // mock the payload for send()
-        bytes memory payload = abi.encode(_toAddress, _tokenId);
+        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
@@ -195,7 +197,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
     ) internal virtual {
         _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
 
-        bytes memory payload = abi.encode(_toAddress, _tokenId);
+        // randomHash seed added to payload from storage
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+
+        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
             _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
@@ -296,10 +301,18 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bytes memory _payload
     ) internal virtual {
         // decode and load the toAddress
-        (bytes memory toAddressBytes, uint tokenId) = abi.decode(_payload, (bytes, uint));
+        (bytes memory toAddressBytes, uint tokenId, uint _randomHash) = abi.decode(_payload, (bytes, uint, uint));
         address toAddress;
         assembly {
             toAddress := mload(add(toAddressBytes, 20))
+        }
+
+        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
+        console.log('randomHash: ---------->>>>>>>>', randomHash);
+
+        if (randomHash == 0) {
+            // Store psuedo-randomHash as DirtBike VIN
+            DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
         }
 
         _creditTo(_srcChainId, toAddress, tokenId);
@@ -309,6 +322,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
         require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+
+        // Dirt Bike hash must be stored on the next chain
+        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
