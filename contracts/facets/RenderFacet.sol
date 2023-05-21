@@ -13,6 +13,7 @@ contract RenderFacet is ERC721Internal {
     using Strings for uint256;
 
     struct DirtBike {
+        string background;
         string engine;
         string forks;
         string frontFender;
@@ -52,9 +53,10 @@ contract RenderFacet is ERC721Internal {
     }
 
      // Each part needs it's own variable
-    function createDirtbikeStruct(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
+    function createDirtBike(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
         return
             DirtBike({
+                background: backgroundColors(randomSeed[0] % 9),
                 engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
                 forks: forkColors(randomSeed[1] % 4),
                 frontFender: dirtBikePartsColors(randomSeed[2]),
@@ -65,6 +67,18 @@ contract RenderFacet is ERC721Internal {
                 rearFender: dirtBikePartsColors(randomSeed[7]),
                 frontWheel: wheelColors(randomSeed[8] % 2)
             });
+    }
+
+    function background(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            (string(
+                abi.encodePacked(
+                    // <!-- background -->
+                    '<rect width="1600" height="1600" fill="',
+                    dirtbike.background,
+                    '" />'
+                )
+            ));
     }
 
     function rearWheelSvg(DirtBike memory dirtbike) public pure returns (string memory) {
@@ -200,44 +214,35 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-     // SVG code for a single line
-    function generateDirtBikeSvg(uint256[] memory randomSeed) public pure returns (string memory) {
-        // Dirt Bike SVG
-        string memory dirtBikeSvg = '';
+    function generateFinalDirtBikeSvg(DirtBike memory dirtBike) public view returns (string memory) {
 
-        DirtBike memory dirtBike = createDirtbikeStruct(randomSeed);
+      string memory dirtBikeSvg = '';
 
-        return
-            dirtBikeSvg = string.concat(
+      dirtBikeSvg = string.concat(
                 dirtBikeSvg,
+                background(dirtBike),
                 rearWheelSvg(dirtBike),
                 frontWheelSvg(dirtBike),
                 driveTrainSvg(dirtBike),
                 body(dirtBike),
                 frontEnd(dirtBike)
             );
-    }
 
-    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
-        bytes memory backgroundCode = abi.encodePacked(
-            '<rect width="1600" height="1600" fill="',
-            backgroundColors(randomSeed[0] % 9),
-            '" />'
-        );
+
+
 
         // SVG opening and closing tags, background color + 3 lines generated
         string memory finalSvg = string(
             abi.encodePacked(
                 '<svg viewBox="0 0 1600 1600" xmlns="http://www.w3.org/2000/svg">',
-                backgroundCode,
-                generateDirtBikeSvg(randomSeed),
+                dirtBikeSvg,
                 '</svg>'
             )
         );
 
         console.log("finalSvg: ", finalSvg);
 
-        return finalSvg;
+        return dirtBikeSvg;
     }
 
     // Cool Cats Solidity — Random Numbers - https://medium.com/coinmonks/solidity-random-numbers-f54e1272c7dd
@@ -267,11 +272,14 @@ contract RenderFacet is ERC721Internal {
 
         uint256[] memory randomSeed = generateStats(tokenId);
 
-        string memory onChainDirtbike = generateFinalDirtBikeSvg(randomSeed);
+        // Here is where the dirt bike should be built
+        DirtBike memory dirtBike = createDirtBike(randomSeed);
 
+        string memory onChainDirtbike = generateFinalDirtBikeSvg(dirtBike);
+
+        // TODO this calculation should only be run in one place
         string memory fork = forkColors(randomSeed[1] % 4);
 
-        console.log("onChainDirtbike: ", onChainDirtbike);
 
         return
             string(
