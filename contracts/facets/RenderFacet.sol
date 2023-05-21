@@ -14,14 +14,14 @@ contract RenderFacet is ERC721Internal {
 
     struct DirtBike {
         string engine;
-        string fillForkColors;
-        string frontFenderColor;
-        string gasTankColor;
-        string handlebar;
-        string swingArmColors;
-        string rearWheelColor;
-        string rearFenderColor;
-        string frontWheelColor;
+        string forks;
+        string frontFender;
+        string gasTank;
+        string handlebars;
+        string swingArm;
+        string rearWheel;
+        string rearFender;
+        string frontWheel;
     }
 
      // Return a random background color
@@ -41,7 +41,7 @@ contract RenderFacet is ERC721Internal {
         return fColors[index];
     }
 
-    function swingArmColors(uint index) internal pure returns (string memory) {
+    function swingArm(uint index) internal pure returns (string memory) {
         string[4] memory saColors = ['#2C3333', '#8c8c8c', '#E57C23','#BE5A83'];
         return saColors[index];
     }
@@ -56,14 +56,14 @@ contract RenderFacet is ERC721Internal {
         return
             DirtBike({
                 engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
-                fillForkColors: forkColors(randomSeed[1] % 4),
-                frontFenderColor: dirtBikePartsColors(randomSeed[2]),
-                gasTankColor: dirtBikePartsColors(randomSeed[3]),
-                handlebar: dirtBikePartsColors(randomSeed[4]),
-                swingArmColors: swingArmColors(randomSeed[5] % 4),
-                rearWheelColor: wheelColors(randomSeed[6] % 2),
-                rearFenderColor: dirtBikePartsColors(randomSeed[7]),
-                frontWheelColor: wheelColors(randomSeed[8] % 2)
+                forks: forkColors(randomSeed[1] % 4),
+                frontFender: dirtBikePartsColors(randomSeed[2]),
+                gasTank: dirtBikePartsColors(randomSeed[3]),
+                handlebars: dirtBikePartsColors(randomSeed[4]),
+                swingArm: swingArm(randomSeed[5] % 4),
+                rearWheel: wheelColors(randomSeed[6] % 2),
+                rearFender: dirtBikePartsColors(randomSeed[7]),
+                frontWheel: wheelColors(randomSeed[8] % 2)
             });
     }
 
@@ -73,16 +73,16 @@ contract RenderFacet is ERC721Internal {
                 abi.encodePacked(
                     // <!-- rear wheel -->
                     '<rect x="100" y="1000" width="100" height="200" fill="',
-                    dirtbike.rearWheelColor,
+                    dirtbike.rearWheel,
                     '" />',
                     '<rect x="200" y="1200" width="200" height="100" fill="',
-                    dirtbike.rearWheelColor,
+                    dirtbike.rearWheel,
                     '" />',
                     '<rect x="200" y="900" width="200" height="100" fill="',
-                    dirtbike.rearWheelColor,
+                    dirtbike.rearWheel,
                     '" />',
                     '<rect x="400" y="1000" width="100" height="200" fill="',
-                    dirtbike.rearWheelColor,
+                    dirtbike.rearWheel,
                     '" />'
                 )
             );
@@ -94,19 +94,19 @@ contract RenderFacet is ERC721Internal {
                 abi.encodePacked(
                     // <!-- front wheel -->
                     '<rect x="1000" y="1000" width="100" height="200" fill="',
-                    dirtbike.frontWheelColor,
+                    dirtbike.frontWheel,
                     '" />',
 
                     '<rect x="1100" y="1200" width="200" height="100" fill="',
-                    dirtbike.frontWheelColor,
+                    dirtbike.frontWheel,
                     '" />',
 
                     '<rect x="1100" y="900" width="200" height="100" fill="',
-                    dirtbike.frontWheelColor,
+                    dirtbike.frontWheel,
                     '" />',
 
                     '<rect x="1300" y="1000" width="100" height="200" fill="',
-                    dirtbike.frontWheelColor,
+                    dirtbike.frontWheel,
                     '" />'
                 )
             );
@@ -119,11 +119,11 @@ contract RenderFacet is ERC721Internal {
 
                     // <!-- swing arm -->
                     '<rect x="300" y="1000" width="400" height="100" fill="',
-                    dirtbike.swingArmColors,
+                    dirtbike.swingArm,
                     '" />'
 
                     '<rect x="500" y="900" width="100" height="200" fill="',
-                    dirtbike.swingArmColors,
+                    dirtbike.swingArm,
                     '" />'
 
                     // <!-- engine -->
@@ -153,21 +153,21 @@ contract RenderFacet is ERC721Internal {
 
                     //  <!-- rear fender -->
                     '<rect x="200" y="600" width="300" height="100" fill="',
-                    dirtbike.rearFenderColor,
+                    dirtbike.rearFender,
                     '" />'
                     '<rect x="400" y="700" width="200" height="100" fill="',
-                    dirtbike.rearFenderColor,
+                    dirtbike.rearFender,
                     '" />'
                     '<rect x="400" y="600" width="100" height="200" fill="',
-                    dirtbike.rearFenderColor,
+                    dirtbike.rearFender,
                     '" />'
                     // <!-- front fender -->
                     '<rect x="900" y="700" width="300" height="100" fill="',
-                    dirtbike.frontFenderColor,
+                    dirtbike.frontFender,
                     '" />'
                     // <!-- gas tank -->
                     '<rect x="700" y="700" width="200" height="100" fill="',
-                    dirtbike.gasTankColor,
+                    dirtbike.gasTank,
                     '" />'
                 )
             );
@@ -179,21 +179,21 @@ contract RenderFacet is ERC721Internal {
                 abi.encodePacked(
                     // <!-- fork -->
                     '<rect x="900" y="800" width="100" height="100" fill="',
-                    dirtbike.fillForkColors,
+                    dirtbike.forks,
                     '" />'
                     '<rect x="1000" y="900" width="100" height="100" fill="',
-                    dirtbike.fillForkColors,
+                    dirtbike.forks,
                     '" />'
                     '<rect x="1100" y="1000" width="100" height="100" fill="',
-                    dirtbike.fillForkColors,
+                    dirtbike.forks,
                     '" />'
 
-                    // <!-- handlebar -->
+                    // <!-- handlebars -->
                     '<rect x="900" y="500" width="100" height="200" fill="',
-                    dirtbike.handlebar,
+                    dirtbike.handlebars,
                     '" />'
                     '<rect x="800" y="500" width="200" height="100" fill="',
-                    dirtbike.handlebar,
+                    dirtbike.handlebars,
                     '" />'
 
                 )
