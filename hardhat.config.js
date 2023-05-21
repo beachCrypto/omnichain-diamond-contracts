@@ -1,5 +1,6 @@
 /* global ethers task */
 require('@nomiclabs/hardhat-waffle');
+require('dotenv').config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -25,21 +26,25 @@ module.exports = {
             runs: 200,
         },
     },
-    // gasReporter: {
-    //     enabled: true,
-    //     currency: 'USD',
-    //     gasPrice: 21,
-    //     url: 'http://localhost:8545',
-    // },
-    // defaultNetwork: 'hardhat',
-    // networks: {
-    //     hardhat: {},
-    //     goerli: {
-    //         url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
-    //         accounts: [process.env.GOERLI_PRIVATE_KEY],
-    //     },
-    // },
-    // etherscan: {
-    //     apiKey: process.env.ETHERSCAN_API_KEY,
-    // },
+    gasReporter: {
+        enabled: true,
+        currency: 'USD',
+        gasPrice: 21,
+        url: 'http://localhost:8545',
+    },
+    defaultNetwork: 'hardhat',
+    networks: {
+        hardhat: {},
+        goerli: {
+            url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
+            accounts: [process.env.GOERLI_PRIVATE_KEY],
+        },
+        'polygonzkevm-testnet': {
+            url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
+            accounts: [process.env.POLYGONZKEVM_TESTNET],
+        },
+    },
+    etherscan: {
+        apiKey: process.env.ETHERSCAN_API_KEY,
+    },
 };
