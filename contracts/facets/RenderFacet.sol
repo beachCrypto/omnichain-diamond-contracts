@@ -269,9 +269,7 @@ contract RenderFacet is ERC721Internal {
 
         string memory onChainDirtbike = generateFinalDirtBikeSvg(randomSeed);
 
-        string memory forky = forkColors(randomSeed[1] % 4);
-
-        console.log("forky: ", forky);
+        string memory fork = forkColors(randomSeed[1] % 4);
 
         console.log("onChainDirtbike: ", onChainDirtbike);
 
@@ -286,7 +284,7 @@ contract RenderFacet is ERC721Internal {
                                 uint2str(tokenId),
                                 '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
                                 '"attributes": [',
-                                  '{ "trait_type": "Base", "value": "Starfish" },',
+                                  '{ "trait_type": "Base", "value": "',fork,'" },',
                                 '],',
                                 '"image":"data:image/svg+xml;base64,',
                                 Base64.encode(bytes(onChainDirtbike)),
