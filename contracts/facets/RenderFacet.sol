@@ -53,20 +53,40 @@ contract RenderFacet is ERC721Internal {
     }
 
      // Each part needs it's own variable
-    function createDirtBike(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
+    function createDirtBike(uint256[] memory vin) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                background: backgroundColors(randomSeed[0] % 9),
-                engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
-                forks: forkColors(randomSeed[1] % 4),
-                frontFender: dirtBikePartsColors(randomSeed[2]),
-                gasTank: dirtBikePartsColors(randomSeed[3]),
-                handlebars: dirtBikePartsColors(randomSeed[4]),
-                swingArm: swingArm(randomSeed[5] % 4),
-                rearWheel: wheelColors(randomSeed[6] % 2),
-                rearFender: dirtBikePartsColors(randomSeed[7]),
-                frontWheel: wheelColors(randomSeed[8] % 2)
+                background: backgroundColors(vin[0] % 9),
+                engine: dirtBikePartsColors(vin[0]), // Choose random color from array
+                forks: forkColors(vin[1] % 4),
+                frontFender: dirtBikePartsColors(vin[2]),
+                frontWheel: wheelColors(vin[8] % 2),
+                gasTank: dirtBikePartsColors(vin[3]),
+                handlebars: dirtBikePartsColors(vin[4]),
+                rearWheel: wheelColors(vin[6] % 2),
+                rearFender: dirtBikePartsColors(vin[7]),
+                swingArm: swingArm(vin[5] % 4)
             });
+    }
+
+    function generateMetadata(DirtBike memory dirtbike)public pure returns (string memory) {
+      return
+        (string(abi.encodePacked(
+
+
+          '"attributes": [',
+                            '{ "trait_type": "Background", "value": "',dirtbike.background,'" },',
+                            '{ "trait_type": "Engine", "value": "',dirtbike.engine,'" },',
+                            '{ "trait_type": "Front fender", "value": "',dirtbike.frontFender,'" },',
+                            '{ "trait_type": "Front wheel", "value": "',dirtbike.frontWheel,'" },',
+                            '{ "trait_type": "Gas Tank", "value": "',dirtbike.gasTank,'" },',
+                            '{ "trait_type": "Handlebars", "value": "',dirtbike.handlebars,'" },',
+                            '{ "trait_type": "Rear fender", "value": "',dirtbike.rearFender,'" },',
+                            '{ "trait_type": "Rear wheel", "value": "',dirtbike.rearWheel,'" },',
+                            '{ "trait_type": "Swingarm", "value": "',dirtbike.swingArm,'" },',
+                        '],'
+
+        )));
     }
 
     function background(DirtBike memory dirtbike) public pure returns (string memory) {
@@ -242,7 +262,7 @@ contract RenderFacet is ERC721Internal {
 
         console.log("finalSvg: ", finalSvg);
 
-        return dirtBikeSvg;
+        return finalSvg;
     }
 
     // Cool Cats Solidity — Random Numbers - https://medium.com/coinmonks/solidity-random-numbers-f54e1272c7dd
@@ -270,16 +290,16 @@ contract RenderFacet is ERC721Internal {
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
         _requireMinted(tokenId);
 
-        uint256[] memory randomSeed = generateStats(tokenId);
+        uint256[] memory vin = generateStats(tokenId);
 
         // Here is where the dirt bike should be built
-        DirtBike memory dirtBike = createDirtBike(randomSeed);
+        DirtBike memory dirtBike = createDirtBike(vin);
 
         string memory onChainDirtbike = generateFinalDirtBikeSvg(dirtBike);
 
-        // TODO this calculation should only be run in one place
-        string memory fork = forkColors(randomSeed[1] % 4);
+        string memory attributes = generateMetadata(dirtBike);
 
+        console.log("attributes: ", attributes);
 
         return
             string(
@@ -291,9 +311,7 @@ contract RenderFacet is ERC721Internal {
                                 '{"name": "Dirt Bikes #',
                                 uint2str(tokenId),
                                 '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
-                                '"attributes": [',
-                                  '{ "trait_type": "Base", "value": "',fork,'" },',
-                                '],',
+                                attributes,
                                 '"image":"data:image/svg+xml;base64,',
                                 Base64.encode(bytes(onChainDirtbike)),
                                 '"}'
