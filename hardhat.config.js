@@ -39,9 +39,13 @@ module.exports = {
             url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
             accounts: [process.env.GOERLI_PRIVATE_KEY],
         },
+        'mumbai-testnet': {
+            url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.MUMBAI_ALCHEMY_API_KEY}`,
+            accounts: [process.env.MUMBAI_PRIVATE_KEY],
+        },
         'polygonzkevm-testnet': {
-            url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
-            accounts: [process.env.POLYGONZKEVM_TESTNET],
+            url: `https://polygonzkevm-testnet.g.alchemy.com/v2/${process.env.POLYGONZKEVM_ALCHEMY_API_KEY}`,
+            accounts: [process.env.POLYGONZKEVM_TESTNET_PRIVATE_KEY],
         },
     },
     etherscan: {
