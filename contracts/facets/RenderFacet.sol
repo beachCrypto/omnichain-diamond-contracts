@@ -4,10 +4,8 @@ pragma solidity ^0.8.17;
 import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
 
-import {DirtBikesStorage} from './DirtBikesStorage.sol';
+import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
-
-import 'hardhat/console.sol';
 
 contract RenderFacet is ERC721Internal {
     using Strings for uint256;
@@ -234,7 +232,7 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-    function generateFinalDirtBikeSvg(DirtBike memory dirtBike) public pure returns (string memory) {
+    function generateDirtBikeSvg(DirtBike memory dirtBike) public pure returns (string memory) {
 
       string memory dirtBikeSvg = '';
 
@@ -247,9 +245,6 @@ contract RenderFacet is ERC721Internal {
                 body(dirtBike),
                 frontEnd(dirtBike)
             );
-
-
-
 
         // SVG opening and closing tags, background color + 3 lines generated
         string memory finalSvg = string(
@@ -290,31 +285,31 @@ contract RenderFacet is ERC721Internal {
 
         uint256[] memory vin = generateStats(tokenId);
 
-        // Here is where the dirt bike should be built
+        // Build Dirt Bike from Vin
         DirtBike memory dirtBike = createDirtBike(vin);
 
-        string memory onChainDirtbike = generateFinalDirtBikeSvg(dirtBike);
+        string memory onChainDirtbike = generateDirtBikeSvg(dirtBike);
 
         string memory attributes = generateMetadata(dirtBike);
 
         return
-            string(
-                abi.encodePacked(
-                    'data:application/json;base64,',
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name": "Dirt Bikes #',
-                                (tokenId).toString(),
-                                '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
-                                attributes,
-                                '"image":"data:image/svg+xml;base64,',
-                                Base64.encode(bytes(onChainDirtbike)),
-                                '"}'
-                            )
-                        )
-                    )
-                )
-            );
+          string(
+              abi.encodePacked(
+                  'data:application/json;base64,',
+                  Base64.encode(
+                      bytes(
+                          abi.encodePacked(
+                              '{"name": "Dirt Bikes #',
+                              (tokenId).toString(),
+                              '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
+                              attributes,
+                              '"image":"data:image/svg+xml;base64,',
+                              Base64.encode(bytes(onChainDirtbike)),
+                              '"}'
+                          )
+                      )
+                  )
+              )
+          );
     }
 }

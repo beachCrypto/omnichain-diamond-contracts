@@ -6,7 +6,6 @@ import '../layerZeroInterfaces/ILayerZeroReceiver.sol';
 import '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {NonblockingLzAppStorage} from './NonblockingLzAppStorage.sol';
-import 'hardhat/console.sol';
 
 /*
  * the default LayerZero messaging behaviour is blocking, i.e. any failed message will block the channel

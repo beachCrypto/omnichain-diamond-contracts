@@ -17,7 +17,7 @@ import '../libraries/LibDiamond.sol';
 import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
-import {DirtBikesStorage} from '../facets/DirtBikesStorage.sol';
+import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
     event ReceiveFromChain(
