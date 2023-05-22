@@ -57,15 +57,15 @@ contract RenderFacet is ERC721Internal {
         return
             DirtBike({
                 background: backgroundColors(vin[0] % 9),
-                engine: dirtBikePartsColors(vin[0]), // Choose random color from array
-                forks: forkColors(vin[1] % 4),
-                frontFender: dirtBikePartsColors(vin[2]),
-                frontWheel: wheelColors(vin[8] % 2),
-                gasTank: dirtBikePartsColors(vin[3]),
-                handlebars: dirtBikePartsColors(vin[4]),
-                rearWheel: wheelColors(vin[6] % 2),
-                rearFender: dirtBikePartsColors(vin[7]),
-                swingArm: swingArm(vin[5] % 4)
+                engine: dirtBikePartsColors(vin[1]), // Choose random color from array
+                forks: forkColors(vin[2] % 4),
+                frontFender: dirtBikePartsColors(vin[3]),
+                frontWheel: wheelColors(vin[4] % 2),
+                gasTank: dirtBikePartsColors(vin[5]),
+                handlebars: dirtBikePartsColors(vin[6]),
+                rearWheel: wheelColors(vin[7] % 2),
+                rearFender: dirtBikePartsColors(vin[8]),
+                swingArm: swingArm(vin[9] % 4)
             });
     }
 
@@ -234,7 +234,7 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-    function generateFinalDirtBikeSvg(DirtBike memory dirtBike) public view returns (string memory) {
+    function generateFinalDirtBikeSvg(DirtBike memory dirtBike) public pure returns (string memory) {
 
       string memory dirtBikeSvg = '';
 
@@ -259,8 +259,6 @@ contract RenderFacet is ERC721Internal {
                 '</svg>'
             )
         );
-
-        console.log("finalSvg: ", finalSvg);
 
         return finalSvg;
     }
@@ -299,8 +297,6 @@ contract RenderFacet is ERC721Internal {
 
         string memory attributes = generateMetadata(dirtBike);
 
-        console.log("attributes: ", attributes);
-
         return
             string(
                 abi.encodePacked(
@@ -309,7 +305,7 @@ contract RenderFacet is ERC721Internal {
                         bytes(
                             abi.encodePacked(
                                 '{"name": "Dirt Bikes #',
-                                uint2str(tokenId),
+                                (tokenId).toString(),
                                 '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
                                 attributes,
                                 '"image":"data:image/svg+xml;base64,',
@@ -320,28 +316,5 @@ contract RenderFacet is ERC721Internal {
                     )
                 )
             );
-    }
-
-    // From: https://stackoverflow.com/a/65707309/11969592
-    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return '0';
-        }
-        uint j = _i;
-        uint len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint k = len;
-        while (_i != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
     }
 }

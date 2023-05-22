@@ -5,7 +5,7 @@ pragma solidity ^0.8.17;
  * @author beachcrypto.eth
  * @title Dirt Bikes Omnichain Diamond NFTs
  *
- * An ONFT721Upgradeable, ERC721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
  *
  *  */
 
@@ -18,8 +18,6 @@ import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import {DirtBikesStorage} from '../facets/DirtBikesStorage.sol';
-
-import 'hardhat/console.sol';
 
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
     event ReceiveFromChain(
@@ -161,12 +159,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         useCustomAdapterParams = _useCustomAdapterParams;
         emit SetUseCustomAdapterParams(_useCustomAdapterParams);
     }
-
-    // function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
-    //     require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
-    //     require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
-    //     _transfer(_from, address(this), _tokenId);
-    // }
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
@@ -322,7 +314,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         }
 
         uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
-        console.log('randomHash: ---------->>>>>>>>', randomHash);
 
         if (randomHash == 0) {
             // Store psuedo-randomHash as DirtBike VIN
