@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ *  */
+
 import './IERC721Receiver.sol';
 import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
@@ -9,9 +17,7 @@ import '../libraries/LibDiamond.sol';
 import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
-import {DirtBikesStorage} from '../facets/DirtBikesStorage.sol';
-
-import 'hardhat/console.sol';
+import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
     event ReceiveFromChain(
@@ -308,7 +314,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         }
 
         uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
-        console.log('randomHash: ---------->>>>>>>>', randomHash);
 
         if (randomHash == 0) {
             // Store psuedo-randomHash as DirtBike VIN
@@ -322,14 +327,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
         require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
-
-        // Dirt Bike hash must be stored on the next chain
-        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
-
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
-            transferFrom(address(this), _toAddress, _tokenId);
+            _transfer(address(this), _toAddress, _tokenId);
         }
     }
 }

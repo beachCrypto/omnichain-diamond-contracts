@@ -4,15 +4,14 @@ pragma solidity ^0.8.17;
 import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
 
-import {DirtBikesStorage} from './DirtBikesStorage.sol';
+import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
-
-import 'hardhat/console.sol';
 
 contract RenderFacet is ERC721Internal {
     using Strings for uint256;
 
     struct DirtBike {
+        string background;
         string engine;
         string forks;
         string frontFender;
@@ -52,19 +51,52 @@ contract RenderFacet is ERC721Internal {
     }
 
      // Each part needs it's own variable
-    function createDirtbikeStruct(uint256[] memory randomSeed) internal pure returns (DirtBike memory) {
+    function createDirtBike(uint256[] memory vin) internal pure returns (DirtBike memory) {
         return
             DirtBike({
-                engine: dirtBikePartsColors(randomSeed[0]), // Choose random color from array
-                forks: forkColors(randomSeed[1] % 4),
-                frontFender: dirtBikePartsColors(randomSeed[2]),
-                gasTank: dirtBikePartsColors(randomSeed[3]),
-                handlebars: dirtBikePartsColors(randomSeed[4]),
-                swingArm: swingArm(randomSeed[5] % 4),
-                rearWheel: wheelColors(randomSeed[6] % 2),
-                rearFender: dirtBikePartsColors(randomSeed[7]),
-                frontWheel: wheelColors(randomSeed[8] % 2)
+                background: backgroundColors(vin[0] % 9),
+                engine: dirtBikePartsColors(vin[1]), // Choose random color from array
+                forks: forkColors(vin[2] % 4),
+                frontFender: dirtBikePartsColors(vin[3]),
+                frontWheel: wheelColors(vin[4] % 2),
+                gasTank: dirtBikePartsColors(vin[5]),
+                handlebars: dirtBikePartsColors(vin[6]),
+                rearWheel: wheelColors(vin[7] % 2),
+                rearFender: dirtBikePartsColors(vin[8]),
+                swingArm: swingArm(vin[9] % 4)
             });
+    }
+
+    function generateMetadata(DirtBike memory dirtbike)public pure returns (string memory) {
+      return
+        (string(abi.encodePacked(
+
+
+          '"attributes": [',
+                            '{ "trait_type": "Background", "value": "',dirtbike.background,'" },',
+                            '{ "trait_type": "Engine", "value": "',dirtbike.engine,'" },',
+                            '{ "trait_type": "Front fender", "value": "',dirtbike.frontFender,'" },',
+                            '{ "trait_type": "Front wheel", "value": "',dirtbike.frontWheel,'" },',
+                            '{ "trait_type": "Gas Tank", "value": "',dirtbike.gasTank,'" },',
+                            '{ "trait_type": "Handlebars", "value": "',dirtbike.handlebars,'" },',
+                            '{ "trait_type": "Rear fender", "value": "',dirtbike.rearFender,'" },',
+                            '{ "trait_type": "Rear wheel", "value": "',dirtbike.rearWheel,'" },',
+                            '{ "trait_type": "Swingarm", "value": "',dirtbike.swingArm,'" },',
+                        '],'
+
+        )));
+    }
+
+    function background(DirtBike memory dirtbike) public pure returns (string memory) {
+        return
+            (string(
+                abi.encodePacked(
+                    // <!-- background -->
+                    '<rect width="1600" height="1600" fill="',
+                    dirtbike.background,
+                    '" />'
+                )
+            ));
     }
 
     function rearWheelSvg(DirtBike memory dirtbike) public pure returns (string memory) {
@@ -200,42 +232,28 @@ contract RenderFacet is ERC721Internal {
             );
     }
 
-     // SVG code for a single line
-    function generateDirtBikeSvg(uint256[] memory randomSeed) public pure returns (string memory) {
-        // Dirt Bike SVG
-        string memory dirtBikeSvg = '';
+    function generateDirtBikeSvg(DirtBike memory dirtBike) public pure returns (string memory) {
 
-        DirtBike memory dirtBike = createDirtbikeStruct(randomSeed);
+      string memory dirtBikeSvg = '';
 
-        return
-            dirtBikeSvg = string.concat(
+      dirtBikeSvg = string.concat(
                 dirtBikeSvg,
+                background(dirtBike),
                 rearWheelSvg(dirtBike),
                 frontWheelSvg(dirtBike),
                 driveTrainSvg(dirtBike),
                 body(dirtBike),
                 frontEnd(dirtBike)
             );
-    }
-
-    function generateFinalDirtBikeSvg(uint256[] memory randomSeed) public view returns (string memory) {
-        bytes memory backgroundCode = abi.encodePacked(
-            '<rect width="1600" height="1600" fill="',
-            backgroundColors(randomSeed[0] % 9),
-            '" />'
-        );
 
         // SVG opening and closing tags, background color + 3 lines generated
         string memory finalSvg = string(
             abi.encodePacked(
                 '<svg viewBox="0 0 1600 1600" xmlns="http://www.w3.org/2000/svg">',
-                backgroundCode,
-                generateDirtBikeSvg(randomSeed),
+                dirtBikeSvg,
                 '</svg>'
             )
         );
-
-        console.log("finalSvg: ", finalSvg);
 
         return finalSvg;
     }
@@ -265,49 +283,33 @@ contract RenderFacet is ERC721Internal {
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
         _requireMinted(tokenId);
 
-        uint256[] memory randomSeed = generateStats(tokenId);
+        uint256[] memory vin = generateStats(tokenId);
 
-        string memory onChainDirtbike = generateFinalDirtBikeSvg(randomSeed);
+        // Build Dirt Bike from Vin
+        DirtBike memory dirtBike = createDirtBike(vin);
+
+        string memory onChainDirtbike = generateDirtBikeSvg(dirtBike);
+
+        string memory attributes = generateMetadata(dirtBike);
 
         return
-            string(
-                abi.encodePacked(
-                    'data:application/json;base64,',
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name": "Dirt Bikes #',
-                                uint2str(tokenId),
-                                '", "description": "Dirt Bikes Omnichain Diamond NFTs", "attributes": "", "image":"data:image/svg+xml;base64,',
-                                Base64.encode(bytes(onChainDirtbike)),
-                                '"}'
-                            )
-                        )
-                    )
-                )
-            );
-    }
-
-    // From: https://stackoverflow.com/a/65707309/11969592
-    function uint2str(uint _i) internal pure returns (string memory _uintAsString) {
-        if (_i == 0) {
-            return '0';
-        }
-        uint j = _i;
-        uint len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint k = len;
-        while (_i != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
+          string(
+              abi.encodePacked(
+                  'data:application/json;base64,',
+                  Base64.encode(
+                      bytes(
+                          abi.encodePacked(
+                              '{"name": "Dirt Bikes #',
+                              (tokenId).toString(),
+                              '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
+                              attributes,
+                              '"image":"data:image/svg+xml;base64,',
+                              Base64.encode(bytes(onChainDirtbike)),
+                              '"}'
+                          )
+                      )
+                  )
+              )
+          );
     }
 }

@@ -65,9 +65,13 @@ contract DiamondInitA {
         l._symbol = 'Brap';
 
         // Initialize LayerZero state variables
-        // Chain A
+        // Set LayerZero endpoint
+        //TODO wire up minGasToTransferAndStore
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
+        lzep.startMintId = 0;
+        lzep.endMintId = 333;
+        lzep.minGasToTransferAndStore = 100000;
         lzep.lzEndpoint = ILayerZeroEndpoint(0x5FbDB2315678afecb367f032d93F642f64180aa3);
     }
 }
