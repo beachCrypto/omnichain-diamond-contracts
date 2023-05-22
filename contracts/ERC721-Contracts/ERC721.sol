@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * An ONFT721Upgradeable, ERC721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ *  */
+
 import './IERC721Receiver.sol';
 import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
@@ -153,6 +161,12 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         useCustomAdapterParams = _useCustomAdapterParams;
         emit SetUseCustomAdapterParams(_useCustomAdapterParams);
     }
+
+    // function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
+    //     require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
+    //     require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+    //     _transfer(_from, address(this), _tokenId);
+    // }
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
@@ -322,14 +336,10 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
         require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
-
-        // Dirt Bike hash must be stored on the next chain
-        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
-
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
-            transferFrom(address(this), _toAddress, _tokenId);
+            _transfer(address(this), _toAddress, _tokenId);
         }
     }
 }
