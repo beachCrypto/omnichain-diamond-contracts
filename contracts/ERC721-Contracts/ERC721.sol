@@ -296,7 +296,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bytes memory _srcAddress,
         uint64 _nonce,
         bytes memory _payload
-    ) public virtual {
+    ) public {
         // only internal transaction
         require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
@@ -307,7 +307,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bytes calldata _srcAddress,
         uint64 _nonce,
         bytes calldata _payload
-    ) public payable virtual {
+    ) public payable {
         // assert there is message to retry
         bytes32 payloadHash = NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][
             _nonce
