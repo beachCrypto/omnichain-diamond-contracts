@@ -48,7 +48,7 @@ describe('ERC721', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, 0);
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
 
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
@@ -66,10 +66,10 @@ describe('ERC721', async () => {
     });
 
     it('Sender can transfer an NFT', async () => {
-        const tokenId = 12;
+        const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
 
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
@@ -83,10 +83,10 @@ describe('ERC721', async () => {
     });
 
     it('Sender can approve an NFT', async () => {
-        const tokenId = 123;
+        const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
 
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
