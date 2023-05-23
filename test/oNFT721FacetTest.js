@@ -39,14 +39,6 @@ describe('sendFrom()', async () => {
         lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
         lzEndpointMockB = await LZEndpointMockB.deploy(chainId_B);
 
-        // Hardhat local network information
-        // console.log('lzEndpointMockA', lzEndpointMockA.address);
-        // console.log('lzEndpointMockB', lzEndpointMockB.address);
-        // lzEndpointMockA 0x5FbDB2315678afecb367f032d93F642f64180aa3
-        // lzEndpointMockB 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-        // A
-        // B
-
         // generate a proxy to allow it to go ONFT
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();

@@ -39,14 +39,6 @@ describe('sendFrom()', async () => {
         lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
         lzEndpointMockB = await LZEndpointMockB.deploy(chainId_B);
 
-        // Hardhat local network information
-        // console.log('lzEndpointMockA', lzEndpointMockA.address);
-        // console.log('lzEndpointMockB', lzEndpointMockB.address);
-        // lzEndpointMockA 0x5FbDB2315678afecb367f032d93F642f64180aa3
-        // lzEndpointMockB 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-        // A
-        // B
-
         // generate a proxy to allow it to go ONFT
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
@@ -101,11 +93,6 @@ describe('sendFrom()', async () => {
         // approve the proxy to swap your token
         await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenId);
 
-        console.log(
-            'Token URI from contract token was minted chain A ------>',
-            await renderFacet_chainA.tokenURI(tokenId)
-        );
-
         // estimate nativeFees
         let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, warlock.address, tokenId, false, '0x'))
             .nativeFee;
@@ -128,11 +115,7 @@ describe('sendFrom()', async () => {
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(eRC721_chainA.address);
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
-
-        console.log('Token URI after transfer on chainB ------>', await renderFacet_chainB.tokenURI(tokenId));
-
-        // estimate nativeFees
+        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address); // estimate nativeFees
 
         nativeFee = (
             await eRC721_chainB.estimateSendFee(chainId_A, warlock.address, tokenId, false, defaultAdapterParams)
