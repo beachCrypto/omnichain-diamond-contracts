@@ -64,6 +64,9 @@ contract DiamondInitB {
         // Chain A
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
+        lzep.startMintId = 334;
+        lzep.endMintId = 666;
+        lzep.minGasToTransferAndStore = 100000;
         lzep.lzEndpoint = ILayerZeroEndpoint(0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512);
     }
 }

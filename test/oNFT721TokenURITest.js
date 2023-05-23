@@ -85,8 +85,8 @@ describe('sendFrom()', async () => {
     });
 
     it('sendFrom() - your own tokens', async () => {
-        const tokenId = 123;
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
+        const tokenId = 0;
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
