@@ -28,6 +28,8 @@ import {ILayerZeroReceiver} from '../layerZeroInterfaces/ILayerZeroReceiver.sol'
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 
+import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
+
 // LayerZero Storage
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 
@@ -60,13 +62,16 @@ contract DiamondInitB {
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
 
-        // Initialize LayerZero state variables
-        // Chain A
+        // Initialize ONFT state variables
+
+        ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
+        onfts.startMintId = 334;
+        onfts.endMintId = 666;
+        onfts.minGasToTransferAndStore = 100000;
+
+        // Initialize / set LayerZero endpoint
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
-        lzep.startMintId = 334;
-        lzep.endMintId = 666;
-        lzep.minGasToTransferAndStore = 100000;
         lzep.lzEndpoint = ILayerZeroEndpoint(0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512);
     }
 }

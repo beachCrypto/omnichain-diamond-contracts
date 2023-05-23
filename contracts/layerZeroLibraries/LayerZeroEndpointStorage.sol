@@ -5,9 +5,6 @@ import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 
 library LayerZeroEndpointStorage {
     struct LayerZeroSlot {
-        uint startMintId;
-        uint endMintId;
-        uint256 minGasToTransferAndStore;
         ILayerZeroEndpoint lzEndpoint;
     }
 

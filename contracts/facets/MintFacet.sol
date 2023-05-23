@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
-import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
+import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
 
 import 'hardhat/console.sol';
 
@@ -21,8 +21,8 @@ contract MintFacet is ERC721Internal {
     }
 
     function mint(address _tokenOwner) external payable {
-        nextMintId = LayerZeroEndpointStorage.layerZeroEndpointSlot().startMintId;
-        maxMintId = LayerZeroEndpointStorage.layerZeroEndpointSlot().endMintId;
+        nextMintId = ONFTStorage.oNFTStorageLayout().startMintId;
+        maxMintId = ONFTStorage.oNFTStorageLayout().endMintId;
 
         console.log('nextMintId', nextMintId);
         console.log('maxMintId', maxMintId);
