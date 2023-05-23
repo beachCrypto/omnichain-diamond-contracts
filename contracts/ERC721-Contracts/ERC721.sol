@@ -36,6 +36,8 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         uint64 _nonce
     );
 
+    event RetryMessageSuccess(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes32 _payloadHash);
+
     uint public constant NO_EXTRA_GAS = 0;
     uint public constant FUNCTION_TYPE_SEND = 1;
     bool public useCustomAdapterParams;
@@ -298,6 +300,25 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         // only internal transaction
         require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+    }
+
+    function retryMessage(
+        uint16 _srcChainId,
+        bytes calldata _srcAddress,
+        uint64 _nonce,
+        bytes calldata _payload
+    ) public payable virtual {
+        // assert there is message to retry
+        bytes32 payloadHash = NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][
+            _nonce
+        ];
+        require(payloadHash != bytes32(0), 'NonblockingLzApp: no stored message');
+        require(keccak256(_payload) == payloadHash, 'NonblockingLzApp: invalid payload');
+        // clear the stored message
+        NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = bytes32(0);
+        // execute the message. revert if it fails again
+        _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
+        emit RetryMessageSuccess(_srcChainId, _srcAddress, _nonce, payloadHash);
     }
 
     function _nonblockingLzReceive(
