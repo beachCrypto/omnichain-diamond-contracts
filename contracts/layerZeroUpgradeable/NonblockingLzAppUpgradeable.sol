@@ -77,15 +77,6 @@ abstract contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroU
         NonblockingLzAppStorage.nonblockingLzAppSlot().payloadSizeLimitLookup[_dstChainId] = _size;
     }
 
-    function _checkPayloadSize(uint16 _dstChainId, uint _payloadSize) internal view virtual {
-        uint payloadSizeLimit = NonblockingLzAppStorage.nonblockingLzAppSlot().payloadSizeLimitLookup[_dstChainId];
-        if (payloadSizeLimit == 0) {
-            // use default if not set
-            payloadSizeLimit = DEFAULT_PAYLOAD_SIZE_LIMIT;
-        }
-        require(_payloadSize <= payloadSizeLimit, 'LzApp: payload size is too large');
-    }
-
     function setConfig(uint16 _version, uint16 _chainId, uint _configType, bytes calldata _config) external override {}
 
     function setSendVersion(uint16 _version) external override {}
