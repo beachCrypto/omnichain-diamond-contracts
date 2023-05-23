@@ -38,8 +38,8 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
-        eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
+        eRC721_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+        eRC721_chainB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacet_chainB = await ethers.getContractAt('MintFacet', diamondAddressB);
@@ -72,7 +72,7 @@ describe('sendFrom()', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
@@ -87,7 +87,7 @@ describe('sendFrom()', async () => {
         const tokenId = 334;
         expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainB.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainB.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);

@@ -5,9 +5,9 @@ import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
 
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
-import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
+import {ERC721AUpgradeableInternal} from '../ERC721-Contracts/ERC721AUpgradeableInternal.sol';
 
-contract RenderFacet is ERC721Internal {
+contract RenderFacet is ERC721AUpgradeableInternal {
     using Strings for uint256;
 
     struct DirtBike {
@@ -281,7 +281,7 @@ contract RenderFacet is ERC721Internal {
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        _requireMinted(tokenId);
+        require(_exists(tokenId), "Token doesn't exist");
 
         uint256[] memory vin = generateStats(tokenId);
 

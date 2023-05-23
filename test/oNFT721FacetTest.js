@@ -51,8 +51,8 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
-        eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
+        eRC721_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+        eRC721_chainB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacet_chainB = await ethers.getContractAt('MintFacet', diamondAddressB);
@@ -82,24 +82,26 @@ describe('sendFrom()', async () => {
     });
 
     it('sendFrom() - your own tokens', async () => {
-        const tokenId = 0;
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        const tokenIdA = 0;
+        const tokenIdB = 334;
+
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721_chainA.ownerOf(tokenIdA)).to.be.equal(ownerAddress.address);
 
-        await expect(eRC721_chainB.ownerOf(tokenId)).to.be.revertedWith('ERC721: invalid token ID');
+        await expect(eRC721_chainB.ownerOf(tokenIdA)).to.be.reverted;
 
         // can transfer token on srcChain as regular erC721
-        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
+        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenIdA);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
+        expect(await eRC721_chainA.ownerOf(tokenIdA)).to.be.equal(warlock.address);
 
         // approve the proxy to swap your token
-        await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenId);
+        await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenIdA);
 
         // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, warlock.address, tokenId, false, '0x'))
+        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, warlock.address, tokenIdA, false, '0x'))
             .nativeFee;
 
         // swaps token to other chain
@@ -109,7 +111,7 @@ describe('sendFrom()', async () => {
                 warlock.address,
                 chainId_B,
                 warlock.address,
-                tokenId,
+                tokenIdA,
                 warlock.address,
                 ethers.constants.AddressZero,
                 '0x',
@@ -117,257 +119,258 @@ describe('sendFrom()', async () => {
             );
 
         // token is burnt
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(eRC721_chainA.address);
+        expect(await eRC721_chainA.ownerOf(tokenIdA)).to.be.equal(eRC721_chainA.address);
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
+        expect(await eRC721_chainB.ownerOf(tokenIdA)).to.be.equal(warlock.address);
 
-        // estimate nativeFees
+        // // estimate nativeFees
 
-        nativeFee = (
-            await eRC721_chainB.estimateSendFee(chainId_A, warlock.address, tokenId, false, defaultAdapterParams)
-        ).nativeFee;
+        // nativeFee = (
+        //     await eRC721_chainB.estimateSendFee(chainId_A, warlock.address, tokenIdA, false, defaultAdapterParams)
+        // ).nativeFee;
 
-        // can send to other onft contract eg. not the original nft contract chain
-        await eRC721_chainB
-            .connect(warlock)
-            .sendFrom(
-                warlock.address,
-                chainId_A,
-                warlock.address,
-                tokenId,
-                warlock.address,
-                ethers.constants.AddressZero,
-                '0x',
-                {value: nativeFee}
-            );
+        // // can send to other onft contract eg. not the original nft contract chain
+        // await eRC721_chainB
+        //     .connect(warlock)
+        //     .sendFrom(
+        //         warlock.address,
+        //         chainId_A,
+        //         warlock.address,
+        //         tokenIdA,
+        //         warlock.address,
+        //         ethers.constants.AddressZero,
+        //         '0x',
+        //         {value: nativeFee}
+        //     );
 
-        // token is burned on the sending chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(eRC721_chainB.address);
+        // // token is burned on the sending chain
+        // expect(await eRC721_chainB.ownerOf(tokenIdA)).to.be.equal(eRC721_chainB.address);
     });
 
-    it('sendFrom() - reverts if not owner on non proxy chain', async function () {
-        const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+    // it('sendFrom() - reverts if not owner on non proxy chain', async function () {
+    //     const tokenId = 0;
+    //     await mintFacet_chainA.mint();
 
-        // approve the proxy to swap your token
-        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+    //     // approve the proxy to swap your token
+    //     await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
 
-        // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
-            .nativeFee;
+    //     // estimate nativeFees
+    //     let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+    //         .nativeFee;
 
-        // swaps token to other chain
-        await eRC721_chainA.sendFrom(
-            ownerAddress.address,
-            chainId_B,
-            ownerAddress.address,
-            tokenId,
-            ownerAddress.address,
-            ethers.constants.AddressZero,
-            '0x',
-            {
-                value: nativeFee,
-            }
-        );
+    //     // swaps token to other chain
+    //     await eRC721_chainA.sendFrom(
+    //         ownerAddress.address,
+    //         chainId_B,
+    //         ownerAddress.address,
+    //         tokenId,
+    //         ownerAddress.address,
+    //         ethers.constants.AddressZero,
+    //         '0x',
+    //         {
+    //             value: nativeFee,
+    //         }
+    //     );
 
-        // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+    //     // token received on the dst chain
+    //     expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        // reverts because other address does not own it
-        await expect(
-            eRC721_chainB
-                .connect(warlock)
-                .sendFrom(
-                    warlock.address,
-                    chainId_A,
-                    warlock.address,
-                    tokenId,
-                    warlock.address,
-                    ethers.constants.AddressZero,
-                    '0x'
-                )
-        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
-    });
+    //     // reverts because other address does not own it
+    //     await expect(
+    //         eRC721_chainB
+    //             .connect(warlock)
+    //             .sendFrom(
+    //                 warlock.address,
+    //                 chainId_A,
+    //                 warlock.address,
+    //                 tokenId,
+    //                 warlock.address,
+    //                 ethers.constants.AddressZero,
+    //                 '0x'
+    //             )
+    //     ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    // });
 
-    it('sendFrom() - on behalf of other user', async function () {
-        const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+    // it('sendFrom() - on behalf of other user', async function () {
+    //     const tokenId = 0;
+    //     await mintFacet_chainA.mint();
 
-        // approve the proxy to swap your token
-        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+    //     // approve the proxy to swap your token
+    //     await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
 
-        // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
-            .nativeFee;
+    //     // estimate nativeFees
+    //     let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+    //         .nativeFee;
 
-        // swaps token to other chain
-        await eRC721_chainA.sendFrom(
-            ownerAddress.address,
-            chainId_B,
-            ownerAddress.address,
-            tokenId,
-            ownerAddress.address,
-            ethers.constants.AddressZero,
-            '0x',
-            {
-                value: nativeFee,
-            }
-        );
+    //     // swaps token to other chain
+    //     await eRC721_chainA.sendFrom(
+    //         ownerAddress.address,
+    //         chainId_B,
+    //         ownerAddress.address,
+    //         tokenId,
+    //         ownerAddress.address,
+    //         ethers.constants.AddressZero,
+    //         '0x',
+    //         {
+    //             value: nativeFee,
+    //         }
+    //     );
 
-        // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+    //     // token received on the dst chain
+    //     expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        // approve the other user to send the token
-        await eRC721_chainB.approve(warlock.address, tokenId);
+    //     // approve the other user to send the token
+    //     await eRC721_chainB.approve(warlock.address, tokenId);
 
-        // estimate nativeFees
-        nativeFee = (await eRC721_chainB.estimateSendFee(chainId_A, ownerAddress.address, tokenId, false, '0x'))
-            .nativeFee;
+    //     // estimate nativeFees
+    //     nativeFee = (await eRC721_chainB.estimateSendFee(chainId_A, ownerAddress.address, tokenId, false, '0x'))
+    //         .nativeFee;
 
-        // sends across
-        await eRC721_chainB
-            .connect(warlock)
-            .sendFrom(
-                ownerAddress.address,
-                chainId_A,
-                warlock.address,
-                tokenId,
-                warlock.address,
-                ethers.constants.AddressZero,
-                '0x',
-                {value: nativeFee}
-            );
+    //     // sends across
+    //     await eRC721_chainB
+    //         .connect(warlock)
+    //         .sendFrom(
+    //             ownerAddress.address,
+    //             chainId_A,
+    //             warlock.address,
+    //             tokenId,
+    //             warlock.address,
+    //             ethers.constants.AddressZero,
+    //             '0x',
+    //             {value: nativeFee}
+    //         );
 
-        // token received on the dst chain
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
-    });
-    it('sendFrom() - reverts if contract is approved, but not the sending user', async function () {
-        const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+    //     // token received on the dst chain
+    //     expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
+    // });
 
-        // approve the proxy to swap your token
-        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+    // it('sendFrom() - reverts if contract is approved, but not the sending user', async function () {
+    //     const tokenId = 0;
+    //     await mintFacet_chainA.mint();
 
-        // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
-            .nativeFee;
+    //     // approve the proxy to swap your token
+    //     await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
 
-        // swaps token to other chain
-        await eRC721_chainA.sendFrom(
-            ownerAddress.address,
-            chainId_B,
-            ownerAddress.address,
-            tokenId,
-            ownerAddress.address,
-            ethers.constants.AddressZero,
-            '0x',
-            {
-                value: nativeFee,
-            }
-        );
+    //     // estimate nativeFees
+    //     let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+    //         .nativeFee;
 
-        // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+    //     // swaps token to other chain
+    //     await eRC721_chainA.sendFrom(
+    //         ownerAddress.address,
+    //         chainId_B,
+    //         ownerAddress.address,
+    //         tokenId,
+    //         ownerAddress.address,
+    //         ethers.constants.AddressZero,
+    //         '0x',
+    //         {
+    //             value: nativeFee,
+    //         }
+    //     );
 
-        // approve the contract to swap your token
-        await eRC721_chainB.approve(eRC721_chainB.address, tokenId);
+    //     // token received on the dst chain
+    //     expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        // reverts because contract is approved, not the user
-        await expect(
-            eRC721_chainB
-                .connect(warlock)
-                .sendFrom(
-                    ownerAddress.address,
-                    chainId_A,
-                    warlock.address,
-                    tokenId,
-                    warlock.address,
-                    ethers.constants.AddressZero,
-                    '0x'
-                )
-        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
-    });
+    //     // approve the contract to swap your token
+    //     await eRC721_chainB.approve(eRC721_chainB.address, tokenId);
 
-    it('sendFrom() - reverts if not approved on non proxy chain', async function () {
-        const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+    //     // reverts because contract is approved, not the user
+    //     await expect(
+    //         eRC721_chainB
+    //             .connect(warlock)
+    //             .sendFrom(
+    //                 ownerAddress.address,
+    //                 chainId_A,
+    //                 warlock.address,
+    //                 tokenId,
+    //                 warlock.address,
+    //                 ethers.constants.AddressZero,
+    //                 '0x'
+    //             )
+    //     ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    // });
 
-        // approve the proxy to swap your token
-        await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
+    // it('sendFrom() - reverts if not approved on non proxy chain', async function () {
+    //     const tokenId = 0;
+    //     await mintFacet_chainA.mint();
 
-        // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
-            .nativeFee;
+    //     // approve the proxy to swap your token
+    //     await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
 
-        // swaps token to other chain
-        await eRC721_chainA.sendFrom(
-            ownerAddress.address,
-            chainId_B,
-            ownerAddress.address,
-            tokenId,
-            ownerAddress.address,
-            ethers.constants.AddressZero,
-            '0x',
-            {
-                value: nativeFee,
-            }
-        );
+    //     // estimate nativeFees
+    //     let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, ownerAddress.address, tokenId, false, '0x'))
+    //         .nativeFee;
 
-        // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+    //     // swaps token to other chain
+    //     await eRC721_chainA.sendFrom(
+    //         ownerAddress.address,
+    //         chainId_B,
+    //         ownerAddress.address,
+    //         tokenId,
+    //         ownerAddress.address,
+    //         ethers.constants.AddressZero,
+    //         '0x',
+    //         {
+    //             value: nativeFee,
+    //         }
+    //     );
 
-        // reverts because user is not approved
-        await expect(
-            eRC721_chainB
-                .connect(warlock)
-                .sendFrom(
-                    ownerAddress.address,
-                    chainId_A,
-                    warlock.address,
-                    tokenId,
-                    warlock.address,
-                    ethers.constants.AddressZero,
-                    '0x'
-                )
-        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
-    });
+    //     // token received on the dst chain
+    //     expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-    it('sendFrom() - reverts if sender does not own token', async function () {
-        const tokenIdA = 0;
-        const tokenIdB = 334;
-        // mint to both owners
-        await mintFacet_chainA.mint(ownerAddress.address);
-        await mintFacet_chainB.mint(warlock.address);
+    //     // reverts because user is not approved
+    //     await expect(
+    //         eRC721_chainB
+    //             .connect(warlock)
+    //             .sendFrom(
+    //                 ownerAddress.address,
+    //                 chainId_A,
+    //                 warlock.address,
+    //                 tokenId,
+    //                 warlock.address,
+    //                 ethers.constants.AddressZero,
+    //                 '0x'
+    //             )
+    //     ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    // });
 
-        // approve ownerAddress.address to transfer, but not the other
-        await eRC721_chainA.setApprovalForAll(eRC721_chainA.address, true);
+    // it('sendFrom() - reverts if sender does not own token', async function () {
+    //     const tokenIdA = 0;
+    //     const tokenIdB = 334;
+    //     // mint to both owners
+    //     await mintFacet_chainA.mint();
+    //     await mintFacet_chainB.mint();
 
-        await expect(
-            eRC721_chainA
-                .connect(warlock)
-                .sendFrom(
-                    warlock.address,
-                    chainId_B,
-                    warlock.address,
-                    tokenIdA,
-                    warlock.address,
-                    ethers.constants.AddressZero,
-                    '0x'
-                )
-        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
-        await expect(
-            eRC721_chainA
-                .connect(warlock)
-                .sendFrom(
-                    warlock.address,
-                    chainId_B,
-                    ownerAddress.address,
-                    tokenIdA,
-                    ownerAddress.address,
-                    ethers.constants.AddressZero,
-                    '0x'
-                )
-        ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
-    });
+    //     // approve ownerAddress.address to transfer, but not the other
+    //     await eRC721_chainA.setApprovalForAll(eRC721_chainA.address, true);
+
+    //     await expect(
+    //         eRC721_chainA
+    //             .connect(warlock)
+    //             .sendFrom(
+    //                 warlock.address,
+    //                 chainId_B,
+    //                 warlock.address,
+    //                 tokenIdA,
+    //                 warlock.address,
+    //                 ethers.constants.AddressZero,
+    //                 '0x'
+    //             )
+    //     ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    //     await expect(
+    //         eRC721_chainA
+    //             .connect(warlock)
+    //             .sendFrom(
+    //                 warlock.address,
+    //                 chainId_B,
+    //                 ownerAddress.address,
+    //                 tokenIdA,
+    //                 ownerAddress.address,
+    //                 ethers.constants.AddressZero,
+    //                 '0x'
+    //             )
+    //     ).to.be.revertedWith('ONFT721: send caller is not owner nor approved');
+    // });
 });

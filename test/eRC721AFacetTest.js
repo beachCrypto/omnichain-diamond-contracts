@@ -36,7 +36,7 @@ describe('ERC721', async () => {
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
 
         const [owner, addr1] = await ethers.getSigners();
 
@@ -48,7 +48,7 @@ describe('ERC721', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
@@ -69,7 +69,7 @@ describe('ERC721', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
@@ -86,7 +86,7 @@ describe('ERC721', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 

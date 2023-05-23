@@ -2,16 +2,17 @@
 pragma solidity ^0.8.17;
 
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
-import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
+import {ERC721AUpgradeableInternal} from '../ERC721-Contracts/ERC721AUpgradeableInternal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 
 import 'hardhat/console.sol';
 
-contract MintFacet is ERC721Internal {
-    event DirtBikeCreated(uint indexed tokenId);
-
+contract MintFacet is ERC721AUpgradeableInternal {
     uint public nextMintId;
     uint public maxMintId;
+
+    event DirtBikeCreated(uint indexed tokenId);
+    event BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId);
 
     function getHash() public view returns (uint256) {
         // generate psuedo-randomHash
@@ -20,23 +21,22 @@ contract MintFacet is ERC721Internal {
         return randomHash;
     }
 
-    function mint(address _tokenOwner) external payable {
-        nextMintId = LayerZeroEndpointStorage.layerZeroEndpointSlot().startMintId;
-        maxMintId = LayerZeroEndpointStorage.layerZeroEndpointSlot().endMintId;
-
-        console.log('nextMintId', nextMintId);
-        console.log('maxMintId', maxMintId);
+    function mint() external payable {
+        maxMintId = LayerZeroEndpointStorage.layerZeroEndpointSlot().maxTokenId;
 
         uint256 dirtBikeHash = getHash();
 
-        uint newId = nextMintId;
-        nextMintId++;
+        uint tokenId = _nextTokenId();
 
-        require(nextMintId <= maxMintId, 'UniversalONFT721: max mint limit reached');
+        require(msg.sender == tx.origin, 'Contract cannot mint');
+
+        require(_nextTokenId() <= maxMintId, 'UniversalONFT721: max mint limit reached');
 
         // Store psuedo-randomHash as DirtBike VIN
-        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[newId] = dirtBikeHash;
+        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
 
-        _safeMint(_tokenOwner, newId);
+        if (tokenId != 0) emit BatchMetadataUpdate(0, tokenId - 1);
+
+        _mint(msg.sender, 1);
     }
 }
