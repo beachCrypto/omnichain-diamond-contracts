@@ -74,8 +74,9 @@ contract DiamondInitA {
         onfts.minGasToTransferAndStore = 100000;
 
         // Initialize / set LayerZero endpoint
+        // Goerli
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
-        lzep.lzEndpoint = ILayerZeroEndpoint(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+        lzep.lzEndpoint = ILayerZeroEndpoint(0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23);
     }
 }
