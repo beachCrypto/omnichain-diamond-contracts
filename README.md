@@ -8,7 +8,9 @@ https://github.com/LayerZero-Labs/solidity-examples/blob/main/contracts/contract
 Diamond contracts:
 https://github.com/mudgen/diamond-3-hardhat
 
-# Diamond-3-Hardhat Implementation
+# This project was originally cloned from a Diamond-3-Hardhat Implementation
+
+## Blow is the Readme that shipped with Diamond-3-Hardhat. I will update soon
 
 This is an implementation for [EIP-2535 Diamond Standard](https://github.com/ethereum/EIPs/issues/2535). To learn about other implementations go here: https://github.com/mudgen/diamond
 
