@@ -45,10 +45,10 @@ describe('ERC721', async () => {
     });
 
     it('Sender can mint an NFT', async () => {
-        const tokenId = 1;
+        const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, tokenId);
+        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address, 0);
 
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
