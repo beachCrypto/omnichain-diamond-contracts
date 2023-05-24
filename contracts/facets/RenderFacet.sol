@@ -296,19 +296,13 @@ contract RenderFacet is ERC721Internal {
           string(
               abi.encodePacked(
                   'data:application/json;base64,',
-                  Base64.encode(
-                      bytes(
-                          abi.encodePacked(
-                              '{"name": "Dirt Bikes #',
-                              (tokenId).toString(),
-                              '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
-                              attributes,
-                              '"image":"data:image/svg+xml;base64,',
-                              Base64.encode(bytes(onChainDirtbike)),
-                              '"}'
-                          )
-                      )
-                  )
+                    '{"name": "Dirt Bikes #',
+                    (tokenId).toString(),
+                    '", "description": "Dirt Bikes Omnichain Diamond NFTs",',
+                    attributes,
+                    '"image":"data:image/svg+xml;base64,',
+                    Base64.encode(bytes(onChainDirtbike)),
+                    '"}'
               )
           );
     }
