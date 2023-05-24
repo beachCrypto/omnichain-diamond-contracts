@@ -69,29 +69,38 @@ describe('sendFrom()', async () => {
     });
 
     it('mint on chain A', async () => {
-        const tokenId = 0;
+        const tokenId1 = 0;
+        const tokenId2 = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721_chainA.ownerOf(tokenId1)).to.be.equal(ownerAddress.address);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
+
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(2);
+
+        expect(await eRC721_chainA.ownerOf(tokenId2)).to.be.equal(ownerAddress.address);
     });
 
     it('mint on chain B', async () => {
         const tokenId = 334;
         expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainB.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainB.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+
+        await mintFacet_chainB.connect(ownerAddress).mint();
+
+        expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(2);
     });
 });

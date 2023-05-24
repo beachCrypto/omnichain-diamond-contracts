@@ -41,7 +41,6 @@ contract DiamondInitB {
     // You can add parameters to this function in order to pass in
     // data to set your own state variables
     function init() external {
-        // adding ERC165 data
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
@@ -49,13 +48,10 @@ contract DiamondInitB {
         ds.supportedInterfaces[type(IERC173).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
-
-        // add your own state variables
-        // EIP-2535 specifies that the `diamondCut` function takes two optional
-        // arguments: address _init and bytes calldata _calldata
-        // These arguments are used to execute an arbitrary function using delegatecall
-        // in order to set state variables in the diamond during deployment or an upgrade
-        // More info here: https://eips.ethereum.org/EIPS/eip-2535#diamond-interface
+        ds.supportedInterfaces[type(IONFT721CoreUpgradeable).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroReceiver).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroEndpoint).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroUserApplicationConfig).interfaceId] = true;
 
         // Initialize ERC721A state variables
         ERC721Storage.Layout storage l = ERC721Storage.layout();
@@ -65,14 +61,13 @@ contract DiamondInitB {
         // Initialize ONFT state variables
 
         ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
-        onfts.startMintId = 334;
-        onfts.endMintId = 666;
+        onfts.nextMintId = 334;
+        onfts.maxMintId = 666;
         onfts.minGasToTransferAndStore = 100000;
 
         // Initialize / set LayerZero endpoint
-        // Mumbai
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
-        lzep.lzEndpoint = ILayerZeroEndpoint(0xf69186dfBa60DdB133E91E9A4B5673624293d8F8);
+        lzep.lzEndpoint = ILayerZeroEndpoint(0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512);
     }
 }

@@ -5,6 +5,8 @@ import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
 
+import 'hardhat/console.sol';
+
 contract MintFacet is ERC721Internal {
     event DirtBikeCreated(uint indexed tokenId);
 
@@ -19,15 +21,15 @@ contract MintFacet is ERC721Internal {
     }
 
     function mint() external payable {
-        nextMintId = ONFTStorage.oNFTStorageLayout().startMintId;
-        maxMintId = ONFTStorage.oNFTStorageLayout().endMintId;
-
         uint256 dirtBikeHash = getHash();
 
-        uint newId = nextMintId;
-        nextMintId++;
+        require(
+            ONFTStorage.oNFTStorageLayout().nextMintId <= ONFTStorage.oNFTStorageLayout().maxMintId,
+            'UniversalONFT721: max mint limit reached'
+        );
 
-        require(nextMintId <= maxMintId, 'UniversalONFT721: max mint limit reached');
+        uint newId = ONFTStorage.oNFTStorageLayout().nextMintId;
+        ONFTStorage.oNFTStorageLayout().nextMintId++;
 
         // Store psuedo-randomHash as DirtBike VIN
         DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[newId] = dirtBikeHash;
