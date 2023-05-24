@@ -10,8 +10,8 @@ library ONFTStorage {
     }
 
     struct ONFTStorageLayout {
-        uint startMintId;
-        uint endMintId;
+        uint nextMintId;
+        uint maxMintId;
         uint256 minGasToTransferAndStore; // min amount of gas required to transfer, and also store the payload
         mapping(uint16 => uint256) dstChainIdToBatchLimit;
         mapping(uint16 => uint256) dstChainIdToTransferGas; // per transfer amount of gas required to mint/transfer on the dst

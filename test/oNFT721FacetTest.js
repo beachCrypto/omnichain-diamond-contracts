@@ -75,7 +75,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - your own tokens', async () => {
         const tokenId = 0;
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
@@ -140,7 +140,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - reverts if not owner on non proxy chain', async function () {
         const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+        await mintFacet_chainA.mint();
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -184,7 +184,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - on behalf of other user', async function () {
         const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+        await mintFacet_chainA.mint();
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -236,7 +236,7 @@ describe('sendFrom()', async () => {
     });
     it('sendFrom() - reverts if contract is approved, but not the sending user', async function () {
         const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -283,7 +283,7 @@ describe('sendFrom()', async () => {
 
     it('sendFrom() - reverts if not approved on non proxy chain', async function () {
         const tokenId = 0;
-        await mintFacet_chainA.mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // approve the proxy to swap your token
         await eRC721_chainA.approve(eRC721_chainA.address, tokenId);
@@ -329,8 +329,9 @@ describe('sendFrom()', async () => {
         const tokenIdA = 0;
         const tokenIdB = 334;
         // mint to both owners
-        await mintFacet_chainA.mint(ownerAddress.address);
-        await mintFacet_chainB.mint(warlock.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
+
+        await mintFacet_chainA.connect(warlock).mint();
 
         // approve ownerAddress.address to transfer, but not the other
         await eRC721_chainA.setApprovalForAll(eRC721_chainA.address, true);

@@ -52,7 +52,7 @@ describe('sendFrom()', async () => {
         const tokenId = 0;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint(ownerAddress.address);
+        await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
