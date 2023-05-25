@@ -141,7 +141,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         bool _useZro,
         bytes calldata _adapterParams
     ) external view returns (uint nativeFee, uint zroFee) {
-        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
         // mock the payload for send()
         bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
@@ -206,7 +206,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
 
         // randomHash seed added to payload from storage
-        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenId];
+        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
 
         bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
@@ -334,11 +334,11 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
             toAddress := mload(add(toAddressBytes, 20))
         }
 
-        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
+        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
 
         if (randomHash == 0) {
             // Store psuedo-randomHash as DirtBike VIN
-            DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
+            DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
         }
 
         _creditTo(_srcChainId, toAddress, tokenId);

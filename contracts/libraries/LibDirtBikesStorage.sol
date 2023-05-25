@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 library DirtBikesStorage {
     struct DirtBikesLayout {
-        mapping(uint => uint256) dirtBikeVIN;
+        mapping(uint => uint256) tokenToHash;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.contracts.storage.DirtBikesStorage');
