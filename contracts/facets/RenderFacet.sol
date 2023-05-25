@@ -25,7 +25,7 @@ contract RenderFacet is ERC721Internal {
 
      // Return a random background color
     function backgroundColors(uint index) internal pure returns (string memory) {
-        string[10] memory bgColors = ['#66ccf3', '#64A864', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad', '#247881', '#00FFC6', '#9D5353'];
+        string[10] memory bgColors = ['#66ccf3', '#85A185', '#b08f26', '#f06eaa', '#d3d6d8', '#a27ca2', '#aaa9ad', '#247881', '#00FFC6', '#9D5353'];
         return bgColors[index];
     }
 
@@ -286,7 +286,8 @@ contract RenderFacet is ERC721Internal {
 
         return finalSvg;
     }
-/**
+
+    /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view returns (string memory) {
