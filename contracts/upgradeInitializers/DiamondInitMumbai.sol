@@ -33,7 +33,13 @@ import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
 // LayerZero Storage
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 
-contract DiamondInitA {
+// It is expected that this contract is customized if you want to deploy your diamond
+// with data from a deployment script. Use the init function to initialize state variables
+// of your diamond. Add parameters to the init function if you need to.
+
+contract DiamondInitB {
+    // You can add parameters to this function in order to pass in
+    // data to set your own state variables
     function init() external {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
         ds.supportedInterfaces[type(IERC165).interfaceId] = true;
@@ -55,13 +61,14 @@ contract DiamondInitA {
         // Initialize ONFT state variables
 
         ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
-        onfts.nextMintId = 0;
-        onfts.maxMintId = 333;
+        onfts.nextMintId = 334;
+        onfts.maxMintId = 666;
         onfts.minGasToTransferAndStore = 100000;
 
         // Initialize / set LayerZero endpoint
+        // Mumbai
 
         LayerZeroEndpointStorage.LayerZeroSlot storage lzep = LayerZeroEndpointStorage.layerZeroEndpointSlot();
-        lzep.lzEndpoint = ILayerZeroEndpoint(0x5FbDB2315678afecb367f032d93F642f64180aa3);
+        lzep.lzEndpoint = ILayerZeroEndpoint(0xf69186dfBa60DdB133E91E9A4B5673624293d8F8);
     }
 }

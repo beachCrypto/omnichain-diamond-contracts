@@ -22,7 +22,7 @@ async function deployDiamondA() {
     // deploy DiamondInit
     // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
     // Read about how the diamondCut function works here: https://eips.ethereum.org/EIPS/eip-2535#addingreplacingremoving-functions
-    const DiamondInit = await ethers.getContractFactory('DiamondInitALocal');
+    const DiamondInit = await ethers.getContractFactory('DiamondInitMumbai.sol');
     const diamondInit = await DiamondInit.deploy();
     await diamondInit.deployed();
     console.log('DiamondInit deployed:', diamondInit.address);
