@@ -23,6 +23,7 @@ contract MintFacet is ERC721Internal {
     function mint() external payable {
         uint256 dirtBikeHash = getHash();
 
+        // TODO Update to revert
         require(
             ONFTStorage.oNFTStorageLayout().nextMintId <= ONFTStorage.oNFTStorageLayout().maxMintId,
             'UniversalONFT721: max mint limit reached'
