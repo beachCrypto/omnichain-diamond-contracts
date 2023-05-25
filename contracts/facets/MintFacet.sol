@@ -32,7 +32,7 @@ contract MintFacet is ERC721Internal {
         ONFTStorage.oNFTStorageLayout().nextMintId++;
 
         // Store psuedo-randomHash as DirtBike VIN
-        DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[newId] = dirtBikeHash;
+        DirtBikesStorage.dirtBikeslayout().tokenToHash[newId] = dirtBikeHash;
 
         _safeMint(msg.sender, newId);
     }
