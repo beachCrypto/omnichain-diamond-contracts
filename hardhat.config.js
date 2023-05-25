@@ -49,7 +49,11 @@ module.exports = {
             accounts: [process.env.POLYGONZKEVM_TESTNET_PRIVATE_KEY],
         },
     },
+    // You must manually swap out API keys when verifying contracts
     etherscan: {
-        apiKey: process.env.ETHERSCAN_API_KEY,
+        apiKey: process.env.POLYGONSCAN_API_KEY,
+    },
+    polygonscan: {
+        apiKey: process.env.POLYGONSCAN_API_KEY,
     },
 };

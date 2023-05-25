@@ -3,7 +3,7 @@
 
 const {getSelectors, FacetCutAction} = require('./libraries/diamond.js');
 
-async function deployDiamondA() {
+async function deployMumbai() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
@@ -65,7 +65,7 @@ async function deployDiamondA() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 if (require.main === module) {
-    deployDiamondA()
+    deployMumbai()
         .then(() => process.exit(0))
         .catch((error) => {
             console.error(error);
@@ -73,4 +73,4 @@ if (require.main === module) {
         });
 }
 
-exports.deployDiamondA = deployDiamondA;
+exports.deployMumbai = deployMumbai;

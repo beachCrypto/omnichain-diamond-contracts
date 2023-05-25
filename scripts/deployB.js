@@ -65,7 +65,7 @@ async function deployDiamondB() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 if (require.main === module) {
-    deployDiamond()
+    deployDiamondB()
         .then(() => process.exit(0))
         .catch((error) => {
             console.error(error);
