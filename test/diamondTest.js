@@ -25,7 +25,7 @@ describe('DiamondTest', async function () {
         diamondAddress = await deployDiamond();
         diamondCutFacet = await ethers.getContractAt('DiamondCutFacet', diamondAddress);
         diamondLoupeFacet = await ethers.getContractAt('DiamondLoupeFacet', diamondAddress);
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddress);
+        eRC721_chainA = await ethers.getContractAt('ERC721AUpgradeable.sol', diamondAddress);
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddress);
         ownershipFacet = await ethers.getContractAt('OwnershipFacet', diamondAddress);
     });

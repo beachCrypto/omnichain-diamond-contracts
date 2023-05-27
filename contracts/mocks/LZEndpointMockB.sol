@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 pragma abicoder v2;
 
-import '../layerZeroInterfaces/ILayerZeroReceiver.sol';
+import '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import '../layerZeroLibraries/LzLib.sol';
 
@@ -215,7 +215,12 @@ contract LZEndpointMockB is ILayerZeroEndpoint {
             nextMsgBlocked = false;
         } else {
             try
-                ILayerZeroReceiver(_dstAddress).lzReceive{gas: _gasLimit}(_srcChainId, _path, _nonce, _payload)
+                ILayerZeroReceiverUpgradeable(_dstAddress).lzReceive{gas: _gasLimit}(
+                    _srcChainId,
+                    _path,
+                    _nonce,
+                    _payload
+                )
             {} catch (bytes memory reason) {
                 storedPayload[_srcChainId][_path] = StoredPayload(
                     uint64(_payload.length),
@@ -277,7 +282,7 @@ contract LZEndpointMockB is ILayerZeroEndpoint {
 
         uint64 nonce = inboundNonce[_srcChainId][_path];
 
-        ILayerZeroReceiver(dstAddress).lzReceive(_srcChainId, _path, nonce, _payload);
+        ILayerZeroReceiverUpgradeable(dstAddress).lzReceive(_srcChainId, _path, nonce, _payload);
         emit PayloadCleared(_srcChainId, _path, nonce, dstAddress);
     }
 
@@ -397,7 +402,12 @@ contract LZEndpointMockB is ILayerZeroEndpoint {
         // warning, might run into gas issues trying to forward through a bunch of queued msgs
         while (msgs.length > 0) {
             QueuedPayload memory payload = msgs[msgs.length - 1];
-            ILayerZeroReceiver(payload.dstAddress).lzReceive(_srcChainId, _path, payload.nonce, payload.payload);
+            ILayerZeroReceiverUpgradeable(payload.dstAddress).lzReceive(
+                _srcChainId,
+                _path,
+                payload.nonce,
+                payload.payload
+            );
             msgs.pop();
         }
     }

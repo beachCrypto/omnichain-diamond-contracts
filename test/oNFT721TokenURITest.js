@@ -15,8 +15,8 @@ describe('sendFrom()', async () => {
     // Diamond contracts
     let diamondAddressA;
     let diamondAddressB;
-    let eRC721_chainA;
-    let eRC721_chainB;
+    let eRC721A_chainA;
+    let eRC721A_chainB;
     let mintFacet_chainA;
     let mintFacet_chainB;
     let NonblockingLzAppUpgradeableA;
@@ -43,8 +43,8 @@ describe('sendFrom()', async () => {
         diamondAddressA = await deployDiamondA();
         diamondAddressB = await deployDiamondB();
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
-        eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
+        eRC721A_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+        eRC721A_chainB = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressB);
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
         mintFacet_chainB = await ethers.getContractAt('MintFacet', diamondAddressB);
@@ -81,24 +81,24 @@ describe('sendFrom()', async () => {
         await mintFacet_chainA.connect(ownerAddress).mint();
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        await expect(eRC721_chainB.ownerOf(tokenId)).to.be.revertedWith('ERC721: invalid token ID');
+        await expect(eRC721A_chainB.ownerOf(tokenId)).to.be.revertedWith('ERC721: invalid token ID');
 
         // can transfer token on srcChain as regular erC721
-        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
+        await eRC721A_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
+        expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(warlock.address);
 
         // approve the proxy to swap your token
-        await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenId);
+        await eRC721A_chainA.connect(warlock).approve(eRC721A_chainA.address, tokenId);
 
         // estimate nativeFees
-        let nativeFee = (await eRC721_chainA.estimateSendFee(chainId_B, warlock.address, tokenId, false, '0x'))
+        let nativeFee = (await eRC721A_chainA.estimateSendFee(chainId_B, warlock.address, tokenId, false, '0x'))
             .nativeFee;
 
         // swaps token to other chain
-        await eRC721_chainA
+        await eRC721A_chainA
             .connect(warlock)
             .sendFrom(
                 warlock.address,
@@ -112,17 +112,17 @@ describe('sendFrom()', async () => {
             );
 
         // token is burnt
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(eRC721_chainA.address);
+        expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(eRC721A_chainA.address);
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address); // estimate nativeFees
+        expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(warlock.address); // estimate nativeFees
 
         nativeFee = (
-            await eRC721_chainB.estimateSendFee(chainId_A, warlock.address, tokenId, false, defaultAdapterParams)
+            await eRC721A_chainB.estimateSendFee(chainId_A, warlock.address, tokenId, false, defaultAdapterParams)
         ).nativeFee;
 
         // can send to other onft contract eg. not the original nft contract chain
-        await eRC721_chainB
+        await eRC721A_chainB
             .connect(warlock)
             .sendFrom(
                 warlock.address,
@@ -136,6 +136,6 @@ describe('sendFrom()', async () => {
             );
 
         // token is burned on the sending chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(eRC721_chainB.address);
+        expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(eRC721A_chainB.address);
     });
 });

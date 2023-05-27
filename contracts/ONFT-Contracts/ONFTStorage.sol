@@ -15,7 +15,7 @@ library ONFTStorage {
         uint256 minGasToTransferAndStore; // min amount of gas required to transfer, and also store the payload
         mapping(uint16 => uint256) dstChainIdToBatchLimit;
         mapping(uint16 => uint256) dstChainIdToTransferGas; // per transfer amount of gas required to mint/transfer on the dst
-        mapping(bytes32 => StoredCredit) storedCredits;
+        mapping(bytes32 => ONFTStorage.StoredCredit) storedCredits;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.contracts.storage.ONFTStorageStorage');

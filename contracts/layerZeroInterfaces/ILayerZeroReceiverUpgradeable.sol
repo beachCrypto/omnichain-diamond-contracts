@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-interface ILayerZeroReceiver {
+interface ILayerZeroReceiverUpgradeable {
     // @notice LayerZero endpoint will invoke this function to deliver the message on the destination
     // @param _srcChainId - the source endpoint identifier
     // @param _srcAddress - the source sending contract address from the source chain

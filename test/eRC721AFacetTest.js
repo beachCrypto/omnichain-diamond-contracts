@@ -11,11 +11,11 @@ const {ethers} = require('hardhat');
 
 let offsetted;
 
-describe('ERC721', async () => {
+describe('ERC721AUpgradeable tests', async () => {
     // Diamond contracts
     let diamondAddressA;
     let diamondAddressB;
-    let eRC721_chainA;
+    let eRC721A_chainA;
     let owner;
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
@@ -36,7 +36,7 @@ describe('ERC721', async () => {
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721A_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
 
         const [owner, addr1] = await ethers.getSigners();
 
@@ -46,58 +46,58 @@ describe('ERC721', async () => {
 
     it('Sender can mint an NFT', async () => {
         const tokenId = 0;
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        await mintFacet_chainA.connect(ownerAddress).mint(1);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
+        await eRC721A_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
+        expect(await eRC721A_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
 
-        await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenId);
+        await eRC721A_chainA.connect(warlock).approve(eRC721A_chainA.address, tokenId);
     });
 
     it('Sender can transfer an NFT', async () => {
         const tokenId = 0;
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        await mintFacet_chainA.connect(ownerAddress).mint(1);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
+        await eRC721A_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
+        expect(await eRC721A_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
     });
 
     it('Sender can approve an NFT', async () => {
         const tokenId = 0;
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        await mintFacet_chainA.connect(ownerAddress).mint(1);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
+        await eRC721A_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
+        expect(await eRC721A_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
-        expect(await eRC721_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
+        expect(await eRC721A_chainA.connect(warlock.address).ownerOf(tokenId)).to.equal(warlock.address);
 
-        await eRC721_chainA.connect(warlock).approve(eRC721_chainA.address, tokenId);
+        await eRC721A_chainA.connect(warlock).approve(eRC721A_chainA.address, tokenId);
     });
 });

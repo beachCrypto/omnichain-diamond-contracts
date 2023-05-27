@@ -9,11 +9,11 @@ async function setTrustedRemotesFromMumbaiToGoerli() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
-    const ERC721 = await ethers.getContractFactory('ERC721');
+    const ERC721AUpgradeable = await ethers.getContractFactory('ERC721AUpgradeable');
 
-    const eRC721B = await ERC721.attach('0x0F8cd04c35b9aB08ea42e72E1F8636e4AC7B60C6');
+    const eRC721Mumbai = await ERC721AUpgradeable.attach('0x0F8cd04c35b9aB08ea42e72E1F8636e4AC7B60C6');
 
-    await eRC721B.setTrustedRemote(
+    await eRC721Mumbai.setTrustedRemote(
         10121,
         ethers.utils.solidityPack(
             ['address', 'address'],

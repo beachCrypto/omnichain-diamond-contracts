@@ -16,19 +16,19 @@ import {IDiamondCut} from '../interfaces/IDiamondCut.sol';
 // ERC721 interfaces
 import {IERC173} from '../interfaces/IERC173.sol';
 import {IERC165} from '../interfaces/IERC165.sol';
-import {IERC721} from '../ERC721-Contracts/IERC721.sol';
+import {IERC721AUpgradeable} from '../ERC721-Contracts/IERC721AUpgradeable.sol';
 import {IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol';
 
-// ERC721 Storage
-import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Storage.sol';
+// ERC721A Storage
+import {ERC721AStorage} from '../ERC721-Contracts/ERC721AStorage.sol';
 
 // LayerZero interfaces
-import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
-import {ILayerZeroReceiver} from '../layerZeroInterfaces/ILayerZeroReceiver.sol';
+import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
+import {ILayerZeroReceiverUpgradeable} from '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 
-import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
+import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 
 // LayerZero Storage
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
@@ -46,15 +46,15 @@ contract DiamondInitBLocal {
         ds.supportedInterfaces[type(IDiamondCut).interfaceId] = true;
         ds.supportedInterfaces[type(IDiamondLoupe).interfaceId] = true;
         ds.supportedInterfaces[type(IERC173).interfaceId] = true;
-        ds.supportedInterfaces[type(IERC721).interfaceId] = true;
+        ds.supportedInterfaces[type(IERC721AUpgradeable).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
         ds.supportedInterfaces[type(IONFT721CoreUpgradeable).interfaceId] = true;
-        ds.supportedInterfaces[type(ILayerZeroReceiver).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroReceiverUpgradeable).interfaceId] = true;
         ds.supportedInterfaces[type(ILayerZeroEndpoint).interfaceId] = true;
         ds.supportedInterfaces[type(ILayerZeroUserApplicationConfig).interfaceId] = true;
 
         // Initialize ERC721A state variables
-        ERC721Storage.Layout storage l = ERC721Storage.layout();
+        ERC721AStorage.Layout storage l = ERC721AStorage.layout();
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
 
