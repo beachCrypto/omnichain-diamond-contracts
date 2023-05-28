@@ -222,6 +222,7 @@ contract ERC721AUpgradeableInternal is IERC721AUpgradeable {
         if (_startTokenId() <= tokenId) {
             packed = ERC721AStorage.layout()._packedOwnerships[tokenId];
             // If the data at the starting slot does not exist, start the scan.
+
             if (packed == 0) {
                 if (tokenId >= ERC721AStorage.layout()._currentIndex) _revert(OwnerQueryForNonexistentToken.selector);
                 // Invariant:

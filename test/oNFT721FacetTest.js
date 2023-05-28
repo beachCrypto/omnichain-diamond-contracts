@@ -72,6 +72,9 @@ describe('sendFrom()', async () => {
 
         ownerAddress = owner;
         warlock = addr1;
+
+        console.log('ownerAddress', ownerAddress.address);
+        console.log('warlock', warlock.address);
     });
 
     it('sendFrom() - your own tokens', async () => {
@@ -115,7 +118,7 @@ describe('sendFrom()', async () => {
         expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(eRC721A_chainA.address);
 
         // token received on the dst chain
-        //expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
+        expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
 
         // // estimate nativeFees
 

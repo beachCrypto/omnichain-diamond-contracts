@@ -179,7 +179,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
      * Emits a {Transfer} event.
      */
     function transferFrom(address from, address to, uint256 tokenId) public payable virtual {
-        console.log('transferFrom &&&&&&&&& >>>>');
         uint256 prevOwnershipPacked = _packedOwnershipOf(tokenId);
 
         // Mask `from` to the lower 160 bits, in case the upper bits somehow aren't clean.
@@ -188,13 +187,12 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         if (address(uint160(prevOwnershipPacked)) != from) _revert(TransferFromIncorrectOwner.selector);
 
         (uint256 approvedAddressSlot, address approvedAddress) = _getApprovedSlotAndAddress(tokenId);
-        console.log('below approvedAddressSlot');
+
         // The nested ifs save around 20+ gas over a compound boolean condition.
         if (!_isSenderApprovedOrOwner(approvedAddress, from, _msgSenderERC721A()))
             if (!isApprovedForAll(from, _msgSenderERC721A())) _revert(TransferCallerNotOwnerNorApproved.selector);
 
         _beforeTokenTransfers(from, to, tokenId, 1);
-        console.log('+++ below _beforeTokenTransfers');
 
         // Clear approvals from the previous owner.
         assembly {
@@ -251,19 +249,13 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         }
         if (toMasked == 0) _revert(TransferToZeroAddress.selector);
 
-        console.log('_afterTokenTransfers');
-        console.log('from', from);
-        console.log('from', to);
-        console.log('from', tokenId);
-
         _afterTokenTransfers(from, to, tokenId, 1);
     }
 
     /**
      * @dev Equivalent to `safeTransferFrom(from, to, tokenId, '')`.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId) public payable virtual {
-        console.log('safeTransferFrom >>>>>>');
+    function safeTransferFrom(address from, address to, uint256 tokenId) public payable {
         safeTransferFrom(from, to, tokenId, '');
     }
 
@@ -282,15 +274,12 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
      *
      * Emits a {Transfer} event.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public payable virtual {
-        console.log('safeTransferFrom >>>>>> 2');
-        console.log('tokenId safeTransferFrom', tokenId);
-
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public payable {
         transferFrom(from, to, tokenId);
-        if (to.code.length != 0) console.log('inside transferFrom');
-        if (!_checkContractOnERC721Received(from, to, tokenId, _data)) {
-            _revert(TransferToNonERC721ReceiverImplementer.selector);
-        }
+        if (to.code.length != 0)
+            if (!_checkContractOnERC721Received(from, to, tokenId, _data)) {
+                _revert(TransferToNonERC721ReceiverImplementer.selector);
+            }
     }
 
     // =============================================================
@@ -304,7 +293,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         bytes memory _payload
     ) public virtual override {
         // lzReceive must be called by the endpoint for security
-        console.log('lzReceive >>>>>>');
+
         require(
             msg.sender == address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint),
             'LzApp: invalid endpoint caller'
@@ -345,7 +334,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 _nonce,
         bytes memory _payload
     ) public {
-        console.log('nonblockingLzReceive >>>>>>');
         // only internal transaction
         require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
@@ -356,8 +344,11 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
     }
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
-        console.log('_creditTo >>>>>>');
-        console.log('_tokenId', _tokenId);
+        console.log('inside _creditTo _toAddress', _toAddress);
+        console.log('inside _creditTo _tokenId', _tokenId);
+
+        console.log('_exists(_tokenId)', _exists(_tokenId));
+
         require(_exists(_tokenId) && _ownerOf(_tokenId) == address(this));
         safeTransferFrom(address(this), _toAddress, _tokenId);
     }
@@ -464,7 +455,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         address _zroPaymentAddress,
         bytes memory _adapterParams
     ) internal virtual {
-        console.log('inside _send');
         // allow 1 by default
         require(_tokenIds.length > 0, 'tokenIds[] is empty');
         require(
@@ -497,7 +487,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         bytes memory _adapterParams,
         uint _nativeFee
     ) internal virtual {
-        console.log('_lzSend >>>>>>');
         bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_dstChainId];
         require(trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
         _checkPayloadSize(_dstChainId, _payload.length);
@@ -537,12 +526,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual {
-        console.log('NonblockingLzApp: _nonblockingLzReceive');
-
-        // The problem is here
-        /////
-
-        // decode and load the toAddress
         (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
 
         address toAddress;
@@ -550,19 +533,11 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
             toAddress := mload(add(toAddressBytes, 20))
         }
 
-        console.log('yes or no: ??');
-
-        console.log('_srcChainId', _srcChainId);
-        console.log('toAddress', toAddress);
+        // *****
         // this _creditTill function is not working
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
-        // this 1xxxx is not printing
-        console.log('1xxxx: ??');
-
-        //console.log('tokenIds.length', tokenIds.length);
 
         if (nextIndex < tokenIds.length) {
-            console.log('do I get into if? _nonblockingLzReceive');
             // not enough gas to complete transfers, store to be cleared in another tx
             bytes32 hashedPayload = keccak256(_payload);
             ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload] = ONFTStorage.StoredCredit(
@@ -618,18 +593,18 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint _startIndex,
         uint[] memory _tokenIds
     ) internal returns (uint256) {
-        console.log('NonblockingLzApp: _creditTill');
+        console.log('-----> inside _creditTill _srcChainId', _srcChainId);
+        console.log('-----> inside _creditTill _toAddress', _toAddress);
+        console.log('-----> inside _creditTill _startIndex', _startIndex);
+        console.log('-----> inside _creditTill _startIndex', _tokenIds[0]);
+        console.log('-----> inside _creditTill _tokenIds.length', _tokenIds.length);
         uint i = _startIndex;
         while (i < _tokenIds.length) {
-            console.log('_tokenIds.length', _tokenIds.length);
-            console.log('I token', i);
-            console.log('_tokenIds[i]', _tokenIds[i]);
-            // broken right here, wrong token coming through
-
             // if not enough gas to process, store this index for next loop
             if (gasleft() < ONFTStorage.oNFTStorageLayout().minGasToTransferAndStore) break;
 
             _creditTo(_srcChainId, _toAddress, _tokenIds[i]);
+
             i++;
         }
 

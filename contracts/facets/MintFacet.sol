@@ -21,21 +21,22 @@ contract MintFacet is ERC721AUpgradeableInternal {
     }
 
     function mint(uint _amount) external payable {
-        uint256 dirtBikeHash = getHash();
+        // uint256 dirtBikeHash = getHash();
 
-        // TODO Update to ERC721A. Store map each hash to tokenId
-        require(
-            ONFTStorage.oNFTStorageLayout().nextMintId <= ONFTStorage.oNFTStorageLayout().maxMintId,
-            'UniversalONFT721: max mint limit reached'
-        );
+        // // TODO Update to ERC721A. Store map each hash to tokenId
+        // require(
+        //     ONFTStorage.oNFTStorageLayout().nextMintId <= ONFTStorage.oNFTStorageLayout().maxMintId,
+        //     'UniversalONFT721: max mint limit reached'
+        // );
 
-        uint newId = ONFTStorage.oNFTStorageLayout().nextMintId;
-        ONFTStorage.oNFTStorageLayout().nextMintId++;
+        // uint newId = ONFTStorage.oNFTStorageLayout().nextMintId;
+        // ONFTStorage.oNFTStorageLayout().nextMintId++;
 
-        // Store psuedo-randomHash as DirtBike VIN
-        DirtBikesStorage.dirtBikeslayout().tokenToHash[newId] = dirtBikeHash;
+        // // Store psuedo-randomHash as DirtBike VIN
+        // DirtBikesStorage.dirtBikeslayout().tokenToHash[newId] = dirtBikeHash;
 
-        // ERC721A mint
+        // // ERC721A mint
+        // _safeMint(msg.sender, _amount, '');
         _safeMint(msg.sender, _amount, '');
     }
 }
