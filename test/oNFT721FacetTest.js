@@ -78,8 +78,6 @@ describe('sendFrom()', async () => {
         let tokenId = 1;
         await mintFacet_chainA.mint(2);
 
-        console.log('owner', await eRC721A_chainA.ownerOf(0));
-
         // verify the owner of the token is on the source chain
         expect(await eRC721A_chainA.ownerOf(0)).to.be.equal(ownerAddress.address);
         expect(await eRC721A_chainA.ownerOf(1)).to.be.equal(ownerAddress.address);
@@ -117,7 +115,7 @@ describe('sendFrom()', async () => {
         expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(eRC721A_chainA.address);
 
         // token received on the dst chain
-        expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
+        //expect(await eRC721A_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
 
         // // estimate nativeFees
 

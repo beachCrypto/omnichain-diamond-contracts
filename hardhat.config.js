@@ -35,7 +35,9 @@ module.exports = {
     },
     defaultNetwork: 'hardhat',
     networks: {
-        hardhat: {},
+        hardhat: {
+            allowUnlimitedContractSize: true,
+        },
         goerli: {
             url: `https://eth-goerli.g.alchemy.com/v2/${process.env.GOERLI_ALCHEMY_API_KEY}`,
             accounts: [process.env.GOERLI_PRIVATE_KEY],

@@ -7,6 +7,8 @@ pragma solidity ^0.8.4;
 import {ERC721AStorage} from './ERC721AStorage.sol';
 import {IERC721AUpgradeable} from './IERC721AUpgradeable.sol';
 
+import 'hardhat/console.sol';
+
 interface ERC721A__IERC721ReceiverUpgradeable {
     function onERC721Received(
         address operator,

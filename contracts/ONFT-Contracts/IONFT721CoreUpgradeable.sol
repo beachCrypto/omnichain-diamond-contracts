@@ -17,6 +17,9 @@ interface IONFT721CoreUpgradeable {
         address indexed _toAddress,
         uint[] _tokenIds
     );
+    event SetMinGasToTransferAndStore(uint256 _minGasToTransferAndStore);
+    event SetDstChainIdToTransferGas(uint16 _dstChainId, uint256 _dstChainIdToTransferGas);
+    event SetDstChainIdToBatchLimit(uint16 _dstChainId, uint256 _dstChainIdToBatchLimit);
 
     /**
      * @dev Emitted when `_payload` was received from lz, but not enough gas to deliver all tokenIds
