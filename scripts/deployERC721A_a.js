@@ -3,7 +3,7 @@
 
 const {getSelectors, FacetCutAction} = require('./libraries/diamond.js');
 
-async function deployDiamondA() {
+async function deployERC721ADiamondA() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
@@ -17,7 +17,7 @@ async function deployDiamondA() {
     const Diamond = await ethers.getContractFactory('Diamond');
     const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address);
     await diamond.deployed();
-    console.log('Diamond A deployed:', diamond.address);
+    console.log('Diamond ERC721A A deployed:', diamond.address);
 
     // deploy DiamondInit
     // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
@@ -65,7 +65,7 @@ async function deployDiamondA() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 if (require.main === module) {
-    deployDiamondA()
+    deployERC721ADiamondA()
         .then(() => process.exit(0))
         .catch((error) => {
             console.error(error);
@@ -73,4 +73,4 @@ if (require.main === module) {
         });
 }
 
-exports.deployDiamondA = deployDiamondA;
+exports.deployERC721ADiamondA = deployERC721ADiamondA;

@@ -1,7 +1,7 @@
 /* global ethers describe before it */
 /* eslint-disable prefer-const */
 
-const {deployDiamondA} = require('../scripts/deployA.js');
+const {deployERC721ADiamondA} = require('../scripts/deployERC721A_a.js');
 const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
@@ -18,18 +18,13 @@ describe('ERC721A Functions', async () => {
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
     // Layer Zero
-    const chainId_A = 1;
     const name = 'ERC721A';
     const symbol = '721A';
 
-    before(async function () {
-        LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
-    });
+    before(async function () {});
 
     beforeEach(async () => {
-        lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
-
-        diamondAddressA = await deployDiamondA();
+        diamondAddressA = await deployERC721ADiamondA();
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
 
