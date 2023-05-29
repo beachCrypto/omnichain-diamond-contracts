@@ -3,7 +3,7 @@
 
 const {getSelectors, FacetCutAction} = require('./libraries/diamond.js');
 
-async function deployDiamondB() {
+async function deployERC721DiamondB() {
     const accounts = await ethers.getSigners();
     const contractOwner = accounts[0];
 
@@ -30,7 +30,7 @@ async function deployDiamondB() {
     // deploy facets
     console.log('');
     console.log('Deploying facets');
-    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'MintFacet', 'OwnershipFacet', 'RenderFacet'];
+    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'MintFacetERC721', 'OwnershipFacet', 'RenderFacet'];
     const cut = [];
     for (const FacetName of FacetNames) {
         const Facet = await ethers.getContractFactory(FacetName);
@@ -65,7 +65,7 @@ async function deployDiamondB() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 if (require.main === module) {
-    deployDiamondB()
+    deployERC721DiamondB()
         .then(() => process.exit(0))
         .catch((error) => {
             console.error(error);
@@ -73,4 +73,4 @@ if (require.main === module) {
         });
 }
 
-exports.deployDiamondB = deployDiamondB;
+exports.deployERC721DiamondB = deployERC721DiamondB;
