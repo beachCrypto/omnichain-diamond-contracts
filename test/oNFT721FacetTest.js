@@ -115,6 +115,7 @@ describe('sendFrom()', async () => {
             );
 
         // token is burnt
+        eexpect(await eRC721A_chainA.ownerOf(0)).to.be.equal(eRC721A_chainA.address);
         expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(eRC721A_chainA.address);
 
         // token received on the dst chain

@@ -47,12 +47,12 @@ library LzLib {
         return abi.encodePacked(uint16(2), _uaGas, _params.airdropAmount, _params.airdropAddress);
     }
 
-    function getGasLimit(bytes memory _adapterParams) internal pure returns (uint gasLimit) {
-        require(_adapterParams.length == 34 || _adapterParams.length > 66, 'Invalid adapterParams');
-        assembly {
-            gasLimit := mload(add(_adapterParams, 34))
-        }
-    }
+    // function getGasLimit(bytes memory _adapterParams) internal pure returns (uint gasLimit) {
+    //     require(_adapterParams.length == 34 || _adapterParams.length > 66, 'Invalid adapterParams');
+    //     assembly {
+    //         gasLimit := mload(add(_adapterParams, 34))
+    //     }
+    // }
 
     // Decode Adapter Params
     function decodeAdapterParams(
