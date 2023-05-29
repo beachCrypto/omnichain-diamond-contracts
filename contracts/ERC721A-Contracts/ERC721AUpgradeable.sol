@@ -518,7 +518,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 _nonce,
         bytes memory _payload
     ) public {
-        console.log('we are in nonblockingLzReceive');
         // only internal transaction
         require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
@@ -530,7 +529,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual {
-        console.log('we are in _nonblockingLzReceive');
         (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
 
         address toAddress;
@@ -541,8 +539,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         // *****
         // this _creditTill function is not working
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
-
-        console.log('print nextIndex', nextIndex);
 
         if (nextIndex < tokenIds.length) {
             // not enough gas to complete transfers, store to be cleared in another tx
@@ -578,35 +574,14 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         emit RetryMessageSuccess(_srcChainId, _srcAddress, _nonce, payloadHash);
     }
 
-    // credit To returns false in this contract but returns true in the LZ test examples. Must find out why this is happening
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
-        console.log('inside _creditTo _toAddress', _toAddress);
-
-        console.log('inside _creditTo _tokenId', _tokenId);
-
-        console.log('_exists(_tokenId)', _exists(_tokenId));
-
-        // _exists(_tokenId) false here so we can't get past this point
-        // Maybe the coin is having to get minted on the other chain first
-
         require(_exists(_tokenId) && _ownerOf(_tokenId) == address(this));
-        console.log('after require *****');
         safeTransferFrom(address(this), _toAddress, _tokenId);
     }
 
     function onERC721Received(address, address, uint, bytes memory) public returns (bytes4) {
         return ERC721A__IERC721ReceiverUpgradeable.onERC721Received.selector;
     }
-
-    // function estimateSendFee(
-    //     uint16 _dstChainId,
-    //     bytes memory _toAddress,
-    //     uint _tokenId,
-    //     bool _useZro,
-    //     bytes memory _adapterParams
-    // ) public view virtual override returns (uint nativeFee, uint zroFee) {
-    //     return estimateSendBatchFee(_dstChainId, _toAddress, _toSingletonArray(_tokenId), _useZro, _adapterParams);
-    // }
 
     // Public function for anyone to clear and deliver the remaining batch sent tokenIds
     function clearCredits(bytes memory _payload) external virtual {
@@ -649,11 +624,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint _startIndex,
         uint[] memory _tokenIds
     ) internal returns (uint256) {
-        console.log('-----> inside _creditTill _srcChainId', _srcChainId);
-        console.log('-----> inside _creditTill _toAddress', _toAddress);
-        console.log('-----> inside _creditTill _startIndex', _startIndex);
-        console.log('-----> inside _creditTill _startIndex', _tokenIds[0]);
-        console.log('-----> inside _creditTill _tokenIds.length', _tokenIds.length);
         uint i = _startIndex;
         while (i < _tokenIds.length) {
             // if not enough gas to process, store this index for next loop

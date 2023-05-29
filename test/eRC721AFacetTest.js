@@ -2,7 +2,6 @@
 /* eslint-disable prefer-const */
 
 const {deployDiamondA} = require('../scripts/deployA.js');
-const {deployDiamondB} = require('../scripts/deployB.js');
 const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
@@ -11,19 +10,17 @@ const {ethers} = require('hardhat');
 
 let offsetted;
 
-describe('ERC721', async () => {
+describe('ERC721A Functions', async () => {
     // Diamond contracts
     let diamondAddressA;
-    let diamondAddressB;
-    let eRC721_chainA;
+    let eRC721A;
     let owner;
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
     // Layer Zero
     const chainId_A = 1;
-    const chainId_B = 2;
-    const name = 'OmnichainNonFungibleToken';
-    const symbol = 'ONFT';
+    const name = 'ERC721A';
+    const symbol = '721A';
 
     before(async function () {
         LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
@@ -36,7 +33,7 @@ describe('ERC721', async () => {
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
 
         const [owner, addr1] = await ethers.getSigners();
 
@@ -45,18 +42,21 @@ describe('ERC721', async () => {
     });
 
     it('Sender can mint an NFT', async () => {
-        const tokenId = 0;
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        const tokenId = 1;
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        expect(await eRC721_chainA.connect(ownerAddress).balanceOf(ownerAddress.address)).to.equal(0);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        await mintFacet_chainA.mint(2);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        // verify the owner of the token is on the source chain
+        expect(await eRC721_chainA.ownerOf(0)).to.be.equal(ownerAddress.address);
+        expect(await eRC721_chainA.ownerOf(1)).to.be.equal(ownerAddress.address);
+
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(2);
 
         await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
@@ -66,16 +66,20 @@ describe('ERC721', async () => {
     });
 
     it('Sender can transfer an NFT', async () => {
-        const tokenId = 0;
+        const tokenId = 1;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        await mintFacet_chainA.mint(2);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        // verify the owner of the token is on the source chain
+        expect(await eRC721_chainA.ownerOf(0)).to.be.equal(ownerAddress.address);
+        expect(await eRC721_chainA.ownerOf(1)).to.be.equal(ownerAddress.address);
+
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(2);
 
         await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 
@@ -83,16 +87,20 @@ describe('ERC721', async () => {
     });
 
     it('Sender can approve an NFT', async () => {
-        const tokenId = 0;
+        const tokenId = 1;
         expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        await mintFacet_chainA.mint(2);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        // verify the owner of the token is on the source chain
+        expect(await eRC721_chainA.ownerOf(0)).to.be.equal(ownerAddress.address);
+        expect(await eRC721_chainA.ownerOf(1)).to.be.equal(ownerAddress.address);
+
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(2);
 
         await eRC721_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
 
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
         expect(await eRC721_chainA.connect(warlock.address).balanceOf(warlock.address)).to.equal(1);
 

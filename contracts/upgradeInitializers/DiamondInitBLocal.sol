@@ -24,7 +24,7 @@ import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Storage.sol'
 
 // LayerZero interfaces
 import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
-import {ILayerZeroReceiver} from '../layerZeroInterfaces/ILayerZeroReceiver.sol';
+import {ILayerZeroReceiverUpgradeable} from '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 
@@ -49,7 +49,7 @@ contract DiamondInitBLocal {
         ds.supportedInterfaces[type(IERC721).interfaceId] = true;
         ds.supportedInterfaces[type(IERC721Metadata).interfaceId] = true;
         ds.supportedInterfaces[type(IONFT721CoreUpgradeable).interfaceId] = true;
-        ds.supportedInterfaces[type(ILayerZeroReceiver).interfaceId] = true;
+        ds.supportedInterfaces[type(ILayerZeroReceiverUpgradeable).interfaceId] = true;
         ds.supportedInterfaces[type(ILayerZeroEndpoint).interfaceId] = true;
         ds.supportedInterfaces[type(ILayerZeroUserApplicationConfig).interfaceId] = true;
 
