@@ -12,7 +12,6 @@ let offsetted;
 
 describe('sendFrom()', async () => {
     // Diamond contracts
-    let diamondAddressA;
     let diamondERC721AddressB;
     let eRC721_chainB;
     let owner;

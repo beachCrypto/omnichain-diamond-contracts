@@ -1,8 +1,7 @@
 /* global ethers describe before it */
 /* eslint-disable prefer-const */
 
-const {deployDiamondA} = require('../scripts/deployA.js');
-const {deployDiamondB} = require('../scripts/deployB.js');
+const {deployERC721DiamondB} = require('../scripts/deployERC721_b.js');
 const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
@@ -11,36 +10,30 @@ const {ethers} = require('hardhat');
 
 let offsetted;
 
-describe('sendFrom()', async () => {
+describe('ERC721 TokenURI Rendering', async () => {
     // Diamond contracts
-    let diamondAddressA;
-    let eRC721_chainA;
+    let diamondERC721AddressB;
+    let eRC721_chainB;
     let owner;
     const defaultAdapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 200000]);
 
     // Layer Zero
     const chainId_A = 1;
     const chainId_B = 2;
-    const name = 'OmnichainNonFungibleToken';
-    const symbol = 'ONFT';
+    const name = 'ERC721';
+    const symbol = 'ERC721';
 
-    before(async function () {
-        LZEndpointMockA = await ethers.getContractFactory('LZEndpointMockA');
-    });
+    before(async function () {});
 
     beforeEach(async () => {
-        lzEndpointMockA = await LZEndpointMockA.deploy(chainId_A);
-
         // generate a proxy to allow it to go ONFT
-        diamondAddressA = await deployDiamondA();
+        diamondERC721AddressB = await deployERC721DiamondB();
 
-        eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
+        eRC721_chainB = await ethers.getContractAt('ERC721', diamondERC721AddressB);
 
-        mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
+        mintFacetERC721_chainB = await ethers.getContractAt('MintFacetERC721', diamondERC721AddressB);
 
-        renderFacet_chainA = await ethers.getContractAt('RenderFacet', diamondAddressA);
-
-        offsetted = (...arr) => offsettedIndex(startTokenId, arr);
+        renderFacet_chain = await ethers.getContractAt('RenderFacet', diamondERC721AddressB);
 
         const [owner, addr1] = await ethers.getSigners();
 
@@ -49,19 +42,17 @@ describe('sendFrom()', async () => {
     });
 
     it('mint on chain A and read tokenUI', async () => {
-        const tokenId = 0;
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(0);
+        const tokenId = 1;
+        expect(await eRC721_chainB.connect(ownerAddress).balanceOf(ownerAddress.address)).to.equal(0);
 
-        await mintFacet_chainA.connect(ownerAddress).mint();
-
-        // verify the owner of the token is on the source chain
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        await mintFacetERC721_chainB.mint(ownerAddress.address, tokenId);
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
+        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
-        expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        // verify the owner of the token is on the source chain
+        expect(await eRC721_chainB.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(1);
 
-        console.log('Token URI ------>', await renderFacet_chainA.tokenURI(tokenId));
+        console.log('Token URI ------>', await renderFacet_chain.tokenURI(tokenId));
     });
 });
