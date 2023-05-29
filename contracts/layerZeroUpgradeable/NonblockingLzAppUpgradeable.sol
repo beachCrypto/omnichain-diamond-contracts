@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import '../libraries/LibDiamond.sol';
-import '../layerZeroInterfaces/ILayerZeroReceiver.sol';
+import '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 import '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {NonblockingLzAppStorage} from './NonblockingLzAppStorage.sol';
@@ -14,7 +14,7 @@ import '../utils/BytesLib.sol';
  * this abstract class try-catch all fail messages and store locally for future retry. hence, non-blocking
  * NOTE: if the srcAddress is not configured properly, it will still block the message pathway from (srcChainId, srcAddress)
  */
-abstract contract NonblockingLzAppUpgradeable is ILayerZeroReceiver, ILayerZeroUserApplicationConfig {
+abstract contract NonblockingLzAppUpgradeable is ILayerZeroReceiverUpgradeable, ILayerZeroUserApplicationConfig {
     using BytesLib for bytes;
 
     using ExcessivelySafeCall for address;
