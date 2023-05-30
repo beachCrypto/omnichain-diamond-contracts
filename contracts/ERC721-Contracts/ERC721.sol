@@ -10,7 +10,7 @@ pragma solidity ^0.8.17;
  *  */
 
 import './IERC721Receiver.sol';
-import '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
+import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 import '../libraries/LibDiamond.sol';
 
@@ -19,7 +19,16 @@ import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointS
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 
-contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
+// import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
+import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
+
+import 'hardhat/console.sol';
+
+contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgradeable {
+    using ExcessivelySafeCall for address;
+
+    event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _payload, bytes _reason);
+
     event ReceiveFromChain(
         uint16 indexed _srcChainId,
         bytes indexed _srcAddress,
@@ -252,55 +261,175 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
 
     function lzReceive(
         uint16 _srcChainId,
-        bytes memory _srcAddress,
+        bytes calldata _srcAddress,
         uint64 _nonce,
-        bytes memory _payload
+        bytes calldata _payload
     ) public virtual override {
         // lzReceive must be called by the endpoint for security
         require(
-            msg.sender == address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint),
+            _msgSender() == address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint),
             'LzApp: invalid endpoint caller'
         );
 
         bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_srcChainId];
-
         // if will still block the message pathway from (srcChainId, srcAddress). should not receive message from untrusted remote.
         require(
-            _srcAddress.length == trustedRemote.length && keccak256(_srcAddress) == keccak256(trustedRemote),
+            _srcAddress.length == trustedRemote.length &&
+                trustedRemote.length > 0 &&
+                keccak256(_srcAddress) == keccak256(trustedRemote),
             'LzApp: invalid source sending contract'
         );
 
         _blockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
 
+    // overriding the virtual function in LzReceiver
     function _blockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
         uint64 _nonce,
         bytes memory _payload
     ) internal virtual {
+        (bool success, bytes memory reason) = address(this).excessivelySafeCall(
+            gasleft(),
+            150,
+            abi.encodeWithSelector(this.nonblockingLzReceive.selector, _srcChainId, _srcAddress, _nonce, _payload)
+        );
         // try-catch all errors/exceptions
-        try this.nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload) {
-            // do nothing
-        } catch {
-            // error / exception
-            NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
-                _payload
-            );
-            emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload);
+        if (!success) {
+            _storeFailedMessage(_srcChainId, _srcAddress, _nonce, _payload, reason);
         }
+    }
+
+    function _storeFailedMessage(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload,
+        bytes memory _reason
+    ) internal virtual {
+        NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
+            _payload
+        );
+        emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload, _reason);
     }
 
     function nonblockingLzReceive(
         uint16 _srcChainId,
-        bytes memory _srcAddress,
+        bytes calldata _srcAddress,
         uint64 _nonce,
-        bytes memory _payload
-    ) public {
+        bytes calldata _payload
+    ) public virtual {
         // only internal transaction
-        require(msg.sender == address(this), 'NonblockingLzApp: caller must be LzApp');
+        require(_msgSender() == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
+
+    function _nonblockingLzReceive(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 /*_nonce*/,
+        bytes memory _payload
+    ) internal virtual {
+        // decode and load the toAddress
+        (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
+
+        address toAddress;
+        assembly {
+            toAddress := mload(add(toAddressBytes, 20))
+        }
+
+        // Itterate through and store Dirt Bikes
+        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
+
+        // if (randomHash == 0) {
+        //     // Store psuedo-randomHash as DirtBike VIN
+        //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+        // }
+
+        uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
+        if (nextIndex < tokenIds.length) {
+            // not enough gas to complete transfers, store to be cleared in another tx
+            bytes32 hashedPayload = keccak256(_payload);
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload] = ONFTStorage.StoredCredit(
+                _srcChainId,
+                toAddress,
+                nextIndex,
+                true
+            );
+            emit CreditStored(hashedPayload, _payload);
+        }
+
+        emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenIds);
+    }
+
+    // Public function for anyone to clear and deliver the remaining batch sent tokenIds
+    function clearCredits(bytes memory _payload) external virtual {
+        bytes32 hashedPayload = keccak256(_payload);
+        require(ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].creditsRemain, 'no credits stored');
+
+        (, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
+
+        uint nextIndex = _creditTill(
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].srcChainId,
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].toAddress,
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].index,
+            tokenIds
+        );
+        require(
+            nextIndex > ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].index,
+            'not enough gas to process credit transfer'
+        );
+
+        if (nextIndex == tokenIds.length) {
+            // cleared the credits, delete the element
+            delete ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload];
+            emit CreditCleared(hashedPayload);
+        } else {
+            // store the next index to mint
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload] = ONFTStorage.StoredCredit(
+                ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].srcChainId,
+                ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].toAddress,
+                nextIndex,
+                true
+            );
+        }
+    }
+
+    // When a srcChain has the ability to transfer more chainIds in a single tx than the dst can do.
+    // Needs the ability to iterate and stop if the minGasToTransferAndStore is not met
+    function _creditTill(
+        uint16 _srcChainId,
+        address _toAddress,
+        uint _startIndex,
+        uint[] memory _tokenIds
+    ) internal returns (uint256) {
+        uint i = _startIndex;
+        while (i < _tokenIds.length) {
+            // if not enough gas to process, store this index for next loop
+            if (gasleft() < ONFTStorage.oNFTStorageLayout().minGasToTransferAndStore) break;
+
+            _creditTo(_srcChainId, _toAddress, _tokenIds[i]);
+            i++;
+        }
+
+        // indicates the next index to send of tokenIds,
+        // if i == tokenIds.length, we are finished
+        return i;
+    }
+
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
+        require(!_exists(_tokenId) || (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this)));
+        if (!_exists(_tokenId)) {
+            _safeMint(_toAddress, _tokenId);
+        } else {
+            _transfer(address(this), _toAddress, _tokenId);
+        }
+    }
+
+    // =============================================================
+    //                      Non blocking receive
+    // =============================================================
 
     function retryMessage(
         uint16 _srcChainId,
@@ -321,37 +450,22 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         emit RetryMessageSuccess(_srcChainId, _srcAddress, _nonce, payloadHash);
     }
 
-    function _nonblockingLzReceive(
-        uint16 _srcChainId,
-        bytes memory _srcAddress,
-        uint64 _nonce,
-        bytes memory _payload
-    ) internal virtual {
-        // decode and load the toAddress
-        (bytes memory toAddressBytes, uint tokenId, uint _randomHash) = abi.decode(_payload, (bytes, uint, uint));
-        address toAddress;
-        assembly {
-            toAddress := mload(add(toAddressBytes, 20))
-        }
+    // TODO add
+    function sendBatchFrom(
+        address _from,
+        uint16 _dstChainId,
+        bytes calldata _toAddress,
+        uint[] calldata _tokenIds,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes calldata _adapterParams
+    ) external payable override {}
 
-        uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
-
-        if (randomHash == 0) {
-            // Store psuedo-randomHash as DirtBike VIN
-            DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
-        }
-
-        _creditTo(_srcChainId, toAddress, tokenId);
-
-        emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenId, _nonce);
-    }
-
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this)));
-        if (!_exists(_tokenId)) {
-            _safeMint(_toAddress, _tokenId);
-        } else {
-            _transfer(address(this), _toAddress, _tokenId);
-        }
-    }
+    function estimateSendBatchFee(
+        uint16 _dstChainId,
+        bytes calldata _toAddress,
+        uint[] calldata _tokenIds,
+        bool _useZro,
+        bytes calldata _adapterParams
+    ) external view override returns (uint nativeFee, uint zroFee) {}
 }
