@@ -346,8 +346,8 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable {
         emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenId, _nonce);
     }
 
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
+        require(!_exists(_tokenId) || (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this)));
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {

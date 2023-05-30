@@ -1,8 +1,8 @@
 /* global ethers describe before it */
 /* eslint-disable prefer-const */
 
-const {deployDiamondA} = require('../scripts/deployA.js');
-const {deployDiamondB} = require('../scripts/deployB.js');
+const {deployERC721ADiamondA} = require('../scripts/deployERC721A_a.js');
+const {deployERC721DiamondB} = require('../scripts/deployERC721_b.js');
 const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
@@ -40,8 +40,8 @@ describe('sendFrom()', async () => {
         lzEndpointMockB = await LZEndpointMockB.deploy(chainId_B);
 
         // generate a proxy to allow it to go ONFT
-        diamondAddressA = await deployDiamondA();
-        diamondAddressB = await deployDiamondB();
+        diamondAddressA = await deployERC721ADiamondA();
+        diamondAddressB = await deployERC721DiamondB();
 
         eRC721_chainA = await ethers.getContractAt('ERC721', diamondAddressA);
         eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
@@ -74,8 +74,8 @@ describe('sendFrom()', async () => {
     });
 
     it('sendFrom() - your own tokens', async () => {
-        const tokenId = 0;
-        await mintFacet_chainA.connect(ownerAddress).mint();
+        let tokenId = 1;
+        await mintFacet_chainA.mint(2);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
