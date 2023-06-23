@@ -145,15 +145,22 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
 
     function estimateSendFee(
         uint16 _dstChainId,
-        bytes calldata _toAddress,
+        bytes memory _toAddress,
         uint _tokenId,
         bool _useZro,
-        bytes calldata _adapterParams
-    ) external view returns (uint nativeFee, uint zroFee) {
-        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
-        // mock the payload for send()
-        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
+        bytes memory _adapterParams
+    ) public view virtual override returns (uint nativeFee, uint zroFee) {
+        return estimateSendBatchFee(_dstChainId, _toAddress, _toSingletonArray(_tokenId), _useZro, _adapterParams);
+    }
 
+    function estimateSendBatchFee(
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint[] memory _tokenIds,
+        bool _useZro,
+        bytes memory _adapterParams
+    ) public view virtual override returns (uint nativeFee, uint zroFee) {
+        bytes memory payload = abi.encode(_toAddress, _tokenIds);
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
                 _dstChainId,
@@ -164,16 +171,15 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
             );
     }
 
-    function setUseCustomAdapterParams(bool _useCustomAdapterParams) external {
-        LibDiamond.enforceIsContractOwner();
-
-        useCustomAdapterParams = _useCustomAdapterParams;
-        emit SetUseCustomAdapterParams(_useCustomAdapterParams);
+    function _toSingletonArray(uint element) internal pure returns (uint[] memory) {
+        uint[] memory array = new uint[](1);
+        array[0] = element;
+        return array;
     }
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
-        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+        require(ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
         _transfer(_from, address(this), _tokenId);
     }
 
@@ -199,39 +205,92 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
-    ) public payable virtual {
-        _send(_from, _dstChainId, _toAddress, _tokenId, _refundAddress, _zroPaymentAddress, _adapterParams);
+    ) public payable virtual override {
+        _send(
+            _from,
+            _dstChainId,
+            _toAddress,
+            _toSingletonArray(_tokenId),
+            _refundAddress,
+            _zroPaymentAddress,
+            _adapterParams
+        );
     }
+
+    function sendBatchFrom(
+        address _from,
+        uint16 _dstChainId,
+        bytes memory _toAddress,
+        uint[] memory _tokenIds,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes memory _adapterParams
+    ) public payable virtual override {
+        _send(_from, _dstChainId, _toAddress, _tokenIds, _refundAddress, _zroPaymentAddress, _adapterParams);
+    }
+
+    // function _send(
+    //     address _from,
+    //     uint16 _dstChainId,
+    //     bytes memory _toAddress,
+    //     uint _tokenId,
+    //     address payable _refundAddress,
+    //     address _zroPaymentAddress,
+    //     bytes memory _adapterParams
+    // ) internal virtual {
+    //     _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
+
+    //     // randomHash seed added to payload from storage
+    //     uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
+
+    //     bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
+
+    //     if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
+    //         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
+    //     } else {
+    //         require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
+    //     }
+
+    //     _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams);
+
+    //     uint64 nonce = LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.getOutboundNonce(
+    //         _dstChainId,
+    //         address(this)
+    //     );
+    //     emit SendToChain(_from, _dstChainId, _toAddress, _tokenId, nonce);
+    // }
 
     function _send(
         address _from,
         uint16 _dstChainId,
         bytes memory _toAddress,
-        uint _tokenId,
+        uint[] memory _tokenIds,
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
     ) internal virtual {
-        _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
+        // allow 1 by default
+        require(_tokenIds.length > 0, 'LzApp: tokenIds[] is empty');
+        require(
+            _tokenIds.length == 1 ||
+                _tokenIds.length <= ONFTStorage.oNFTStorageLayout().dstChainIdToBatchLimit[_dstChainId],
+            'ONFT721: batch size exceeds dst batch limit'
+        );
 
-        // randomHash seed added to payload from storage
-        uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
-
-        bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
-
-        if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
-            _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
-        } else {
-            require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
+        for (uint i = 0; i < _tokenIds.length; i++) {
+            _debitFrom(_from, _dstChainId, _toAddress, _tokenIds[i]);
         }
 
-        _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams);
+        bytes memory payload = abi.encode(_toAddress, _tokenIds);
 
-        uint64 nonce = LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.getOutboundNonce(
+        _checkGasLimit(
             _dstChainId,
-            address(this)
+            FUNCTION_TYPE_SEND,
+            _adapterParams,
+            ONFTStorage.oNFTStorageLayout().dstChainIdToTransferGas[_dstChainId] * _tokenIds.length
         );
-        emit SendToChain(_from, _dstChainId, _toAddress, _tokenId, nonce);
+        _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams, msg.value);
+        emit SendToChain(_dstChainId, _from, _toAddress, _tokenIds);
     }
 
     function _lzSend(
@@ -239,13 +298,13 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         bytes memory _payload,
         address payable _refundAddress,
         address _zroPaymentAddress,
-        bytes memory _adapterParams
+        bytes memory _adapterParams,
+        uint _nativeFee
     ) internal virtual {
         bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_dstChainId];
-
         require(trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
-
-        LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.send{value: msg.value}(
+        _checkPayloadSize(_dstChainId, _payload.length);
+        lzEndpoint.send{value: _nativeFee}(
             _dstChainId,
             trustedRemote,
             _payload,
@@ -325,6 +384,44 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
 
+    // function _nonblockingLzReceive(
+    //     uint16 _srcChainId,
+    //     bytes memory _srcAddress,
+    //     uint64 /*_nonce*/,
+    //     bytes memory _payload
+    // ) internal virtual {
+    //     // decode and load the toAddress
+    //     (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
+
+    //     address toAddress;
+    //     assembly {
+    //         toAddress := mload(add(toAddressBytes, 20))
+    //     }
+
+    //     // Itterate through and store Dirt Bikes
+    //     // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
+
+    //     // if (randomHash == 0) {
+    //     //     // Store psuedo-randomHash as DirtBike VIN
+    //     //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+    //     // }
+
+    //     uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
+    //     if (nextIndex < tokenIds.length) {
+    //         // not enough gas to complete transfers, store to be cleared in another tx
+    //         bytes32 hashedPayload = keccak256(_payload);
+    //         ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload] = ONFTStorage.StoredCredit(
+    //             _srcChainId,
+    //             toAddress,
+    //             nextIndex,
+    //             true
+    //         );
+    //         emit CreditStored(hashedPayload, _payload);
+    //     }
+
+    //     emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenIds);
+    // }
+
     function _nonblockingLzReceive(
         uint16 _srcChainId,
         bytes memory _srcAddress,
@@ -343,7 +440,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
 
         // if (randomHash == 0) {
-        //     // Store psuedo-randomHash as DirtBike VIN
+        //      Store psuedo-randomHash as DirtBike VIN
         //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
         // }
 
@@ -363,10 +460,12 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenIds);
     }
 
-    // Public function for anyone to clear and deliver the remaining batch sent tokenIds
-    function clearCredits(bytes memory _payload) external virtual {
+    function clearCredits(bytes memory _payload) external {
         bytes32 hashedPayload = keccak256(_payload);
-        require(ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].creditsRemain, 'no credits stored');
+        require(
+            ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].creditsRemain,
+            'ONFT721: no credits stored'
+        );
 
         (, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
 
@@ -378,7 +477,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         );
         require(
             nextIndex > ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload].index,
-            'not enough gas to process credit transfer'
+            'ONFT721: not enough gas to process credit transfer'
         );
 
         if (nextIndex == tokenIds.length) {
@@ -418,8 +517,8 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         return i;
     }
 
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && ERC721.ownerOf(_tokenId) == address(this)));
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
+        require(!_exists(_tokenId) || (_exists(_tokenId) && ownerOf(_tokenId) == address(this)));
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {
@@ -427,9 +526,24 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         }
     }
 
+    function setMinGasToTransferAndStore(uint256 _minGasToTransferAndStore) external {
+        LibDiamond.enforceIsContractOwner();
+        require(_minGasToTransferAndStore > 0, 'ONFT721: minGasToTransferAndStore must be > 0');
+        ONFTStorage.oNFTStorageLayout().minGasToTransferAndStore = _minGasToTransferAndStore;
+    }
+
+    // limit on src the amount of tokens to batch send
+    function setDstChainIdToBatchLimit(uint16 _dstChainId, uint256 _dstChainIdToBatchLimit) external {
+        LibDiamond.enforceIsContractOwner();
+        require(_dstChainIdToBatchLimit > 0, 'ONFT721: dstChainIdToBatchLimit must be > 0');
+        ONFTStorage.oNFTStorageLayout().dstChainIdToBatchLimit[_dstChainId] = _dstChainIdToBatchLimit;
+    }
+
     // =============================================================
     //                      Non blocking receive
     // =============================================================
+
+    // we are here ================================================
 
     function retryMessage(
         uint16 _srcChainId,
@@ -449,23 +563,4 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
         emit RetryMessageSuccess(_srcChainId, _srcAddress, _nonce, payloadHash);
     }
-
-    // TODO add
-    function sendBatchFrom(
-        address _from,
-        uint16 _dstChainId,
-        bytes calldata _toAddress,
-        uint[] calldata _tokenIds,
-        address payable _refundAddress,
-        address _zroPaymentAddress,
-        bytes calldata _adapterParams
-    ) external payable override {}
-
-    function estimateSendBatchFee(
-        uint16 _dstChainId,
-        bytes calldata _toAddress,
-        uint[] calldata _tokenIds,
-        bool _useZro,
-        bytes calldata _adapterParams
-    ) external view override returns (uint nativeFee, uint zroFee) {}
 }

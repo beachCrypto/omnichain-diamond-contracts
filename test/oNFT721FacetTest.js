@@ -119,6 +119,26 @@ describe('sendFrom()', async () => {
 
         // token received on the dst chain
         expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
+
+        // can send to other onft contract eg. not the original nft contract chain
+        await eRC721_chainB
+            .connect(warlock)
+            .sendFrom(
+                warlock.address,
+                chainId_A,
+                ownerAddress.address,
+                tokenId,
+                warlock.address,
+                ethers.constants.AddressZero,
+                defaultAdapterParams,
+                {
+                    value: nativeFee,
+                }
+            );
+
+        // token is burned on the sending chain
+        // expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(owner.address);
+        // expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(onft721_B.address);
     });
 
     // it('sendFrom() - reverts if not owner on non proxy chain', async function () {
