@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
-import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
+import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 
 import 'hardhat/console.sol';
 

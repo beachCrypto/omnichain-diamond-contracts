@@ -78,6 +78,13 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         return owner;
     }
 
+    function rawOwnerOf(uint256 tokenId) public view returns (address) {
+        if (_exists(tokenId)) {
+            return ownerOf(tokenId);
+        }
+        return address(0);
+    }
+
     /**
      * @dev See {IERC721-approve}.
      */
@@ -229,37 +236,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         _send(_from, _dstChainId, _toAddress, _tokenIds, _refundAddress, _zroPaymentAddress, _adapterParams);
     }
 
-    // function _send(
-    //     address _from,
-    //     uint16 _dstChainId,
-    //     bytes memory _toAddress,
-    //     uint _tokenId,
-    //     address payable _refundAddress,
-    //     address _zroPaymentAddress,
-    //     bytes memory _adapterParams
-    // ) internal virtual {
-    //     _debitFrom(_from, _dstChainId, _toAddress, _tokenId);
-
-    //     // randomHash seed added to payload from storage
-    //     uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
-
-    //     bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
-
-    //     if (NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams) {
-    //         _checkGasLimit(_dstChainId, FUNCTION_TYPE_SEND, _adapterParams, NO_EXTRA_GAS);
-    //     } else {
-    //         require(_adapterParams.length == 0, 'LzApp: _adapterParams must be empty.');
-    //     }
-
-    //     _lzSend(_dstChainId, payload, _refundAddress, _zroPaymentAddress, _adapterParams);
-
-    //     uint64 nonce = LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.getOutboundNonce(
-    //         _dstChainId,
-    //         address(this)
-    //     );
-    //     emit SendToChain(_from, _dstChainId, _toAddress, _tokenId, nonce);
-    // }
-
     function _send(
         address _from,
         uint16 _dstChainId,
@@ -304,7 +280,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_dstChainId];
         require(trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
         _checkPayloadSize(_dstChainId, _payload.length);
-        lzEndpoint.send{value: _nativeFee}(
+        LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.send{value: _nativeFee}(
             _dstChainId,
             trustedRemote,
             _payload,
@@ -383,44 +359,6 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         require(_msgSender() == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
     }
-
-    // function _nonblockingLzReceive(
-    //     uint16 _srcChainId,
-    //     bytes memory _srcAddress,
-    //     uint64 /*_nonce*/,
-    //     bytes memory _payload
-    // ) internal virtual {
-    //     // decode and load the toAddress
-    //     (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
-
-    //     address toAddress;
-    //     assembly {
-    //         toAddress := mload(add(toAddressBytes, 20))
-    //     }
-
-    //     // Itterate through and store Dirt Bikes
-    //     // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
-
-    //     // if (randomHash == 0) {
-    //     //     // Store psuedo-randomHash as DirtBike VIN
-    //     //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
-    //     // }
-
-    //     uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
-    //     if (nextIndex < tokenIds.length) {
-    //         // not enough gas to complete transfers, store to be cleared in another tx
-    //         bytes32 hashedPayload = keccak256(_payload);
-    //         ONFTStorage.oNFTStorageLayout().storedCredits[hashedPayload] = ONFTStorage.StoredCredit(
-    //             _srcChainId,
-    //             toAddress,
-    //             nextIndex,
-    //             true
-    //         );
-    //         emit CreditStored(hashedPayload, _payload);
-    //     }
-
-    //     emit ReceiveFromChain(_srcChainId, _srcAddress, toAddress, tokenIds);
-    // }
 
     function _nonblockingLzReceive(
         uint16 _srcChainId,

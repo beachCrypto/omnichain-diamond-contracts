@@ -28,7 +28,7 @@ import {ILayerZeroReceiverUpgradeable} from '../layerZeroInterfaces/ILayerZeroRe
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
 
-import {ONFTStorage} from '../layerZeroLibraries/ONFTStorage.sol';
+import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 
 // LayerZero Storage
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';

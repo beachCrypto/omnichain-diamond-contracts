@@ -30,6 +30,7 @@
     "standard": "^16.0.3"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.3"
+    "@openzeppelin/contracts": "^4.8.3",
+    "web3": "^4.0.1"
   }
 }
