@@ -468,6 +468,7 @@ describe('sendFrom()', async () => {
         const payload = ethers.utils.defaultAbiCoder.encode(['bytes', 'uint[]'], [warlock.address, tokenIds]);
         const hashedPayload = web3.utils.keccak256(payload);
 
+        // Increase amount of gas to sent for this to pass tests
         let adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000]);
 
         // estimate nativeFees
