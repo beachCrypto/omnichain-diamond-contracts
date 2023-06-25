@@ -469,7 +469,8 @@ describe('sendFrom()', async () => {
         const hashedPayload = web3.utils.keccak256(payload);
 
         // Increase amount of gas to sent for this to pass tests
-        let adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000]);
+        // let adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 400000]);
+        let adapterParams = ethers.utils.solidityPack(['uint16', 'uint256'], [1, 1000000]);
 
         // estimate nativeFees
         let nativeFee = (
