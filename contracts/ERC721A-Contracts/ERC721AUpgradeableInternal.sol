@@ -300,17 +300,8 @@ contract ERC721AUpgradeableInternal is IERC721AUpgradeable {
      * Tokens start existing when they are minted. See {_mint}.
      */
 
-    //***** why??? */
     function _exists(uint256 tokenId) internal view virtual returns (bool result) {
-        console.log('   ');
-        console.log('_____ in _exists _____');
-        console.log('_startTokenId()', _startTokenId(), '<< tokenId', tokenId);
-        console.log('   ');
-
         if (_startTokenId() <= tokenId) {
-            console.log('_____ in _startTokenId() _____');
-            console.log('tokenId', tokenId, ' << _currentIndex', ERC721AStorage.layout()._currentIndex);
-
             if (tokenId < ERC721AStorage.layout()._currentIndex) {
                 console.log('in if << tokenId', tokenId);
                 console.log('_currentIndex', ERC721AStorage.layout()._currentIndex);

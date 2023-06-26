@@ -19,7 +19,6 @@ describe('sendFrom()', async () => {
     let eRC721A_chainA;
     let eRC721_chainB;
     let mintFacet_chainA;
-    let mintFacet_chainB;
     let NonblockingLzAppUpgradeableA;
     let NonblockingLzAppUpgradeableB;
     let owner;
@@ -49,7 +48,6 @@ describe('sendFrom()', async () => {
         eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
-        mintFacet_chainB = await ethers.getContractAt('MintFacet', diamondAddressB);
 
         NonblockingLzAppUpgradeableA = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressA);
         NonblockingLzAppUpgradeableB = await ethers.getContractAt('NonblockingLzAppUpgradeable', diamondAddressB);
