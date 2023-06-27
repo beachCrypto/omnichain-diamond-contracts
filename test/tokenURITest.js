@@ -39,7 +39,7 @@ describe('ERC721 TokenURI Rendering', async () => {
     });
 
     it('mint on chain A and read tokenUI', async () => {
-        let tokenId = 1;
+        let tokenId = 4;
         await mintFacet_chainA.mint(5);
 
         // verify the owner of the token is on the source chain
