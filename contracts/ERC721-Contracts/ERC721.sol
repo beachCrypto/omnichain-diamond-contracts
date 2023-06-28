@@ -374,12 +374,13 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
             toAddress := mload(add(toAddressBytes, 20))
         }
 
-        // Itterate through and store Dirt Bikes
-        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
+        // for (uint i = 0; i < tokenIds.length; i++) {
+        //     uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
 
-        // if (randomHash == 0) {
-        //      Store psuedo-randomHash as DirtBike VIN
-        //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+        //     if (randomHash == 0) {
+        //         // Store psuedo-randomHash as DirtBike VIN
+        //         DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+        //     }
         // }
 
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);

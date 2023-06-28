@@ -536,8 +536,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
             toAddress := mload(add(toAddressBytes, 20))
         }
 
-        // *****
-        // this _creditTill function is not working
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
 
         if (nextIndex < tokenIds.length) {
