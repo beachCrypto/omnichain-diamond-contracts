@@ -23,11 +23,11 @@ contract MintFacet is ERC721AUpgradeableInternal {
     function mint(uint _amount) external payable {
         // uint256 dirtBikeHash = getHash();
 
-        // DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = dirtBikeHash;
+        // DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
         for (uint i = 0; i < _amount; i++) {
             uint256 dirtBikeHash = getHash();
             uint256 tokenId = nextMintId + i;
-            DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = dirtBikeHash;
+            DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
             emit DirtBikeCreated(tokenId);
         }
         _safeMint(msg.sender, _amount, '');

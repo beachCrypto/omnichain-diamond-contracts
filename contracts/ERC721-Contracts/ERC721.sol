@@ -375,11 +375,11 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
         }
 
         // for (uint i = 0; i < tokenIds.length; i++) {
-        //     uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
+        //     uint256 randomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
 
         //     if (randomHash == 0) {
         //         // Store psuedo-randomHash as DirtBike VIN
-        //         DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+        //         DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = _randomHash;
         //     }
         // }
 
