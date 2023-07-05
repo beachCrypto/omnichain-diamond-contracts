@@ -49,5 +49,7 @@ describe('ERC721 TokenURI Rendering', async () => {
         expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(5);
 
         console.log('Token URI ------>', await renderFacet_chainA.tokenURI(tokenId));
+        console.log('Token URI ------> 1', await renderFacet_chainA.tokenURI(1));
+        console.log('Token URI ------> 2', await renderFacet_chainA.tokenURI(2));
     });
 });
