@@ -43,13 +43,15 @@ describe('ERC721 TokenURI Rendering', async () => {
         await mintFacet_chainA.mint(5);
 
         // verify the owner of the token is on the source chain
-        expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721A_chainA.ownerOf(4)).to.be.equal(ownerAddress.address);
 
         // verify the owner of the token is on the source chain
         expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(5);
 
-        console.log('Token URI ------>', await renderFacet_chainA.tokenURI(tokenId));
         console.log('Token URI ------> 1', await renderFacet_chainA.tokenURI(1));
         console.log('Token URI ------> 2', await renderFacet_chainA.tokenURI(2));
+        console.log('Token URI ------> 3', await renderFacet_chainA.tokenURI(3));
+        console.log('Token URI ------> 4', await renderFacet_chainA.tokenURI(4));
+        console.log('Token URI ------> 5', await renderFacet_chainA.tokenURI(5));
     });
 });

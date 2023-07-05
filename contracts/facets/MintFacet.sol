@@ -13,10 +13,10 @@ contract MintFacet is ERC721AUpgradeableInternal {
     uint public nextMintId;
     uint public maxMintId;
 
-    function getHash() public view returns (uint256) {
+    function getPseudoRandomHash(uint256 tokenId) public view returns (uint256) {
         // generate psuedo-randomHash
-        uint256 randomHash = uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee)));
-
+        uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))) / 5) * tokenId;
+        console.log('randomHash in getRandomHash', randomHash);
         return randomHash;
     }
 
@@ -24,10 +24,13 @@ contract MintFacet is ERC721AUpgradeableInternal {
         // uint256 dirtBikeHash = getHash();
 
         // DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
-        for (uint i = 0; i < _amount; i++) {
-            uint256 dirtBikeHash = getHash();
+        for (uint i = 1; i < _amount; i++) {
             uint256 tokenId = nextMintId + i;
+            uint256 dirtBikeHash = getPseudoRandomHash(tokenId);
             DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
+            console.log('tokenId ->', tokenId);
+            console.log('dirtBikeHash in mint', dirtBikeHash);
+            console.log('------------------');
             emit DirtBikeCreated(tokenId);
         }
         _safeMint(msg.sender, _amount, '');

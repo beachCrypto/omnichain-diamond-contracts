@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
 
+import 'hardhat/console.sol';
+
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 // import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import {ERC721AUpgradeableInternal} from '../ERC721A-Contracts/ERC721AUpgradeableInternal.sol';
@@ -236,6 +238,8 @@ contract RenderFacet is ERC721AUpgradeableInternal {
     function generateDirtBike(uint256 tokenId) public view returns (DirtBike memory dirtBike){
         uint256 newRandomHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId];
 
+        console.log('newRandomHash in generateDirtBike ', newRandomHash, 'for tokenID', tokenId);
+
         // build an array of predefined length
         uint256[] memory vin = new uint256[](10);
 
@@ -243,6 +247,7 @@ contract RenderFacet is ERC721AUpgradeableInternal {
         for (uint256 i; i < 10; i++) {
             // use random number to get number between 0 and maxStatValue
             vin[i] = newRandomHash % 10;
+            console.log("vin[i] in generateDirtBike", vin[i]);
             // bit shift randomHash to the right 8 bits - can be fewer
             newRandomHash >>= 8;
         }
