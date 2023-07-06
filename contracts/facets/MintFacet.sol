@@ -24,7 +24,7 @@ contract MintFacet is ERC721AUpgradeableInternal {
         // uint256 dirtBikeHash = getHash();
 
         // DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
-        for (uint i = 1; i < _amount; i++) {
+        for (uint i = 0; i < _amount; i++) {
             uint256 tokenId = nextMintId + i;
             uint256 dirtBikeHash = getPseudoRandomHash(tokenId);
             DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
