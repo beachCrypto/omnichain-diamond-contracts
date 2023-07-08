@@ -55,7 +55,7 @@ contract DiamondInitALocal {
         // Initialize ONFT state variables
 
         ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
-        onfts.nextMintId = 0;
+        onfts.nextMintId = 1;
         onfts.maxMintId = 333;
         onfts.minGasToTransferAndStore = 100000;
 

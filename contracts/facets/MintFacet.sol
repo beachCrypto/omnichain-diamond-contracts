@@ -15,7 +15,7 @@ contract MintFacet is ERC721AUpgradeableInternal {
 
     function getPseudoRandomHash(uint256 tokenId) public view returns (uint256) {
         // generate psuedo-randomHash
-        uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))) / 5) * tokenId;
+        uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))) / 6) * (tokenId + 1);
         console.log('randomHash in getRandomHash', randomHash);
         return randomHash;
     }
@@ -24,8 +24,14 @@ contract MintFacet is ERC721AUpgradeableInternal {
         // uint256 dirtBikeHash = getHash();
 
         // DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
+
+        nextMintId = ONFTStorage.oNFTStorageLayout().nextMintId;
+
+        console.log('next mint id before for loop', nextMintId);
+
         for (uint i = 0; i < _amount; i++) {
             uint256 tokenId = nextMintId + i;
+            console.log('token id in for loop', tokenId);
             uint256 dirtBikeHash = getPseudoRandomHash(tokenId);
             DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
             console.log('tokenId ->', tokenId);
@@ -33,6 +39,12 @@ contract MintFacet is ERC721AUpgradeableInternal {
             console.log('------------------');
             emit DirtBikeCreated(tokenId);
         }
+
+        console.log('next mint id after for loop', nextMintId);
+
+        ONFTStorage.oNFTStorageLayout().nextMintId = nextMintId + _amount;
+
+        console.log('next mint id that will be stored - last', ONFTStorage.oNFTStorageLayout().nextMintId);
         _safeMint(msg.sender, _amount, '');
     }
 }
