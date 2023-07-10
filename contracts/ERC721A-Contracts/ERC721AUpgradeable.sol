@@ -309,6 +309,8 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         bool _useZro,
         bytes memory _adapterParams
     ) public view virtual override returns (uint nativeFee, uint zroFee) {
+        // From ERC721 contract
+        // bytes memory payload = abi.encode(_toAddress, _tokenIds, _randomHash(s));
         bytes memory payload = abi.encode(_toAddress, _tokenIds);
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
@@ -418,6 +420,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         address _zroPaymentAddress,
         bytes memory _adapterParams
     ) internal virtual {
+        uint[] memory dirtBikeVINS;
         // allow 1 by default
         require(_tokenIds.length > 0, 'tokenIds[] is empty');
         require(
@@ -427,8 +430,16 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         );
 
         for (uint i = 0; i < _tokenIds.length; i++) {
+            // for each token id add dirtbike vin matching that token id to dirtBikeVINS
+            uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
+            console.log('_dirtbikeVINHash', _dirtbikeVINHash);
             _debitFrom(_from, _dstChainId, _toAddress, _tokenIds[i]);
         }
+
+        // // randomHash seed added to payload from storage
+        // uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
+
+        // bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         bytes memory payload = abi.encode(_toAddress, _tokenIds);
 
@@ -529,12 +540,23 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual {
+        // From ERC721 contract
+        // (bytes memory toAddressBytes, uint tokenId, uint _randomHash) = abi.decode(_payload, (bytes, uint, uint));
+
         (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
 
         address toAddress;
         assembly {
             toAddress := mload(add(toAddressBytes, 20))
         }
+
+        // From ERC721 contract
+        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
+
+        // if (randomHash == 0) {
+        //     // Store psuedo-randomHash as DirtBike VIN
+        //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
+        // }
 
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
 
