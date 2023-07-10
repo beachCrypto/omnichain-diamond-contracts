@@ -15,7 +15,8 @@ contract MintFacet is ERC721AUpgradeableInternal {
 
     function getPseudoRandomHash(uint256 tokenId) public view returns (uint256) {
         // generate psuedo-randomHash
-        uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))) / 6) * (tokenId + 1);
+        // uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))) / 6) * (tokenId + 1);
+        uint256 randomHash = (uint256(keccak256(abi.encodePacked(block.timestamp, block.basefee))));
         console.log('randomHash in getRandomHash', randomHash);
         return randomHash;
     }

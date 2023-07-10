@@ -309,9 +309,19 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         bool _useZro,
         bytes memory _adapterParams
     ) public view virtual override returns (uint nativeFee, uint zroFee) {
+        uint256 len = _tokenIds.length;
+        uint256[] memory dirtBikeVINS = new uint[](len);
+        for (uint i = 0; i < _tokenIds.length; i++) {
+            // for each token id add dirtbike vin matching that token id to dirtBikeVINS
+            uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
+            console.log('_dirtbikeVINHash estimate send', _dirtbikeVINHash);
+            console.log('do I get here?');
+            dirtBikeVINS[i] = _dirtbikeVINHash;
+            console.log('dirtBikeVINS[i] --->', dirtBikeVINS[i]);
+        }
         // From ERC721 contract
         // bytes memory payload = abi.encode(_toAddress, _tokenIds, _randomHash(s));
-        bytes memory payload = abi.encode(_toAddress, _tokenIds);
+        bytes memory payload = abi.encode(_toAddress, _tokenIds, dirtBikeVINS);
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
                 _dstChainId,
@@ -420,7 +430,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         address _zroPaymentAddress,
         bytes memory _adapterParams
     ) internal virtual {
-        uint[] memory dirtBikeVINS;
         // allow 1 by default
         require(_tokenIds.length > 0, 'tokenIds[] is empty');
         require(
@@ -429,10 +438,14 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
             'batch size exceeds dst batch limit'
         );
 
+        uint256 len = _tokenIds.length;
+        uint256[] memory dirtBikeVINS = new uint[](len);
+
         for (uint i = 0; i < _tokenIds.length; i++) {
             // for each token id add dirtbike vin matching that token id to dirtBikeVINS
             uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
             console.log('_dirtbikeVINHash', _dirtbikeVINHash);
+            dirtBikeVINS[i] = _dirtbikeVINHash;
             _debitFrom(_from, _dstChainId, _toAddress, _tokenIds[i]);
         }
 
@@ -441,7 +454,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
 
         // bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
-        bytes memory payload = abi.encode(_toAddress, _tokenIds);
+        bytes memory payload = abi.encode(_toAddress, _tokenIds, dirtBikeVINS);
 
         _checkGasLimit(
             _dstChainId,
