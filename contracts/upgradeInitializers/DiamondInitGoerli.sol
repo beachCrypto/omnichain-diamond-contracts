@@ -23,7 +23,7 @@ import {IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/I
 import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Storage.sol';
 
 // LayerZero interfaces
-import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
+import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import {ILayerZeroReceiverUpgradeable} from '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
@@ -55,8 +55,6 @@ contract DiamondInitGoerli {
         // Initialize ONFT state variables
 
         ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
-        onfts.nextMintId = 0;
-        onfts.maxMintId = 333;
         onfts.minGasToTransferAndStore = 100000;
 
         // Initialize / set LayerZero endpoint

@@ -44,6 +44,9 @@ describe('ERC721 TokenURI Rendering', async () => {
 
         // verify the owner of the token is on the source chain
         expect(await eRC721A_chainA.ownerOf(4)).to.be.equal(ownerAddress.address);
+        console.log('ownerAddress.address', ownerAddress.address);
+        console.log('owner of 0', await eRC721A_chainA.ownerOf(0));
+        console.log('owner of 1', await eRC721A_chainA.ownerOf(1));
 
         // verify the owner of the token is on the source chain
         expect(await eRC721A_chainA.connect(ownerAddress.address).balanceOf(ownerAddress.address)).to.equal(6);

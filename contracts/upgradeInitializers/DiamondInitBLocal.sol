@@ -23,7 +23,7 @@ import {IERC721Metadata} from '@openzeppelin/contracts/token/ERC721/extensions/I
 import {ERC721Storage} from '../../contracts/ERC721-Contracts/ERC721Storage.sol';
 
 // LayerZero interfaces
-import {IONFT721CoreUpgradeable} from '../layerZeroUpgradeable/IONFT721CoreUpgradeable.sol';
+import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import {ILayerZeroReceiverUpgradeable} from '../layerZeroInterfaces/ILayerZeroReceiverUpgradeable.sol';
 import {ILayerZeroEndpoint} from '../layerZeroInterfaces/ILayerZeroEndpoint.sol';
 import {ILayerZeroUserApplicationConfig} from '../layerZeroInterfaces/ILayerZeroUserApplicationConfig.sol';
@@ -53,7 +53,7 @@ contract DiamondInitBLocal {
         ds.supportedInterfaces[type(ILayerZeroEndpoint).interfaceId] = true;
         ds.supportedInterfaces[type(ILayerZeroUserApplicationConfig).interfaceId] = true;
 
-        // Initialize ERC721A state variables
+        // Initialize ERC721 state variables
         ERC721Storage.Layout storage l = ERC721Storage.layout();
         l._name = 'Dirt Bikes';
         l._symbol = 'Brap';
@@ -61,8 +61,6 @@ contract DiamondInitBLocal {
         // Initialize ONFT state variables
 
         ONFTStorage.ONFTStorageLayout storage onfts = ONFTStorage.oNFTStorageLayout();
-        onfts.nextMintId = 334;
-        onfts.maxMintId = 666;
         onfts.minGasToTransferAndStore = 100000;
 
         // Initialize / set LayerZero endpoint

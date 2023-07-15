@@ -17,7 +17,7 @@ async function deployGoerli() {
     const Diamond = await ethers.getContractFactory('Diamond');
     const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address);
     await diamond.deployed();
-    console.log('Diamond A deployed:', diamond.address);
+    console.log('Diamond Goerli deployed:', diamond.address);
 
     // deploy DiamondInit
     // DiamondInit provides a function that is called when the diamond is upgraded to initialize state variables
@@ -30,7 +30,7 @@ async function deployGoerli() {
     // deploy facets
     console.log('');
     console.log('Deploying facets');
-    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'MintFacet', 'OwnershipFacet', 'RenderFacet'];
+    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'OwnershipFacet', 'RenderFacet'];
     const cut = [];
     for (const FacetName of FacetNames) {
         const Facet = await ethers.getContractFactory(FacetName);
