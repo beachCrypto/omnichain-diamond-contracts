@@ -20,8 +20,6 @@ import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 import '../utils/ExcessivelySafeCall.sol';
 import '../utils/BytesLib.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @dev Interface of ERC721 token receiver.
  */
@@ -50,12 +48,6 @@ interface ERC721A__IERC721ReceiverUpgradeable {
  * - The maximum token ID cannot exceed 2**256 - 1 (max value of uint256).
  */
 contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgradeable, IONFT721CoreUpgradeable {
-    event RetryMessageSuccess(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes32 _payloadHash);
-
-    bool public useCustomAdapterParams;
-
-    event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
-
     /**
      * @dev Returns the total number of tokens in existence.
      * Burned tokens will reduce the count.
@@ -314,10 +306,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         for (uint i = 0; i < _tokenIds.length; i++) {
             // for each token id add dirtbike vin matching that token id to dirtBikeVINS
             uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
-            console.log('_dirtbikeVINHash estimate send', _dirtbikeVINHash);
-            console.log('do I get here?');
             dirtBikeVINS[i] = _dirtbikeVINHash;
-            console.log('dirtBikeVINS[i] --->', dirtBikeVINS[i]);
         }
         // From ERC721 contract
         // bytes memory payload = abi.encode(_toAddress, _tokenIds, _randomHash(s));
@@ -335,16 +324,8 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
     function setUseCustomAdapterParams(bool _useCustomAdapterParams) external {
         LibDiamond.enforceIsContractOwner();
 
-        useCustomAdapterParams = _useCustomAdapterParams;
+        NonblockingLzAppStorage.nonblockingLzAppSlot().useCustomAdapterParams = _useCustomAdapterParams;
         emit SetUseCustomAdapterParams(_useCustomAdapterParams);
-    }
-
-    function setMinGasToTransferAndStore(uint256 _minGasToTransferAndStore) external {
-        LibDiamond.enforceIsContractOwner();
-
-        require(_minGasToTransferAndStore > 0, 'minGasToTransferAndStore must be > 0');
-        ONFTStorage.oNFTStorageLayout().minGasToTransferAndStore = _minGasToTransferAndStore;
-        emit SetMinGasToTransferAndStore(_minGasToTransferAndStore);
     }
 
     // ensures enough gas in adapter params to handle batch transfer gas amounts on the dst
@@ -356,30 +337,8 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         emit SetDstChainIdToTransferGas(_dstChainId, _dstChainIdToTransferGas);
     }
 
-    // limit on src the amount of tokens to batch send
-    function setDstChainIdToBatchLimit(uint16 _dstChainId, uint256 _dstChainIdToBatchLimit) external {
-        LibDiamond.enforceIsContractOwner();
-
-        require(_dstChainIdToBatchLimit > 0, 'dstChainIdToBatchLimit must be > 0');
-        ONFTStorage.oNFTStorageLayout().dstChainIdToBatchLimit[_dstChainId] = _dstChainIdToBatchLimit;
-        emit SetDstChainIdToBatchLimit(_dstChainId, _dstChainIdToBatchLimit);
-    }
-
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal {
         safeTransferFrom(_from, address(this), _tokenId);
-    }
-
-    function _checkGasLimit(
-        uint16 _dstChainId,
-        uint16 _type,
-        bytes memory _adapterParams,
-        uint _extraGas
-    ) internal view virtual {
-        uint providedGasLimit = _getGasLimit(_adapterParams);
-        uint minGasLimit = NonblockingLzAppStorage.nonblockingLzAppSlot().minDstGasLookup[_dstChainId][_type] +
-            _extraGas;
-        require(minGasLimit > 0, 'LzApp: minGasLimit not set');
-        require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
     }
 
     function sendFrom(
@@ -444,15 +403,9 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         for (uint i = 0; i < _tokenIds.length; i++) {
             // for each token id add dirtbike vin matching that token id to dirtBikeVINS
             uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
-            console.log('_dirtbikeVINHash', _dirtbikeVINHash);
             dirtBikeVINS[i] = _dirtbikeVINHash;
             _debitFrom(_from, _dstChainId, _toAddress, _tokenIds[i]);
         }
-
-        // // randomHash seed added to payload from storage
-        // uint256 _randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[_tokenId];
-
-        // bytes memory payload = abi.encode(_toAddress, _tokenId, _randomHash);
 
         bytes memory payload = abi.encode(_toAddress, _tokenIds, dirtBikeVINS);
 
@@ -491,8 +444,6 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
     // =============================================================
     //                     LZ Receive Operations
     // =============================================================
-
-    uint16 public constant FUNCTION_TYPE_SEND = 1;
 
     function lzReceive(
         uint16 _srcChainId,
@@ -670,11 +621,5 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         // indicates the next index to send of tokenIds,
         // if i == tokenIds.length, we are finished
         return i;
-    }
-
-    function _toSingletonArray(uint element) internal pure returns (uint[] memory) {
-        uint[] memory array = new uint[](1);
-        array[0] = element;
-        return array;
     }
 }

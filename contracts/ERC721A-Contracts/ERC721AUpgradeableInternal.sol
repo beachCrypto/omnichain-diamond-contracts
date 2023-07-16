@@ -7,8 +7,6 @@ pragma solidity ^0.8.4;
 import {ERC721AStorage} from './ERC721AStorage.sol';
 import {IERC721AUpgradeable} from './IERC721AUpgradeable.sol';
 
-import 'hardhat/console.sol';
-
 interface ERC721A__IERC721ReceiverUpgradeable {
     function onERC721Received(
         address operator,
@@ -303,8 +301,6 @@ contract ERC721AUpgradeableInternal is IERC721AUpgradeable {
     function _exists(uint256 tokenId) internal view virtual returns (bool result) {
         if (_startTokenId() <= tokenId) {
             if (tokenId < ERC721AStorage.layout()._currentIndex) {
-                console.log('in if << tokenId', tokenId);
-                console.log('_currentIndex', ERC721AStorage.layout()._currentIndex);
                 uint256 packed;
                 while ((packed = ERC721AStorage.layout()._packedOwnerships[tokenId]) == 0) --tokenId;
                 result = packed & _BITMASK_BURNED == 0;

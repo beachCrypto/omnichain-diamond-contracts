@@ -9,6 +9,8 @@ import {NonblockingLzAppStorage} from './NonblockingLzAppStorage.sol';
 import '../utils/ExcessivelySafeCall.sol';
 import '../utils/BytesLib.sol';
 
+import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
+
 /*
  * the default LayerZero messaging behaviour is blocking, i.e. any failed message will block the channel
  * this abstract class try-catch all fail messages and store locally for future retry. hence, non-blocking
@@ -17,20 +19,75 @@ import '../utils/BytesLib.sol';
 abstract contract NonblockingLzAppUpgradeable is ILayerZeroReceiverUpgradeable, ILayerZeroUserApplicationConfig {
     using BytesLib for bytes;
 
+    uint public constant NO_EXTRA_GAS = 0;
+    uint16 public constant FUNCTION_TYPE_SEND = 1;
+
     using ExcessivelySafeCall for address;
     // ua can not send payload larger than this by default, but it can be changed by the ua owner
 
     uint public constant DEFAULT_PAYLOAD_SIZE_LIMIT = 10000;
+
+    event SetUseCustomAdapterParams(bool _useCustomAdapterParams);
 
     event SetPrecrime(address precrime);
     event SetTrustedRemote(uint16 _remoteChainId, bytes _path);
     event SetTrustedRemoteAddress(uint16 _remoteChainId, bytes _remoteAddress);
     event SetMinDstGas(uint16 _dstChainId, uint16 _type, uint _minDstGas);
 
+    event RetryMessageSuccess(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes32 _payloadHash);
+
+    event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _payload, bytes _reason);
+
     event MessageFailed(uint16 _srcChainId, bytes _srcAddress, uint64 _nonce, bytes _payload);
 
     // LZAPP
     ILayerZeroEndpoint public lzEndpoint;
+
+    function getGasLimit(bytes memory _adapterParams) public pure returns (uint gasLimit) {
+        assembly {
+            gasLimit := mload(add(_adapterParams, 34))
+        }
+    }
+
+    function _checkGasLimit(uint16 _dstChainId, uint _type, bytes memory _adapterParams, uint _extraGas) internal view {
+        uint providedGasLimit = getGasLimit(_adapterParams);
+        uint minGasLimit = NonblockingLzAppStorage.nonblockingLzAppSlot().minDstGasLookup[_dstChainId][_type] +
+            _extraGas;
+        require(minGasLimit > 0, 'LzApp: minGasLimit not set');
+        require(providedGasLimit >= minGasLimit, 'LzApp: gas limit is too low');
+    }
+
+    // limit on src the amount of tokens to batch send
+    function setDstChainIdToBatchLimit(uint16 _dstChainId, uint256 _dstChainIdToBatchLimit) external {
+        LibDiamond.enforceIsContractOwner();
+        require(_dstChainIdToBatchLimit > 0, 'ONFT721: dstChainIdToBatchLimit must be > 0');
+        ONFTStorage.oNFTStorageLayout().dstChainIdToBatchLimit[_dstChainId] = _dstChainIdToBatchLimit;
+    }
+
+    function setMinGasToTransferAndStore(uint256 _minGasToTransferAndStore) external {
+        LibDiamond.enforceIsContractOwner();
+        require(_minGasToTransferAndStore > 0, 'ONFT721: minGasToTransferAndStore must be > 0');
+        ONFTStorage.oNFTStorageLayout().minGasToTransferAndStore = _minGasToTransferAndStore;
+    }
+
+    function _storeFailedMessage(
+        uint16 _srcChainId,
+        bytes memory _srcAddress,
+        uint64 _nonce,
+        bytes memory _payload,
+        bytes memory _reason
+    ) internal virtual {
+        NonblockingLzAppStorage.nonblockingLzAppSlot().failedMessages[_srcChainId][_srcAddress][_nonce] = keccak256(
+            _payload
+        );
+        emit MessageFailed(_srcChainId, _srcAddress, _nonce, _payload, _reason);
+    }
+
+    function _toSingletonArray(uint element) internal pure returns (uint[] memory) {
+        uint[] memory array = new uint[](1);
+        array[0] = element;
+        return array;
+    }
 
     // allow owner to set it multiple times.
     function setTrustedRemote(uint16 _srcChainId, bytes calldata _srcAddress) external {
