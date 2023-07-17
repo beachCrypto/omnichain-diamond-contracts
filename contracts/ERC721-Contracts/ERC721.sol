@@ -9,17 +9,10 @@ pragma solidity ^0.8.17;
  *
  *  */
 
-import './IERC721Receiver.sol';
-import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 import '../libraries/LibDiamond.sol';
 
 import {ERC721Internal} from './ERC721Internal.sol';
-import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
-import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
-import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
-
-import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 
 contract ERC721 is ERC721Internal {
     using ExcessivelySafeCall for address;

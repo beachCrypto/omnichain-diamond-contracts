@@ -3,14 +3,11 @@
 
 const {deployERC721ADiamondA} = require('../scripts/deployERC721A_a.js');
 const {deployERC721DiamondB} = require('../scripts/deployERC721_b.js');
-const {offsettedIndex} = require('./helpers/helpers.js');
 
 const {assert, expect} = require('chai');
 const {ethers} = require('hardhat');
 const {Web3} = require('web3');
 const web3 = new Web3();
-
-let offsetted;
 
 describe('sendFrom()', async () => {
     // Diamond contracts
@@ -18,6 +15,7 @@ describe('sendFrom()', async () => {
     let diamondAddressB;
     let eRC721A_chainA;
     let eRC721_chainB;
+    let oNFT721_chainB;
     let mintFacet_chainA;
     let NonblockingLzAppUpgradeableA;
     let NonblockingLzAppUpgradeableB;
@@ -45,6 +43,7 @@ describe('sendFrom()', async () => {
         diamondAddressB = await deployERC721DiamondB();
 
         eRC721A_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
+
         eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
         oNFT721_chainB = await ethers.getContractAt('ONFT721', diamondAddressB);
 
