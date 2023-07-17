@@ -9,10 +9,9 @@ pragma solidity ^0.8.17;
  *
  *  */
 
-import './IERC721Receiver.sol';
 import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
-import '../libraries/LibDiamond.sol';
+import {LibDiamond} from '../libraries/LibDiamond.sol';
 
 import {ERC721Internal} from './ERC721Internal.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
@@ -27,7 +26,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual {
+    function transferFrom(address from, address to, uint256 tokenId) public {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'ERC721: caller is not token owner or approved');
 
@@ -37,7 +36,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
     /**
      * @dev See {IERC721-safeTransferFrom}.
      */
-    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public {
         require(_isApprovedOrOwner(_msgSender(), tokenId), 'ERC721: caller is not token owner or approved');
         _safeTransfer(from, to, tokenId, data);
     }
@@ -52,7 +51,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         uint _tokenId,
         bool _useZro,
         bytes memory _adapterParams
-    ) public view virtual override returns (uint nativeFee, uint zroFee) {
+    ) public view override returns (uint nativeFee, uint zroFee) {
         return estimateSendBatchFee(_dstChainId, _toAddress, _toSingletonArray(_tokenId), _useZro, _adapterParams);
     }
 
@@ -62,7 +61,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         uint[] memory _tokenIds,
         bool _useZro,
         bytes memory _adapterParams
-    ) public view virtual override returns (uint nativeFee, uint zroFee) {
+    ) public view override returns (uint nativeFee, uint zroFee) {
         uint256 len = _tokenIds.length;
         uint256[] memory dirtBikeVINS = new uint[](len);
         for (uint i = 0; i < _tokenIds.length; i++) {
@@ -81,7 +80,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
             );
     }
 
-    function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
+    function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
         require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
         _transfer(_from, address(this), _tokenId);
@@ -95,7 +94,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
-    ) public payable virtual override {
+    ) public payable override {
         _send(
             _from,
             _dstChainId,
@@ -115,7 +114,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
-    ) public payable virtual override {
+    ) public payable override {
         _send(_from, _dstChainId, _toAddress, _tokenIds, _refundAddress, _zroPaymentAddress, _adapterParams);
     }
 
@@ -127,7 +126,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         address payable _refundAddress,
         address _zroPaymentAddress,
         bytes memory _adapterParams
-    ) internal virtual {
+    ) internal {
         // allow 1 by default
         require(_tokenIds.length > 0, 'LzApp: tokenIds[] is empty');
         require(
@@ -164,7 +163,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         address _zroPaymentAddress,
         bytes memory _adapterParams,
         uint _nativeFee
-    ) internal virtual {
+    ) internal {
         bytes memory trustedRemote = NonblockingLzAppStorage.nonblockingLzAppSlot().trustedRemoteLookup[_dstChainId];
         require(trustedRemote.length != 0, 'LzApp: destination chain is not a trusted source');
         _checkPayloadSize(_dstChainId, _payload.length);
@@ -187,7 +186,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         bytes calldata _srcAddress,
         uint64 _nonce,
         bytes calldata _payload
-    ) public virtual override {
+    ) public override {
         // lzReceive must be called by the endpoint for security
         require(
             _msgSender() == address(LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint),
@@ -212,7 +211,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         bytes memory _srcAddress,
         uint64 _nonce,
         bytes memory _payload
-    ) internal virtual {
+    ) internal {
         (bool success, bytes memory reason) = address(this).excessivelySafeCall(
             gasleft(),
             150,
@@ -229,7 +228,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         bytes calldata _srcAddress,
         uint64 _nonce,
         bytes calldata _payload
-    ) public virtual {
+    ) public {
         // only internal transaction
         require(_msgSender() == address(this), 'NonblockingLzApp: caller must be LzApp');
         _nonblockingLzReceive(_srcChainId, _srcAddress, _nonce, _payload);
@@ -240,7 +239,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         bytes memory _srcAddress,
         uint64 /*_nonce*/,
         bytes memory _payload
-    ) internal virtual {
+    ) internal {
         // decode and load the toAddress
         (bytes memory toAddressBytes, uint[] memory tokenIds, uint256[] memory dirtBikeVINs) = abi.decode(
             _payload,
@@ -325,7 +324,7 @@ contract ONFT721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpg
         return i;
     }
 
-    function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
+    function _creditTo(uint16, address _toAddress, uint _tokenId) internal {
         require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
