@@ -30,7 +30,7 @@ async function deployERC721DiamondB() {
     // deploy facets
     console.log('');
     console.log('Deploying facets');
-    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'OwnershipFacet', 'RenderFacet'];
+    const FacetNames = ['DiamondLoupeFacet', 'ERC721', 'ERC721Metadata', 'OwnershipFacet', 'RenderFacet'];
     const cut = [];
     for (const FacetName of FacetNames) {
         const Facet = await ethers.getContractFactory(FacetName);

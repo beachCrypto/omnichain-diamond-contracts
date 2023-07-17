@@ -24,74 +24,6 @@ import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgradeable {
     using ExcessivelySafeCall for address;
 
-    function name() public view virtual returns (string memory) {
-        return _name();
-    }
-
-    function symbol() public view virtual returns (string memory) {
-        return _symbol();
-    }
-
-    /**
-     * @dev See {IERC721-balanceOf}.
-     */
-    function balanceOf(address owner) public view virtual returns (uint256) {
-        require(owner != address(0), 'ERC721: address zero is not a valid owner');
-        return _balanceOf(owner);
-    }
-
-    /**
-     * @dev See {IERC721-ownerOf}.
-     */
-    function ownerOf(uint256 tokenId) public view virtual returns (address) {
-        address owner = _ownerOf(tokenId);
-        require(owner != address(0), 'ERC721: invalid token ID');
-        return owner;
-    }
-
-    function rawOwnerOf(uint256 tokenId) public view returns (address) {
-        if (_exists(tokenId)) {
-            return ownerOf(tokenId);
-        }
-        return address(0);
-    }
-
-    /**
-     * @dev See {IERC721-approve}.
-     */
-    function approve(address to, uint256 tokenId) public virtual {
-        address owner = _ownerOf(tokenId);
-        require(to != owner, 'ERC721: approval to current owner');
-
-        require(
-            _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            'ERC721: approve caller is not token owner or approved for all'
-        );
-
-        _approve(to, tokenId);
-    }
-
-    /**
-     * @dev See {IERC721-getApproved}.
-     */
-    function getApproved(uint256 tokenId) public view virtual returns (address) {
-        return _getApproved(tokenId);
-    }
-
-    /**
-     * @dev See {IERC721-setApprovalForAll}.
-     */
-    function setApprovalForAll(address operator, bool approved) public virtual {
-        _setApprovalForAll(_msgSender(), operator, approved);
-    }
-
-    /**
-     * @dev See {IERC721-isApprovedForAll}.
-     */
-    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
-        return _isApprovedForAll(owner, operator);
-    }
-
     /**
      * @dev See {IERC721-transferFrom}.
      */
@@ -151,7 +83,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
 
     function _debitFrom(address _from, uint16, bytes memory, uint _tokenId) internal virtual {
         require(_isApprovedOrOwner(_msgSender(), _tokenId), 'ONFT721: send caller is not owner nor approved');
-        require(ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
+        require(_ownerOf(_tokenId) == _from, 'ONFT721: send from incorrect owner');
         _transfer(_from, address(this), _tokenId);
     }
 
@@ -394,7 +326,7 @@ contract ERC721 is ERC721Internal, NonblockingLzAppUpgradeable, IONFT721CoreUpgr
     }
 
     function _creditTo(uint16, address _toAddress, uint _tokenId) internal virtual {
-        require(!_exists(_tokenId) || (_exists(_tokenId) && ownerOf(_tokenId) == address(this)));
+        require(!_exists(_tokenId) || (_exists(_tokenId) && _ownerOf(_tokenId) == address(this)));
         if (!_exists(_tokenId)) {
             _safeMint(_toAddress, _tokenId);
         } else {

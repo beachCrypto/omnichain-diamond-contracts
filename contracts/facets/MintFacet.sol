@@ -5,8 +5,6 @@ import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
 import {ERC721AUpgradeableInternal} from '../ERC721A-Contracts/ERC721AUpgradeableInternal.sol';
 import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
 
-import 'hardhat/console.sol';
-
 contract MintFacet is ERC721AUpgradeableInternal {
     event DirtBikeCreated(uint indexed tokenId);
 
@@ -21,26 +19,18 @@ contract MintFacet is ERC721AUpgradeableInternal {
     }
 
     function mint(uint _amount) external payable {
-        // uint256 dirtBikeHash = getHash();
-
-        // DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
-
         nextMintId = ONFTStorage.oNFTStorageLayout().nextMintId;
 
         for (uint i = 0; i < _amount; i++) {
             uint256 tokenId = nextMintId + i;
-            console.log('token id in for loop', tokenId);
             uint256 dirtBikeHash = getPseudoRandomHash(tokenId);
             DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[tokenId] = dirtBikeHash;
 
             emit DirtBikeCreated(tokenId);
         }
 
-        console.log('next mint id after for loop', nextMintId);
-
         ONFTStorage.oNFTStorageLayout().nextMintId = nextMintId + _amount;
 
-        console.log('next mint id that will be stored - last', ONFTStorage.oNFTStorageLayout().nextMintId);
         _safeMint(msg.sender, _amount, '');
     }
 }

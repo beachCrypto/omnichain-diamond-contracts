@@ -18,6 +18,7 @@ describe('sendFrom()', async () => {
     let diamondAddressB;
     let eRC721A_chainA;
     let eRC721_chainB;
+    let eRC721Metadata_chainB;
     let mintFacet_chainA;
     let NonblockingLzAppUpgradeableA;
     let NonblockingLzAppUpgradeableB;
@@ -46,6 +47,7 @@ describe('sendFrom()', async () => {
 
         eRC721A_chainA = await ethers.getContractAt('ERC721AUpgradeable', diamondAddressA);
         eRC721_chainB = await ethers.getContractAt('ERC721', diamondAddressB);
+        eRC721Metadata_chainB = await ethers.getContractAt('ERC721Metadata', diamondAddressB);
 
         mintFacet_chainA = await ethers.getContractAt('MintFacet', diamondAddressA);
 
@@ -85,7 +87,7 @@ describe('sendFrom()', async () => {
         expect(await eRC721A_chainA.ownerOf(1)).to.be.equal(ownerAddress.address);
 
         // token doesn't exist on other chain
-        await expect(eRC721_chainB.ownerOf(tokenId)).to.be.revertedWith('ERC721: invalid token ID');
+        await expect(eRC721Metadata_chainB.ownerOf(tokenId)).to.be.revertedWith('ERC721: invalid token ID');
 
         // can transfer token on srcChain as regular erC721
         await eRC721A_chainA.transferFrom(ownerAddress.address, warlock.address, tokenId);
@@ -118,7 +120,7 @@ describe('sendFrom()', async () => {
         expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(eRC721A_chainA.address);
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(warlock.address);
 
         // can send to other onft contract eg. not the original nft contract chain
         await eRC721_chainB
@@ -140,7 +142,7 @@ describe('sendFrom()', async () => {
 
         // token is burned on the sending chain
         expect(await eRC721A_chainA.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(eRC721_chainB.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(eRC721_chainB.address);
     });
     it('sendFrom() - reverts if not owner', async function () {
         const tokenId = 1;
@@ -167,7 +169,7 @@ describe('sendFrom()', async () => {
         );
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
         // reverts because other address does not own it
         await expect(
@@ -211,10 +213,10 @@ describe('sendFrom()', async () => {
         );
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
         // approve the other user to send the token
-        await eRC721_chainB.approve(warlock.address, tokenId);
+        await eRC721Metadata_chainB.approve(warlock.address, tokenId);
 
         // sends across
         await eRC721_chainB
@@ -261,10 +263,10 @@ describe('sendFrom()', async () => {
         );
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
         // approve the contract to swap your token
-        await eRC721_chainB.approve(eRC721_chainB.address, tokenId);
+        await eRC721Metadata_chainB.approve(eRC721_chainB.address, tokenId);
 
         // reverts because contract is approved, not the user
         await expect(
@@ -308,7 +310,7 @@ describe('sendFrom()', async () => {
         );
 
         // token received on the dst chain
-        expect(await eRC721_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
+        expect(await eRC721Metadata_chainB.ownerOf(tokenId)).to.be.equal(ownerAddress.address);
 
         // reverts because user is not approved
         await expect(
