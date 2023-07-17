@@ -17,18 +17,18 @@ import {ERC721Internal} from './ERC721Internal.sol';
 contract ERC721 is ERC721Internal {
     using ExcessivelySafeCall for address;
 
-    function name() public view virtual returns (string memory) {
+    function name() public view returns (string memory) {
         return _name();
     }
 
-    function symbol() public view virtual returns (string memory) {
+    function symbol() public view returns (string memory) {
         return _symbol();
     }
 
     /**
      * @dev See {IERC721-balanceOf}.
      */
-    function balanceOf(address owner) public view virtual returns (uint256) {
+    function balanceOf(address owner) public view returns (uint256) {
         require(owner != address(0), 'ERC721: address zero is not a valid owner');
         return _balanceOf(owner);
     }
@@ -36,7 +36,7 @@ contract ERC721 is ERC721Internal {
     /**
      * @dev See {IERC721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view virtual returns (address) {
+    function ownerOf(uint256 tokenId) public view returns (address) {
         address owner = _ownerOf(tokenId);
         require(owner != address(0), 'ERC721: invalid token ID');
         return owner;
@@ -52,7 +52,7 @@ contract ERC721 is ERC721Internal {
     /**
      * @dev See {IERC721-approve}.
      */
-    function approve(address to, uint256 tokenId) public virtual {
+    function approve(address to, uint256 tokenId) public {
         address owner = _ownerOf(tokenId);
         require(to != owner, 'ERC721: approval to current owner');
 
@@ -67,21 +67,21 @@ contract ERC721 is ERC721Internal {
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(uint256 tokenId) public view virtual returns (address) {
+    function getApproved(uint256 tokenId) public view returns (address) {
         return _getApproved(tokenId);
     }
 
     /**
      * @dev See {IERC721-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual {
+    function setApprovalForAll(address operator, bool approved) public {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+    function isApprovedForAll(address owner, address operator) public view returns (bool) {
         return _isApprovedForAll(owner, operator);
     }
 }
