@@ -10,7 +10,7 @@ https://github.com/mudgen/diamond-3-hardhat
 
 # This project was originally cloned from a Diamond-3-Hardhat Implementation
 
-## Blow is the Readme that shipped with Diamond-3-Hardhat. I will update soon
+## Blow is the Readme that shipped with Diamond-3-Hardhat. I will update in the future
 
 This is an implementation for [EIP-2535 Diamond Standard](https://github.com/ethereum/EIPs/issues/2535). To learn about other implementations go here: https://github.com/mudgen/diamond
 
@@ -20,7 +20,7 @@ The standard loupe functions have been gas-optimized in this implementation and 
 
 ## Installation
 
-1. Clone this repo:
+<!-- 1. Clone this repo:
 
 ```console
 git clone git@github.com:mudgen/diamond-3-hardhat.git
@@ -31,7 +31,7 @@ git clone git@github.com:mudgen/diamond-3-hardhat.git
 ```console
 cd diamond-3-hardhat
 npm install
-```
+``` -->
 
 ## Deployment
 
@@ -127,12 +127,12 @@ If you need help or would like to discuss diamonds then send me a message [on tw
 
 ## Author
 
-This example implementation was written by Nick Mudge.
+This example implementation was written by beachcrypto.eth with starting from a diamond template from Nick Mudge.
 
 Contact:
 
-- https://twitter.com/mudgen
-- nick@perfectabstractions.com
+- https://twitter.com/beachcrypto_eth
+- beachcrypto1@gmail.com
 
 ## License
 
