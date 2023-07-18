@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * */
+
 library ERC721Storage {
     struct Layout {
         // Token name
@@ -17,7 +25,7 @@ library ERC721Storage {
         mapping(address => mapping(address => bool)) _operatorApprovals;
     }
 
-    bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.contracts.storage.ERC721Storage');
+    bytes32 internal constant STORAGE_SLOT = keccak256('omnichainDiamond.contracts.storage.ERC721Storage');
 
     function layout() internal pure returns (Layout storage l) {
         bytes32 slot = STORAGE_SLOT;

@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
  *
  * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
  *
- *  */
+ * */
 
 import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';

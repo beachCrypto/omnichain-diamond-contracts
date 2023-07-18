@@ -1,8 +1,15 @@
 // SPDX-License-Identifier: MIT
-// ERC721A Contracts v4.2.3
-// Creator: Chiru Labs
-
 pragma solidity ^0.8.4;
+
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * ERC721A Contracts adapted from ERC721A-Upgradeable Contracts v4.2.3 by Chiru Labs
+ *
+ * */
 
 import {ERC721AStorage} from './ERC721AStorage.sol';
 import {IERC721AUpgradeable} from './IERC721AUpgradeable.sol';

@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: MIT
-// Chiru Labs ERC721A Contracts v4.2.3 merged with LayerZero ONFT721A
-//
-
 pragma solidity ^0.8.4;
 
-import '../libraries/LibDiamond.sol';
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * ERC721A Contracts adapted from ERC721A-Upgradeable Contracts v4.2.3 by Chiru Labs
+ *
+ * */
+
 import {ERC721AUpgradeableInternal, ERC721AStorage} from './ERC721AUpgradeableInternal.sol';
 import {NonblockingLzAppStorage} from '../layerZeroUpgradeable/NonblockingLzAppStorage.sol';
 import {NonblockingLzAppUpgradeable} from '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 import {IONFT721CoreUpgradeable} from '../ONFT-Contracts/IONFT721CoreUpgradeable.sol';
 import {LibDiamond} from '../libraries/LibDiamond.sol';
 import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
-
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
-
-// import {LayerZeroEndpointStorage} from '../layerZeroLibraries/LayerZeroEndpointStorage.sol';
 import {ONFTStorage} from '../ONFT-Contracts/ONFTStorage.sol';
-
-import '../utils/ExcessivelySafeCall.sol';
-import '../utils/BytesLib.sol';
 
 /**
  * @dev Interface of ERC721 token receiver.
@@ -308,8 +308,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
             uint256 _dirtbikeVINHash = DirtBikesStorage.dirtBikeslayout().dirtBikeVIN[_tokenIds[i]];
             dirtBikeVINS[i] = _dirtbikeVINHash;
         }
-        // From ERC721 contract
-        // bytes memory payload = abi.encode(_toAddress, _tokenIds, _randomHash(s));
+
         bytes memory payload = abi.encode(_toAddress, _tokenIds, dirtBikeVINS);
         return
             LayerZeroEndpointStorage.layerZeroEndpointSlot().lzEndpoint.estimateFees(
@@ -504,23 +503,12 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         uint64 /*_nonce*/,
         bytes memory _payload
     ) internal virtual {
-        // From ERC721 contract
-        // (bytes memory toAddressBytes, uint tokenId, uint _randomHash) = abi.decode(_payload, (bytes, uint, uint));
-
         (bytes memory toAddressBytes, uint[] memory tokenIds) = abi.decode(_payload, (bytes, uint[]));
 
         address toAddress;
         assembly {
             toAddress := mload(add(toAddressBytes, 20))
         }
-
-        // From ERC721 contract
-        // uint256 randomHash = DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId];
-
-        // if (randomHash == 0) {
-        //     // Store psuedo-randomHash as DirtBike VIN
-        //     DirtBikesStorage.dirtBikeslayout().tokenToHash[tokenId] = _randomHash;
-        // }
 
         uint nextIndex = _creditTill(_srcChainId, toAddress, 0, tokenIds);
 
@@ -563,7 +551,7 @@ contract ERC721AUpgradeable is ERC721AUpgradeableInternal, NonblockingLzAppUpgra
         safeTransferFrom(address(this), _toAddress, _tokenId);
     }
 
-    function onERC721Received(address, address, uint, bytes memory) public returns (bytes4) {
+    function onERC721Received(address, address, uint, bytes memory) public pure returns (bytes4) {
         return ERC721A__IERC721ReceiverUpgradeable.onERC721Received.selector;
     }
 

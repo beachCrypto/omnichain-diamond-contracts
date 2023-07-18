@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721A using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * */
+
 import '@openzeppelin/contracts/utils/Base64.sol';
 import '../utils/Strings.sol';
 
 import {DirtBikesStorage} from '../libraries/LibDirtBikesStorage.sol';
-// import {ERC721Internal} from '../ERC721-Contracts/ERC721Internal.sol';
 import {ERC721AUpgradeableInternal} from '../ERC721A-Contracts/ERC721AUpgradeableInternal.sol';
 
 contract RenderFacet is ERC721AUpgradeableInternal {
@@ -71,7 +78,6 @@ contract RenderFacet is ERC721AUpgradeableInternal {
      function generateMetadata(DirtBike memory dirtbike)public pure returns (string memory) {
       return
         (string(abi.encodePacked(
-
           '"attributes": [',
                             '{"trait_type": "Background", "value": "',dirtbike.background,'"},',
                             '{"trait_type": "Engine", "value": "',dirtbike.engine,'"},',
@@ -91,7 +97,6 @@ contract RenderFacet is ERC721AUpgradeableInternal {
         return
             (string(
                 abi.encodePacked(
-                    // <!-- background -->
                     '<rect width="1600" height="1600" fill="',
                     dirtbike.background,
                     '" />'
@@ -103,7 +108,6 @@ contract RenderFacet is ERC721AUpgradeableInternal {
         return
             string(
                 abi.encodePacked(
-                    // <!-- rear wheel -->
                     '<rect x="100" y="1000" width="100" height="200" fill="',
                     dirtbike.rearWheel,
                     '" />',
@@ -124,7 +128,6 @@ contract RenderFacet is ERC721AUpgradeableInternal {
         return
             string(
                 abi.encodePacked(
-                    // <!-- front wheel -->
                     '<rect x="1000" y="1000" width="100" height="200" fill="',
                     dirtbike.frontWheel,
                     '" />',

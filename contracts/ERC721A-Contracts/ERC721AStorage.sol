@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
 
-pragma solidity ^0.8.0;
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * ERC721A Contracts adapted from ERC721A-Upgradeable Contracts v4.2.3 by Chiru Labs
+ *
+ * */
 
 library ERC721AStorage {
     // Bypass for a `--via-ir` bug (https://github.com/chiru-labs/ERC721A/pull/364).
@@ -46,7 +55,7 @@ library ERC721AStorage {
         mapping(address => mapping(address => bool)) _operatorApprovals;
     }
 
-    bytes32 internal constant STORAGE_SLOT = keccak256('ERC721A.contracts.storage.ERC721A');
+    bytes32 internal constant STORAGE_SLOT = keccak256('omnichainDiamond.contracts.storage.ERC721A');
 
     function layout() internal pure returns (Layout storage l) {
         bytes32 slot = STORAGE_SLOT;

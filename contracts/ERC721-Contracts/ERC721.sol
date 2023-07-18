@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
  *
  * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
  *
- *  */
+ * */
 
 import '../layerZeroUpgradeable/NonblockingLzAppUpgradeable.sol';
 import '../libraries/LibDiamond.sol';

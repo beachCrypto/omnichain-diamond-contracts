@@ -11,7 +11,7 @@ library NonblockingLzAppStorage {
         address precrime;
     }
 
-    bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.omnichainDiamonds.storage.NonblockingLzApp');
+    bytes32 internal constant STORAGE_SLOT = keccak256('omnichainDiamond.contracts.storage.NonblockingLzApp');
 
     function nonblockingLzAppSlot() internal pure returns (NonblockingLzAppSlot storage nblks) {
         bytes32 slot = STORAGE_SLOT;

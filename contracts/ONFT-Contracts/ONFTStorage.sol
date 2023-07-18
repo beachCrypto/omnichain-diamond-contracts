@@ -18,7 +18,7 @@ library ONFTStorage {
         mapping(bytes32 => ONFTStorage.StoredCredit) storedCredits;
     }
 
-    bytes32 internal constant STORAGE_SLOT = keccak256('beachCrypto.contracts.storage.ONFTStorageStorage');
+    bytes32 internal constant STORAGE_SLOT = keccak256('omnichainDiamond.contracts.storage.ONFTStorageStorage');
 
     function oNFTStorageLayout() internal pure returns (ONFTStorageLayout storage onfts) {
         bytes32 slot = STORAGE_SLOT;

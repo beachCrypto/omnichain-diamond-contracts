@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+/**
+ * @author beachcrypto.eth
+ * @title Dirt Bikes Omnichain Diamond NFTs
+ *
+ * ONFT721 using EIP 2535: Diamonds, Multi-Facet Proxy
+ *
+ * */
+
 import '../ERC721-Contracts/IERC721Receiver.sol';
 import '../utils/Context.sol';
 import '../utils/Address.sol';
